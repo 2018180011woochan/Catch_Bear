@@ -168,6 +168,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ExportFbxToTextFile.cpp" />
+    <ClCompile Include="SdkManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SdkManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
