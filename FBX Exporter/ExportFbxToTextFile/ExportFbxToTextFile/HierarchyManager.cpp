@@ -6,6 +6,7 @@ CHierarchyManager* CHierarchyManager::m_pInstance = nullptr;
 
 FbxAMatrix CHierarchyManager::GetGeometricOffsetTransform(FbxNode* pfbxNode)
 {
+	// 기하학적 변환: 노드의 지역변환이 계산된 후 노드의 속성에 적용됨
 	const FbxVector4 T = pfbxNode->GetGeometricTranslation(FbxNode::eSourcePivot);
 	const FbxVector4 R = pfbxNode->GetGeometricRotation(FbxNode::eSourcePivot);
 	const FbxVector4 S = pfbxNode->GetGeometricScaling(FbxNode::eSourcePivot);
@@ -62,8 +63,34 @@ void CHierarchyManager::Display_ChildHierarchy(int* pnFrame, FbxNode* pfbxNode, 
 				Display_SkinDeformations(pfbxMesh, nTabIndents + 2);
 				m_Display.DisplayString("</SkinDeformations>", "", "\n", nTabIndents + 1);
 			}
+
+			// 3. 메쉬 출력
+			m_Display.DisplayString("<Mesh>: ", m_Display.ReplaceBlank(pfbxMesh->GetName(), '_'), "\n", nTabIndents + 1);
+			DisplayMesh(pfbxMesh, nTabIndents + 2);
+			// 4. 재질 출력
+			//DisplayString("</Mesh>", "", "\n", nTabIndents + 1);
+
+			//DisplayMaterials(pfbxMesh, nTabIndents + 1); //DisplayTexture(pfbxMesh, nTabIndents + 1);
 		}
 	}
+
+	////////////////////////////////////////////////////
+	// 자식노드 출력
+	////////////////////////////////////////////////////
+
+	// 현재 노드가 갖고 있는 child 개수
+	int nChilds = pfbxNode->GetChildCount();
+	m_Display.DisplayInt("<Children>: ", nChilds, "\n", nTabIndents + 1);
+
+	for (int i = 0; i < nChilds; i++)
+	{
+		// 모든 프레임에 대한 정보 출력할 때 프레임의 번호를 쓴다(몇 번째 프레임인지 알 수 있도록)
+		(*pnFrame)++;
+		// 각각의 child 정보 출력
+		Display_ChildHierarchy(pnFrame, pfbxNode->GetChild(i), nTabIndents + 1);
+	}
+
+	m_Display.DisplayString("</Frame>", "", "\n", nTabIndents);
 }
 
 void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabIndents)
@@ -109,7 +136,7 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	}
 	WriteStringToFile("\n");
 
-	// 제어점의 개수
+	// 제어점(정점)의 개수
 	int nControlPoints = pfbxMesh->GetControlPointsCount();
 
 	// pnBonesPerVertex: 정점마다 영향을 주는 뼈들의 배열
@@ -120,7 +147,9 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	{
 		FbxCluster* pfbxCluster = pfbxSkinDeformer->GetCluster(j);
 
+		// GetControlPointIndicesCount(): 제어점 인덱스 및 가중치 배열의 길이 반환
 		int nControlPointIndices = pfbxCluster->GetControlPointIndicesCount();
+		// GetControlPointIndices(): 제어점 인덱스의 배열 반환
 		int* pnControlPointIndices = pfbxCluster->GetControlPointIndices();
 		// 정점에 영향을 주는 뼈들의 개수를 배열에 채워 넣는다
 		// -> 하나의 정점에 대해 영향을 주는 뼈가 몇 개가 있는지 알 수 있다
@@ -150,8 +179,8 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	int* pnBones = new int[nControlPoints];
 	::memset(pnBones, 0, nControlPoints * sizeof(int));
 
-	// 클러스터에 있는 모든 제어점들에 대해 영향을 주는 뼈들의 정보/가중치를 정점마다 쓴다
-	for (int j = 0; j < nClusters; j++)
+	// 클러스터에 있는 
+	for (int j = 0; j < nClusters; j++)	// BoneID
 	{
 		FbxCluster* pfbxCluster = pfbxSkinDeformer->GetCluster(j);
 
@@ -159,6 +188,7 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 		double* pfControlPointWeights = pfbxCluster->GetControlPointWeights();
 		int nControlPointIndices = pfbxCluster->GetControlPointIndicesCount();
 
+		// 모든 제어점들에 대해 영향을 주는 뼈들의 정보/가중치를 정점마다 쓴다
 		for (int k = 0; k < nControlPointIndices; k++)
 		{
 			int nVertex = pnControlPointIndices[k];
@@ -233,6 +263,7 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 
 	// 뼈들의 인덱스&가중치를 정점 버퍼로 만들어서 쉐이더로 넘기면 된다!!
 
+	// 메모리 해제
 	for (int i = 0; i < nControlPoints; i++)
 	{
 		if (ppnBoneIDs[i]) delete[] ppnBoneIDs[i];
@@ -245,6 +276,371 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	if (pnBonesPerVertex) delete[] pnBonesPerVertex;
 	if (pnSkinningIndices) delete[] pnSkinningIndices;
 	if (pfSkinningWeights) delete[] pfSkinningWeights;
+}
+
+void CHierarchyManager::DisplayMesh(FbxMesh* pfbxMesh, int nTabIndents)
+{
+	int nControlPoints = pfbxMesh->GetControlPointsCount();
+	if (nControlPoints > 0)
+	{
+		DisplayControlPoints(pfbxMesh, nControlPoints, nTabIndents);
+
+		DisplayControlPointUVs(pfbxMesh, nControlPoints, nTabIndents); //UVs Per Vertex
+
+		DisplayControlPointNormals(pfbxMesh, nControlPoints, nTabIndents);
+		DisplayControlPointTangents(pfbxMesh, nControlPoints, nTabIndents);
+		DisplayControlPointBiTangents(pfbxMesh, nControlPoints, nTabIndents);
+	}
+
+	int nPolygons = pfbxMesh->GetPolygonCount();
+	if (nPolygons > 0) DisplayPolygons(pfbxMesh, nPolygons, nTabIndents);
+}
+
+void CHierarchyManager::DisplayControlPoints(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents)
+{
+	m_Display.DisplayInt("<ControlPoints>: ", nControlPoints, " ", nTabIndents);
+
+	// GetControlPoints(): 제어점(정점) 배열 포인터 반환
+	FbxVector4* pfbxvControlPoints = pfbxMesh->GetControlPoints();
+	for (int i = 0; i < nControlPoints; i++) m_Display.Display3DVector(pfbxvControlPoints[i]);
+	WriteStringToFile("\n");
+}
+
+void CHierarchyManager::DisplayControlPointUVs(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents)
+{
+	FbxVector2* pControlPointUVs = new FbxVector2[nControlPoints];
+
+	// GetElementUVCount(): 메쉬가 갖고있는 uv 총 개수
+	int nUVsPerVertex = pfbxMesh->GetElementUVCount(); //UVs Per Polygon's Vertex
+	m_Display.DisplayInt("<UVs>: ", nControlPoints, nUVsPerVertex, "\n", nTabIndents);
+
+	if (nUVsPerVertex > 0)
+	{
+		// GetPolygonCount(): 메쉬의 폴리곤(삼각형) 개수 반환
+		int nPolygons = pfbxMesh->GetPolygonCount();
+
+		for (int k = 0; k < nUVsPerVertex; k++)
+		{
+			m_Display.DisplayInt("<UV>: ", k, " ", nTabIndents + 1);
+			FbxGeometryElementUV* pfbxElementUV = pfbxMesh->GetElementUV(k);
+
+			for (int i = 0; i < nPolygons; i++)	// 삼각형의 개수
+			{
+				// 인덱싱된 폴리곤의 정점 수
+				int nPolygonSize = pfbxMesh->GetPolygonSize(i); //Triangle: 3, Triangulate()
+				for (int j = 0; j < nPolygonSize; j++)	// 삼각형을 이루고 있는 정점
+				{
+					int nControlPointIndex = pfbxMesh->GetPolygonVertex(i, j);
+
+					// 매핑되는 방법에 따라 저장하는 방법도 다르다!!!
+					switch (pfbxElementUV->GetMappingMode())	// 레이어 원소가 메쉬의 표면에 매핑되는 방법
+					{
+					case FbxGeometryElement::eByControlPoint:
+					{
+						switch (pfbxElementUV->GetReferenceMode())	// 매핑 정보가 저장된 위치(좌표들의 배열)에 대한 참조 모드
+						{
+						case FbxGeometryElement::eDirect:
+							pControlPointUVs[nControlPointIndex] = pfbxElementUV->GetDirectArray().GetAt(nControlPointIndex);
+							break;
+						case FbxGeometryElement::eIndexToDirect:
+							pControlPointUVs[nControlPointIndex] = pfbxElementUV->GetDirectArray().GetAt(pfbxElementUV->GetIndexArray().GetAt(nControlPointIndex));
+							break;
+						default:
+							break;
+						}
+						break;
+					}
+					case FbxGeometryElement::eByPolygonVertex:
+					{
+						int nTextureUVIndex = pfbxMesh->GetTextureUVIndex(i, j);
+						switch (pfbxElementUV->GetReferenceMode())
+						{
+						case FbxGeometryElement::eDirect:
+						case FbxGeometryElement::eIndexToDirect:
+							pControlPointUVs[nControlPointIndex] = pfbxElementUV->GetDirectArray().GetAt(nTextureUVIndex);
+							break;
+						default:
+							break;
+						}
+						break;
+					}
+					case FbxGeometryElement::eByPolygon:
+					case FbxGeometryElement::eAllSame:
+					case FbxGeometryElement::eNone:
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			for (int i = 0; i < nControlPoints; i++) m_Display.DisplayUV2DVector(pControlPointUVs[i]);
+			WriteStringToFile("\n");
+		}
+	}
+}
+
+void CHierarchyManager::DisplayControlPointNormals(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents)
+{
+	FbxVector4* pControlPointNormals = new FbxVector4[nControlPoints];
+
+	// 노말 개수
+	int nNormalsPerVertex = pfbxMesh->GetElementNormalCount();
+	m_Display.DisplayInt("<Normals>: ", nControlPoints, nNormalsPerVertex, "\n", nTabIndents);
+
+	if (nNormalsPerVertex > 0)
+	{
+		// 메쉬의 삼각형 개수
+		int nPolygons = pfbxMesh->GetPolygonCount();
+
+		for (int k = 0; k < nNormalsPerVertex; k++)
+		{
+			m_Display.DisplayInt("<Normal>: ", k, " ", nTabIndents + 1);
+
+			// 정점의 노말
+			FbxGeometryElementNormal* pfbxElementNormal = pfbxMesh->GetElementNormal(k);
+			if (pfbxElementNormal->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+			{
+				if (pfbxElementNormal->GetReferenceMode() == FbxGeometryElement::eDirect)
+				{
+					for (int i = 0; i < nControlPoints; i++) pControlPointNormals[i] = pfbxElementNormal->GetDirectArray().GetAt(i);
+				}
+			}
+			else if (pfbxElementNormal->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+			{
+				for (int i = 0, nVertexID = 0; i < nPolygons; i++)
+				{
+					int nPolygonSize = pfbxMesh->GetPolygonSize(i);
+					for (int j = 0; j < nPolygonSize; j++, nVertexID++)
+					{
+						int nControlPointIndex = pfbxMesh->GetPolygonVertex(i, j);
+						switch (pfbxElementNormal->GetReferenceMode())
+						{
+						case FbxGeometryElement::eDirect:
+							pControlPointNormals[nControlPointIndex] = pfbxElementNormal->GetDirectArray().GetAt(nVertexID);
+							break;
+						case FbxGeometryElement::eIndexToDirect:
+							pControlPointNormals[nControlPointIndex] = pfbxElementNormal->GetDirectArray().GetAt(pfbxElementNormal->GetIndexArray().GetAt(nVertexID));
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < nControlPoints; i++) m_Display.Display3DVector(pControlPointNormals[i]);
+			WriteStringToFile("\n");
+		}
+	}
+}
+
+void CHierarchyManager::DisplayControlPointTangents(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents)
+{
+	FbxVector4* pControlPointTangents = new FbxVector4[nControlPoints];
+
+	// 탄젠트 벡터 개수
+	int nTangentsPerVertex = pfbxMesh->GetElementTangentCount();
+	m_Display.DisplayInt("<Tangents>: ", nControlPoints, nTangentsPerVertex, "\n", nTabIndents);
+
+	if (nTangentsPerVertex > 0)
+	{
+		// 메쉬의 삼각형 개수
+		int nPolygons = pfbxMesh->GetPolygonCount();
+
+		for (int k = 0; k < nTangentsPerVertex; k++)
+		{
+			m_Display.DisplayInt("<Tangent>: ", k, " ", nTabIndents + 1);
+
+			// 정점의 탄젠트 벡터
+			FbxGeometryElementTangent* pfbxElementTangent = pfbxMesh->GetElementTangent(k);
+			if (pfbxElementTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+			{
+				if (pfbxElementTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				{
+					for (int i = 0; i < nControlPoints; i++) pControlPointTangents[i] = pfbxElementTangent->GetDirectArray().GetAt(i);
+				}
+			}
+			else if (pfbxElementTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+			{
+				for (int i = 0, nVertexID = 0; i < nPolygons; i++)
+				{
+					int nPolygonSize = pfbxMesh->GetPolygonSize(i);
+					for (int j = 0; j < nPolygonSize; j++, nVertexID++)
+					{
+						int nControlPointIndex = pfbxMesh->GetPolygonVertex(i, j);
+						switch (pfbxElementTangent->GetReferenceMode())
+						{
+						case FbxGeometryElement::eDirect:
+							pControlPointTangents[nControlPointIndex] = pfbxElementTangent->GetDirectArray().GetAt(nVertexID);
+							break;
+						case FbxGeometryElement::eIndexToDirect:
+							pControlPointTangents[nControlPointIndex] = pfbxElementTangent->GetDirectArray().GetAt(pfbxElementTangent->GetIndexArray().GetAt(nVertexID));
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < nControlPoints; i++) m_Display.Display3DVector(pControlPointTangents[i]);
+			WriteStringToFile("\n");
+		}
+	}
+}
+
+void CHierarchyManager::DisplayControlPointBiTangents(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents)
+{
+	FbxVector4* pControlPointBiTangents = new FbxVector4[nControlPoints];
+
+	// BiNormal 개수
+	int nBiTangentsPerVertex = pfbxMesh->GetElementBinormalCount();
+	m_Display.DisplayInt("<BiTangents>: ", nControlPoints, nBiTangentsPerVertex, "\n", nTabIndents);
+
+	if (nBiTangentsPerVertex > 0)
+	{
+		// 메쉬의 삼각형 개수
+		int nPolygons = pfbxMesh->GetPolygonCount();
+
+		for (int k = 0; k < nBiTangentsPerVertex; k++)
+		{
+			m_Display.DisplayInt("<BiTangent>: ", k, " ", nTabIndents + 1);
+
+			// BiNormal 
+			FbxGeometryElementBinormal* pfbxElementBiTangent = pfbxMesh->GetElementBinormal(k);
+			if (pfbxElementBiTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+			{
+				if (pfbxElementBiTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				{
+					for (int i = 0; i < nControlPoints; i++) pControlPointBiTangents[i] = pfbxElementBiTangent->GetDirectArray().GetAt(i);
+				}
+			}
+			else if (pfbxElementBiTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+			{
+				for (int i = 0, nVertexID = 0; i < nPolygons; i++)
+				{
+					int nPolygonSize = pfbxMesh->GetPolygonSize(i);
+					for (int j = 0; j < nPolygonSize; j++, nVertexID++)
+					{
+						int nControlPointIndex = pfbxMesh->GetPolygonVertex(i, j);
+						switch (pfbxElementBiTangent->GetReferenceMode())
+						{
+						case FbxGeometryElement::eDirect:
+							pControlPointBiTangents[nControlPointIndex] = pfbxElementBiTangent->GetDirectArray().GetAt(nVertexID);
+							break;
+						case FbxGeometryElement::eIndexToDirect:
+							pControlPointBiTangents[nControlPointIndex] = pfbxElementBiTangent->GetDirectArray().GetAt(pfbxElementBiTangent->GetIndexArray().GetAt(nVertexID));
+							break;
+						default:
+							break;
+						}
+					}
+				}
+			}
+
+			for (int i = 0; i < nControlPoints; i++) m_Display.Display3DVector(pControlPointBiTangents[i]);
+			WriteStringToFile("\n");
+		}
+	}
+}
+
+void CHierarchyManager::DisplayPolygons(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents)
+{
+	m_Display.DisplayInt("<Polygons>: ", nPolygons, "\n", nTabIndents);
+
+	DisplayPolygonVertexIndices(pfbxMesh, nPolygons, nTabIndents + 1);
+
+	//DisplayPolygonVertexColors(pfbxMesh, nPolygons, nTabIndents + 1);
+	//DisplayPolygonVertexUVs(pfbxMesh, nPolygons, nTabIndents + 1); //UVs Per Polygon
+	//DisplayPolygonVertexNormals(pfbxMesh, nPolygons, nTabIndents + 1);
+	//DisplayPolygonVertexTangents(pfbxMesh, nPolygons, nTabIndents + 1);
+	//DisplayPolygonVertexBinormals(pfbxMesh, nPolygons, nTabIndents + 1);
+
+	m_Display.DisplayString("</Polygons>", "", "\n", nTabIndents);
+}
+
+void CHierarchyManager::DisplayPolygonVertexIndices(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents)
+{
+	// 1. 정점
+	int nPolygonIndices = nPolygons * 3; //Triangle: 3, Triangulate(), nIndices = nPolygons * 3
+
+	int* pnPolygonIndices = new int[nPolygonIndices];
+	for (int i = 0, k = 0; i < nPolygons; i++)
+	{
+		for (int j = 0; j < 3; j++) pnPolygonIndices[k++] = pfbxMesh->GetPolygonVertex(i, j);
+	}
+
+	FbxNode* pfbxNode = pfbxMesh->GetNode();
+	int nMaterials = pfbxNode->GetMaterialCount();
+	m_Display.DisplayInt("<SubIndices>: ", nPolygonIndices, nMaterials, "\n", nTabIndents);
+
+	if (nMaterials > 1)
+	{
+		// 메쉬의 재질 요소 개수
+		int nElementMaterials = pfbxMesh->GetElementMaterialCount();
+		for (int i = 0; i < nElementMaterials; i++)
+		{
+			// 정점, 재질 저장
+			FbxGeometryElementMaterial* pfbxElementMaterial = pfbxMesh->GetElementMaterial(i);
+			FbxGeometryElement::EReferenceMode nReferenceMode = pfbxElementMaterial->GetReferenceMode();
+			switch (nReferenceMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				m_Display.DisplayInt("<SubIndex>: ", 0, nPolygonIndices, "", nTabIndents + 1);
+				for (int i = 0; i < nPolygonIndices; i++) m_Display.DisplayInt(pnPolygonIndices[i]);
+				WriteStringToFile("\n");
+				break;
+			}
+			case FbxGeometryElement::eIndex:
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int* pnSubIndices = new int[nMaterials];
+				memset(pnSubIndices, 0, sizeof(int) * nMaterials);
+
+				int nSubIndices = pfbxElementMaterial->GetIndexArray().GetCount();
+				for (int j = 0; j < nSubIndices; j++) pnSubIndices[pfbxElementMaterial->GetIndexArray().GetAt(j)]++;
+
+				int** ppnSubIndices = new int* [nMaterials];
+				for (int k = 0; k < nMaterials; k++)
+				{
+					pnSubIndices[k] *= 3;
+					ppnSubIndices[k] = new int[pnSubIndices[k]];
+				}
+
+				int* pnToAppends = new int[nMaterials];
+				memset(pnToAppends, 0, sizeof(int) * nMaterials);
+				for (int j = 0, k = 0; j < nSubIndices; j++)
+				{
+					int nMaterial = pfbxElementMaterial->GetIndexArray().GetAt(j);
+					for (int i = 0; i < 3; i++) ppnSubIndices[nMaterial][pnToAppends[nMaterial]++] = pnPolygonIndices[k++];
+				}
+
+				for (int k = 0; k < nMaterials; k++)
+				{
+					m_Display.DisplayInt("<SubIndex>: ", k, pnSubIndices[k], "", nTabIndents + 1);
+					for (int j = 0; j < pnSubIndices[k]; j++) m_Display.DisplayInt(ppnSubIndices[k][j]);
+					WriteStringToFile("\n");
+				}
+
+				if (pnSubIndices) delete[] pnSubIndices;
+				for (int k = 0; k < nMaterials; k++) if (ppnSubIndices[k]) delete[] ppnSubIndices[k];
+				if (ppnSubIndices) delete[] ppnSubIndices;
+				if (pnToAppends) delete[] pnToAppends;
+
+				break;
+			}
+			}
+		}
+	}
+	else
+	{
+		m_Display.DisplayInt("<SubIndex>: ", 0, nPolygonIndices, "", nTabIndents + 1);
+		for (int i = 0; i < nPolygonIndices; i++) m_Display.DisplayInt(pnPolygonIndices[i]);
+		WriteStringToFile("\n");
+	}
+
+	if (pnPolygonIndices) delete[] pnPolygonIndices;
 }
 
 

@@ -17,6 +17,16 @@ public:
 	// 메쉬의 스킨 디포메이션 출력
 	void Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabIndents);
 
+	// 메쉬 정보: 정점, uv, normal, tangent, binormal, indics
+	void DisplayMesh(FbxMesh* pfbxMesh, int nTabIndents);
+	void DisplayControlPoints(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents);
+	void DisplayControlPointUVs(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents);
+	void DisplayControlPointNormals(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents);
+	void DisplayControlPointTangents(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents);
+	void DisplayControlPointBiTangents(FbxMesh* pfbxMesh, int nControlPoints, int nTabIndents);
+	void DisplayPolygons(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents);
+	void DisplayPolygonVertexIndices(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents);
+
 public:
 	FbxAMatrix GetGeometricOffsetTransform(FbxNode* pfbxNode);
 

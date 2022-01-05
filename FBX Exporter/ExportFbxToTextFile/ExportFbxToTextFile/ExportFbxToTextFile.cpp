@@ -27,6 +27,7 @@ int main(int argc, char** argv)
 	bool bResult = CSdkManager::Get_Instance()->LoadScene(pfbxSdkManager, pfbxModelScene, pfbxstrModelFilePath.Buffer());
 
 	// FbxGeometryConverter: GeometryNode 속성( FbxMesh, FbxNurbs 및 FbxPatch ) 변환하는 기능 제공 
+	// 씬 내에서 삼각형화 할 수 있는 모든 노드를 삼각형화 시킨다.
 	FbxGeometryConverter fbxGeomConverter(pfbxSdkManager);
 	fbxGeomConverter.Triangulate(pfbxModelScene, true);
 
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
 #ifdef _WITH_SEPARATED_ANIMATIONS
 	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
 #else
-	DisplayAnimation(pfbxModelScene);
+	//DisplayAnimation(pfbxModelScene);
 #endif
 	WriteStringToFile("</Animation>\n");
 
