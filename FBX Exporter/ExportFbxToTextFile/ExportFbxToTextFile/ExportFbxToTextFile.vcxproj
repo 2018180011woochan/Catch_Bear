@@ -167,10 +167,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Display.cpp" />
     <ClCompile Include="ExportFbxToTextFile.cpp" />
+    <ClCompile Include="HierarchyManager.cpp" />
     <ClCompile Include="SdkManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Display.h" />
+    <ClInclude Include="HierarchyManager.h" />
     <ClInclude Include="SdkManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

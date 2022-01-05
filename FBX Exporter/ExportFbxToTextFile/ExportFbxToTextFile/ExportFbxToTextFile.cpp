@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "SdkManager.h"
+#include "HierarchyManager.h"
 
 FILE* pFile = NULL;
 char pszBuffer[256];
@@ -24,6 +25,34 @@ int main(int argc, char** argv)
 	// FBX Scene 생성&로드
 	FbxScene* pfbxModelScene = FbxScene::Create(pfbxSdkManager, pfbxstrModelFilePath.Buffer());
 	bool bResult = CSdkManager::Get_Instance()->LoadScene(pfbxSdkManager, pfbxModelScene, pfbxstrModelFilePath.Buffer());
+
+	// FbxGeometryConverter: GeometryNode 속성( FbxMesh, FbxNurbs 및 FbxPatch ) 변환하는 기능 제공 
+	FbxGeometryConverter fbxGeomConverter(pfbxSdkManager);
+	fbxGeomConverter.Triangulate(pfbxModelScene, true);
+
+	// FbxSystemUnit: 특정 장면 내에서 사용되는 측정 단위를 설명
+	FbxSystemUnit fbxSceneSystemUnit = pfbxModelScene->GetGlobalSettings().GetSystemUnit();
+	if (fbxSceneSystemUnit.GetScaleFactor() != 1.0) FbxSystemUnit::cm.ConvertScene(pfbxModelScene);
+
+	// 파일 입출력
+	::fopen_s(&pFile, pszWriteFileName, "wt");
+
+	// 2. 출력할 파일에 필요한 정보를 쓴다
+	WriteStringToFile("<Hierarchy>\n");
+	CHierarchyManager::Get_Instance()->Display_AllHierarchy(pfbxModelScene);
+	WriteStringToFile("</Hierarchy>\n");
+
+	WriteStringToFile("<Animation>\n");
+#ifdef _WITH_SEPARATED_ANIMATIONS
+	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
+#else
+	DisplayAnimation(pfbxModelScene);
+#endif
+	WriteStringToFile("</Animation>\n");
+
+	::fclose(pFile);
+
+	CSdkManager::Get_Instance()->DestroySdkObjects(pfbxSdkManager, bResult);
 
 	return(0);
 }
