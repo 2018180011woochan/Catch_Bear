@@ -1,6 +1,5 @@
 #include <fbxsdk.h>
 #include "HierarchyManager.h"
-#include "Display.h"
 
 CHierarchyManager* CHierarchyManager::m_pInstance = nullptr;
 
@@ -107,9 +106,11 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	for (int j = 0; j < nClusters; j++)
 	{
 		// 클러스터에 대해 스킨값(스킨 데이터)을 가져옴
+		// 클러스터: 애니메이션이 있는 뼈대중 Skinning데이터에 대한 정보만 존재
 		FbxCluster* pfbxCluster = pfbxSkinDeformer->GetCluster(j);
 
 		// 제어점에 영향을 주는 노드(뼈대)
+		// GetLink(): 클러스터에서 그에 상응하는 Node 반환
 		FbxNode* pfbxClusterLinkNode = pfbxCluster->GetLink();
 		m_Display.DisplayString("", m_Display.ReplaceBlank(pfbxClusterLinkNode->GetName(), '_'), " ");
 	}
@@ -143,11 +144,13 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 	int* pnBonesPerVertex = new int[nControlPoints];
 	::memset(pnBonesPerVertex, 0, nControlPoints * sizeof(int));
 
+	// 하나의 정점에 대해 영향을 주는 뼈가 몇 개가 있는지 구한다
 	for (int j = 0; j < nClusters; j++)
 	{
 		FbxCluster* pfbxCluster = pfbxSkinDeformer->GetCluster(j);
 
 		// GetControlPointIndicesCount(): 제어점 인덱스 및 가중치 배열의 길이 반환
+		// 해당 뼈에 영향을 받는 컨트롤 포인트(제어점)의 인덱스 갯수
 		int nControlPointIndices = pfbxCluster->GetControlPointIndicesCount();
 		// GetControlPointIndices(): 제어점 인덱스의 배열 반환
 		int* pnControlPointIndices = pfbxCluster->GetControlPointIndices();
@@ -155,6 +158,7 @@ void CHierarchyManager::Display_SkinDeformations(FbxMesh* pfbxMesh, int nTabInde
 		// -> 하나의 정점에 대해 영향을 주는 뼈가 몇 개가 있는지 알 수 있다
 		for (int k = 0; k < nControlPointIndices; k++) pnBonesPerVertex[pnControlPointIndices[k]] += 1;
 	}
+
 	//int nMaxBonesPerVertex = 0;
 	//for (int i = 0; i < nControlPoints; i++) if (pnBonesPerVertex[i] > nMaxBonesPerVertex) nMaxBonesPerVertex = pnBonesPerVertex[i];
 

@@ -1,11 +1,12 @@
 #pragma once
 #include "SdkManager.h"
+#include "Display.h"
 #include <fbxsdk.h>
 
 class CHierarchyManager
 {
 public:
-	CHierarchyManager() { }
+	CHierarchyManager() { m_Display = CDisplay(); }
 	~CHierarchyManager() { }
 	
 public:

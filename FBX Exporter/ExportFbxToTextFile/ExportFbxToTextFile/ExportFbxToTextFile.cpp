@@ -18,9 +18,9 @@ int main(int argc, char** argv)
 	CSdkManager::Get_Instance()->InitializeSdkObjects(pfbxSdkManager);
 
 	// 읽어들일 fbx 파일 이름
-	FbxString pfbxstrModelFilePath("EvilbearK.fbx");
+	FbxString pfbxstrModelFilePath("Bush_01.fbx");
 	// 출력할 txt 파일 이름
-	char* pszWriteFileName = "EvilbearK.txt";
+	char* pszWriteFileName = "Bush_01.txt";
 
 	// FBX Scene 생성&로드
 	FbxScene* pfbxModelScene = FbxScene::Create(pfbxSdkManager, pfbxstrModelFilePath.Buffer());
@@ -43,13 +43,13 @@ int main(int argc, char** argv)
 	CHierarchyManager::Get_Instance()->Display_AllHierarchy(pfbxModelScene);
 	WriteStringToFile("</Hierarchy>\n");
 
-	WriteStringToFile("<Animation>\n");
+	//WriteStringToFile("<Animation>\n");
 #ifdef _WITH_SEPARATED_ANIMATIONS
 	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
 #else
 	//DisplayAnimation(pfbxModelScene);
 #endif
-	WriteStringToFile("</Animation>\n");
+	//WriteStringToFile("</Animation>\n");
 
 	::fclose(pFile);
 

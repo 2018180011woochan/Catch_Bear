@@ -21,7 +21,7 @@ void CDisplay::DisplayMetaDataConnections(FbxObject* pfbxObject)
 
 FbxString gfbxString;
 
-char* ReplaceBlank(const char* pstrValue, const char chReplace)
+char* CDisplay::ReplaceBlank(const char* pstrValue, const char chReplace)
 {
 	int nLength = (int)strlen(pstrValue);
 	if (nLength > 0)
