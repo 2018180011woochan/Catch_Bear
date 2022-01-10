@@ -18,9 +18,9 @@ int main(int argc, char** argv)
 	CSdkManager::Get_Instance()->InitializeSdkObjects(pfbxSdkManager);
 
 	// 읽어들일 fbx 파일 이름
-	FbxString pfbxstrModelFilePath("EvilbearK.fbx");
+	FbxString pfbxstrModelFilePath("Bush_01.fbx");
 	// 출력할 txt 파일 이름
-	char* pszWriteFileName = "EvilbearK.txt";
+	char* pszWriteFileName = "Bush_01.bin";
 
 	// FBX Scene 생성&로드
 	FbxScene* pfbxModelScene = FbxScene::Create(pfbxSdkManager, pfbxstrModelFilePath.Buffer());
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	if (fbxSceneSystemUnit.GetScaleFactor() != 1.0) FbxSystemUnit::cm.ConvertScene(pfbxModelScene);
 
 	// 파일 입출력
-	::fopen_s(&pFile, pszWriteFileName, "wt");
+	::fopen_s(&pFile, pszWriteFileName, "wb");
 
 	// 2. 출력할 파일에 필요한 정보를 쓴다
 	WriteStringToFile("<Hierarchy>\n");
