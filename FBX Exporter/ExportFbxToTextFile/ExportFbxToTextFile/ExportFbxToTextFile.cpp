@@ -18,9 +18,9 @@ int main(int argc, char** argv)
 	CSdkManager::Get_Instance()->InitializeSdkObjects(pfbxSdkManager);
 
 	// 읽어들일 fbx 파일 이름
-	FbxString pfbxstrModelFilePath("Bush_01.fbx");
+	FbxString pfbxstrModelFilePath("EvilbearK.fbx");
 	// 출력할 txt 파일 이름
-	char* pszWriteFileName = "Bush_01.txt";
+	char* pszWriteFileName = "EvilbearK.txt";
 
 	// FBX Scene 생성&로드
 	FbxScene* pfbxModelScene = FbxScene::Create(pfbxSdkManager, pfbxstrModelFilePath.Buffer());
