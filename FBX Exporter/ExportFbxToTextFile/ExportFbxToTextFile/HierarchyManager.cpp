@@ -67,9 +67,9 @@ void CHierarchyManager::Display_ChildHierarchy(int* pnFrame, FbxNode* pfbxNode, 
 			m_Display.DisplayString("<Mesh>: ", m_Display.ReplaceBlank(pfbxMesh->GetName(), '_'), "\n", nTabIndents + 1);
 			DisplayMesh(pfbxMesh, nTabIndents + 2);
 			// 4. 재질 출력
-			//DisplayString("</Mesh>", "", "\n", nTabIndents + 1);
+			m_Display.DisplayString("</Mesh>", "", "\n", nTabIndents + 1);
 
-			//DisplayMaterials(pfbxMesh, nTabIndents + 1); //DisplayTexture(pfbxMesh, nTabIndents + 1);
+			DisplayMaterials(pfbxMesh, nTabIndents + 1); //DisplayTexture(pfbxMesh, nTabIndents + 1);
 		}
 	}
 
@@ -645,6 +645,167 @@ void CHierarchyManager::DisplayPolygonVertexIndices(FbxMesh* pfbxMesh, int nPoly
 	}
 
 	if (pnPolygonIndices) delete[] pnPolygonIndices;
+}
+
+void CHierarchyManager::DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents)
+{
+	FbxNode* pfbxNode = pfbxMesh->GetNode();
+	if (pfbxNode)
+	{
+		// 재질 개수
+		int nMaterials = pfbxNode->GetMaterialCount();
+		m_Display.DisplayInt("<Materials>: ", nMaterials, "\n", nTabIndents);
+
+		for (int i = 0; i < nMaterials; i++)
+		{
+			FbxSurfaceMaterial* pfbxMaterial = pfbxNode->GetMaterial(i);
+			if (pfbxMaterial)
+			{
+				m_Display.DisplayIntString("<Material>: ", i, m_Display.ReplaceBlank(pfbxMaterial->GetName(), '_'), "\n", nTabIndents + 1);
+
+				int nProperties = FbxLayerElement::sTypeTextureCount;
+				m_Display.DisplayInt("<TextureProperties>: ", nProperties, "\n", nTabIndents + 2);
+				for (int j = 0; j < nProperties; j++)
+				{
+					FbxProperty fbxProperty = pfbxMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[j]);
+					m_Display.DisplayIntString("<Property>: ", j, FbxLayerElement::sTextureChannelNames[j], m_Display.ReplaceBlank(fbxProperty.GetName(), '_'), "\n", nTabIndents + 3);
+					//0:DiffuseColor(FbxSurfaceMaterial::sDiffuse), 1:DiffuseFactor, 2:EmissiveColor, 3:EmissiveFactor, 4:AmbientColor, 5:AmbientFactor, 6:SpecularColor, 7:SpecularFactor, 8:ShininessExponent
+					//9:NormalMap, 10:Bump, 11:TransparentColor, 12:TransparencyFactor, 13:ReflectionColor, 14:ReflectionFactor, 15:DisplacementColor, 16:VectorDisplacementColor
+					FindAndDisplayTextureInfoByProperty(pfbxMaterial, &fbxProperty, nTabIndents + 4);
+				}
+				m_Display.DisplayString("</TextureProperties>", "", "\n", nTabIndents + 2);
+
+				m_Display.DisplayString("<ShadingModel>: ", m_Display.ReplaceBlank((char*)pfbxMaterial->ShadingModel.Get().Buffer(), '_'), "\n", nTabIndents + 2);
+
+				FbxString fbxstrImplemenationType = "HLSL";
+				const FbxImplementation* pfbxImplementation = GetImplementation(pfbxMaterial, FBXSDK_IMPLEMENTATION_HLSL);
+				if (!pfbxImplementation)
+				{
+					pfbxImplementation = GetImplementation(pfbxMaterial, FBXSDK_IMPLEMENTATION_CGFX);
+					fbxstrImplemenationType = "CGFX";
+				}
+				if (pfbxImplementation)
+				{
+					//DisplayHardwareShaderImplementation(pfbxMaterial, pfbxImplementation, fbxstrImplemenationType, nTabIndents + 3);
+				}
+				else if (pfbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+				{
+					m_Display.DisplayString("<Phong>: ", "", "", nTabIndents + 3);
+
+					FbxSurfacePhong* pfbxSurfacePhong = (FbxSurfacePhong*)pfbxMaterial;
+					m_Display.DisplayColor(pfbxSurfacePhong->Ambient);
+					m_Display.DisplayColor(pfbxSurfacePhong->Diffuse);
+					m_Display.DisplayColor(pfbxSurfacePhong->Specular);
+					m_Display.DisplayColor(pfbxSurfacePhong->Emissive);
+					m_Display.DisplayFloat((float)pfbxSurfacePhong->TransparencyFactor);
+					m_Display.DisplayFloat((float)pfbxSurfacePhong->Shininess);
+					m_Display.DisplayFloat((float)pfbxSurfacePhong->ReflectionFactor);
+					m_Display.DisplayString("\n");
+				}
+				else if (pfbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+				{
+					m_Display.DisplayString("<Lambert>: ", "", "", nTabIndents + 3);
+
+					FbxSurfaceLambert* pfbxSurfaceLambert = (FbxSurfaceLambert*)pfbxMaterial;
+					m_Display.DisplayColor(pfbxSurfaceLambert->Ambient);
+					m_Display.DisplayColor(pfbxSurfaceLambert->Diffuse);
+					m_Display.DisplayColor(pfbxSurfaceLambert->Emissive);
+					m_Display.DisplayFloat((float)pfbxSurfaceLambert->TransparencyFactor);
+					m_Display.DisplayString("\n");
+				}
+				else
+				{
+					m_Display.DisplayString("<Unknown>", "", "", nTabIndents + 3);
+				}
+			}
+		}
+		m_Display.DisplayString("</Materials>", "", "\n", nTabIndents);
+	}
+}
+
+void CHierarchyManager::FindAndDisplayTextureInfoByProperty(FbxSurfaceMaterial* pfbxMaterial, FbxProperty* pfbxProperty, int nTabIndents)
+{
+	if (pfbxProperty->IsValid())
+	{
+		int nLayeredTextures = pfbxProperty->GetSrcObjectCount<FbxLayeredTexture>();
+		if (nLayeredTextures > 0)
+		{
+			m_Display.DisplayInt("<LayeredTextures>: ", nLayeredTextures, "\n", nTabIndents);
+			for (int i = 0; i < nLayeredTextures; i++)
+			{
+				FbxLayeredTexture* pfbxLayeredTexture = pfbxProperty->GetSrcObject<FbxLayeredTexture>(i);
+				int nTextures = pfbxLayeredTexture->GetSrcObjectCount<FbxTexture>();
+				m_Display.DisplayInt("<LayeredTexture>: ", i, nTextures, "\n", nTabIndents + 1);
+				for (int j = 0; j < nTextures; j++)
+				{
+					FbxTexture* pfbxTexture = pfbxLayeredTexture->GetSrcObject<FbxTexture>(j);
+					if (pfbxTexture)
+					{
+						m_Display.DisplayInt("<Texture>: ", j, " ", nTabIndents + 2);
+						FbxLayeredTexture::EBlendMode nBlendMode;
+						pfbxLayeredTexture->GetTextureBlendMode(j, nBlendMode);
+						DisplayTextureInfo(pfbxTexture, (int)nBlendMode);
+					}
+				}
+			}
+		}
+		else
+		{
+			int nTextures = pfbxProperty->GetSrcObjectCount<FbxTexture>();
+			m_Display.DisplayInt("<Textures>: ", nTextures, "\n", nTabIndents);
+			if (nTextures > 0)
+			{
+				for (int j = 0; j < nTextures; j++)
+				{
+					FbxTexture* pfbxTexture = pfbxProperty->GetSrcObject<FbxTexture>(j);
+					if (pfbxTexture)
+					{
+						m_Display.DisplayInt("<Texture>: ", j, " ", nTabIndents + 1);
+						DisplayTextureInfo(pfbxTexture, -1);
+					}
+				}
+			}
+		}
+	}
+}
+
+void CHierarchyManager::DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMode)
+{
+	m_Display.DisplayString(m_Display.ReplaceBlank(pfbxTexture->GetName(), '_'));
+
+	FbxFileTexture* pfbxFileTexture = FbxCast<FbxFileTexture>(pfbxTexture);
+	if (pfbxFileTexture)
+	{
+		FbxString fbxPathName = pfbxFileTexture->GetRelativeFileName();
+		FbxString fbxFileName = fbxPathName.Right(fbxPathName.GetLen() - fbxPathName.ReverseFind('\\') - 1);
+		m_Display.DisplayIntString(" ", 0, m_Display.ReplaceBlank(fbxFileName.Buffer(), '_'), " "); //0:"File Texture"
+	}
+	else
+	{
+		FbxProceduralTexture* pfbxProceduralTexture = FbxCast<FbxProceduralTexture>(pfbxTexture);
+		if (pfbxProceduralTexture) m_Display.DisplayInt(" ", 1, " "); //1:"Procedural Texture"
+	}
+
+	m_Display.DisplayFloat(pfbxTexture->GetScaleU(), pfbxTexture->GetScaleV());
+	m_Display.DisplayFloat(pfbxTexture->GetTranslationU(), pfbxTexture->GetTranslationV());
+	m_Display.DisplayBool(pfbxTexture->GetSwapUV());
+	m_Display.DisplayFloat(pfbxTexture->GetRotationU(), pfbxTexture->GetRotationV(), pfbxTexture->GetRotationW());
+
+	m_Display.DisplayInt(pfbxTexture->GetAlphaSource()); //Alpha Source: 0:"None", 1:"Intensity", 2:"Black"
+	m_Display.DisplayInt(pfbxTexture->GetCroppingLeft(), pfbxTexture->GetCroppingTop(), pfbxTexture->GetCroppingRight(), pfbxTexture->GetCroppingBottom());
+
+	m_Display.DisplayInt(pfbxTexture->GetMappingType()); //Mapping Type: 0:"Null", 1:"Planar", 2:"Spherical", 3:"Cylindrical", 4:"Box", 5:"Face", 6:"UV", 7:"Environment"
+	if (pfbxTexture->GetMappingType() == FbxTexture::ePlanar) m_Display.DisplayInt(pfbxTexture->GetPlanarMappingNormal()); //PlanarMappingNormal: 0:"X", 1:"Y", 2:"Z"
+
+	m_Display.DisplayInt(nBlendMode); //Blend Mode: -1:"None", 0:"Translucent", 1:"Additive", 2:"Modulate", 3:"Modulate2", 4:"Over", 5:"Normal", 6:"Dissolve", 7:"Darken", 8:"ColorBurn", 9:"LinearBurn", 10:"DarkerColor", "Lighten", "Screen", "ColorDodge", "LinearDodge", "LighterColor", "SoftLight", "HardLight", "VividLight", "LinearLight", "PinLight", "HardMix", "Difference", "Exclusion", "Substract", "Divide", "Hue", "Saturation", "Color", "Luminosity", "Overlay"
+
+	m_Display.DisplayFloat(pfbxTexture->GetDefaultAlpha()); //Default Alpha
+
+	m_Display.DisplayInt((pfbxFileTexture) ? pfbxFileTexture->GetMaterialUse() : -1); //Material Use: 0:"Model Material", 1:"Default Material"
+
+	m_Display.DisplayInt(pfbxTexture->GetTextureUse()); //Texture Use: 0:"Standard", 1:"Shadow Map", 2:"Light Map", 3:"Spherical Reflexion Map", 4:"Sphere Reflexion Map", 5:"Bump Normal Map"
+
+	m_Display.DisplayString("\n");
 }
 
 

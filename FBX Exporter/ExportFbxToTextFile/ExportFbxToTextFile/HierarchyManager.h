@@ -28,6 +28,11 @@ public:
 	void DisplayPolygons(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents);
 	void DisplayPolygonVertexIndices(FbxMesh* pfbxMesh, int nPolygons, int nTabIndents);
 
+	// 메쉬 재질
+	void DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents);
+	void FindAndDisplayTextureInfoByProperty(FbxSurfaceMaterial* pfbxMaterial, FbxProperty* pfbxProperty, int nTabIndents);
+	void DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMode);
+
 public:
 	FbxAMatrix GetGeometricOffsetTransform(FbxNode* pfbxNode);
 
