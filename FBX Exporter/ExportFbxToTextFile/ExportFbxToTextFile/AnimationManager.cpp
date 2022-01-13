@@ -25,6 +25,7 @@ void CAnimationManager::Display_AllAnimations(FbxScene** ppfbxScenes, int nSepar
 			FbxTime fbxTimeStop = pfbxAnimStack->LocalStop;
 			m_Display.DisplayFloat("", (float)fbxTimeStart.GetSecondDouble(), (float)fbxTimeStop.GetSecondDouble(), "\n");
 
+			// 스택 정보 출력
 			DisplayAnimation(pfbxAnimStack, ppfbxScenes[i]->GetRootNode(), 3);
 			m_Display.DisplayString("</AnimationSet>", "", "\n", 2);
 		}
@@ -44,10 +45,11 @@ void CAnimationManager::Display_AllAnimations(FbxScene* pfbxScene)
 	{
 		FbxAnimStack* pfbxAnimStack = pfbxScene->GetSrcObject<FbxAnimStack>(i);
 		m_Display.DisplayIntString("<AnimationSet>: ", i, m_Display.ReplaceBlank(pfbxAnimStack->GetName(), '_'), " ", 2);
-		FbxTime fbxTimeStart = pfbxAnimStack->LocalStart;
-		FbxTime fbxTimeStop = pfbxAnimStack->LocalStop;
+		FbxTime fbxTimeStart = pfbxAnimStack->LocalStart;	// 시작 시간
+		FbxTime fbxTimeStop = pfbxAnimStack->LocalStop;		// 중지 시간
 		m_Display.DisplayFloat("", (float)fbxTimeStart.GetSecondDouble(), (float)fbxTimeStop.GetSecondDouble(), "\n");
 
+		// 애니메이션 스택 정보 출력
 		DisplayAnimation(pfbxAnimStack, pfbxScene->GetRootNode(), 3);
 		m_Display.DisplayString("</AnimationSet>", "", "\n", 2);
 	}
@@ -66,11 +68,12 @@ void CAnimationManager::DisplayAnimation(FbxAnimStack* pfbxAnimStack, FbxNode* p
 	for (int i = 0; i < nAnimationLayers; i++)
 	{
 		FbxAnimLayer* pfbxAnimationLayer = pfbxAnimStack->GetMember<FbxAnimLayer>(i);
+		// nLayerCurveNodes: pfbxAnimationLayer에 있는 커브 노드 개수
 		int nLayerCurveNodes = Get_AnimationLayerCurveNodesCnt(pfbxAnimationLayer, pfbxNode);
 
-		// nAnimationLayers애니메이션 레이어의 개수만큼 애니메이션 레이어를 출력한다
 		int nCurveNode = 0;
 		m_Display.DisplayIntFloat("<AnimationLayer>: ", i, nLayerCurveNodes, float(pfbxAnimationLayer->Weight) / 100.0f, "\n", nTabIndents + 1);
+		// 커브에 있는 애니메이션 정보 출력
 		Display_CurveAnimation(pfbxAnimationLayer, pfbxNode, &nCurveNode, nTabIndents + 2);
 		m_Display.DisplayString("</AnimationLayer>", "", "\n", nTabIndents + 1);
 	}
@@ -78,6 +81,7 @@ void CAnimationManager::DisplayAnimation(FbxAnimStack* pfbxAnimStack, FbxNode* p
 	m_Display.DisplayString("</AnimationLayers>", "", "\n", nTabIndents);
 }
 
+// 커브 노드 개수 반환
 int CAnimationManager::Get_AnimationLayerCurveNodesCnt(FbxAnimLayer* pfbxAnimationLayer, FbxNode* pfbxNode)
 {
 	int nAnimationCurveNodes = 0;
@@ -122,6 +126,7 @@ void CAnimationManager::Display_CurveAnimation(FbxAnimLayer* pfbxAnimationLayer,
 
 void CAnimationManager::Display_CurveChannels(FbxAnimLayer* pfbxAnimationLayer, FbxNode* pfbxNode, int* pnCurveNode, int nTabIndents)
 {
+	// 레이어가 갖고 있는 커브의 개수
 	if (Get_AnimationCurvesCnt(pfbxAnimationLayer, pfbxNode) > 0)
 	{
 		// 애니메이션 커브를 출력하려면 
@@ -134,7 +139,7 @@ void CAnimationManager::Display_CurveChannels(FbxAnimLayer* pfbxAnimationLayer, 
 		//int nCurves = pfbxAnimCurveNode->GetCurveCount(0);
 
 		// LclTranslation로컬 변환에 있는 x라는 커브를 가져다가 애니메이션 커브를 출력한다
-		pfbxAnimationCurve = pfbxNode->LclTranslation.GetCurve(pfbxAnimationLayer, FBXSDK_CURVENODE_COMPONENT_X); //"X"
+		pfbxAnimationCurve = pfbxNode->LclTranslation.GetCurve(pfbxAnimationLayer, FBXSDK_CURVENODE_COMPONENT_X); 
 		if (pfbxAnimationCurve) Display_CurveKeys("<TX>: ", pfbxAnimationCurve, "\n", nTabIndents + 1, false);
 
 		pfbxAnimationCurve = pfbxNode->LclTranslation.GetCurve(pfbxAnimationLayer, FBXSDK_CURVENODE_COMPONENT_Y);

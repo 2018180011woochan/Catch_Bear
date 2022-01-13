@@ -658,16 +658,18 @@ void CHierarchyManager::DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents)
 
 		for (int i = 0; i < nMaterials; i++)
 		{
+			// FbxSurfaceMaterial: 재질을 설정하는 클래스
 			FbxSurfaceMaterial* pfbxMaterial = pfbxNode->GetMaterial(i);
 			if (pfbxMaterial)
 			{
 				m_Display.DisplayIntString("<Material>: ", i, m_Display.ReplaceBlank(pfbxMaterial->GetName(), '_'), "\n", nTabIndents + 1);
 
+				// sTypeTextureCount: 텍스처 유형 레이어 요소의 수
 				int nProperties = FbxLayerElement::sTypeTextureCount;
 				m_Display.DisplayInt("<TextureProperties>: ", nProperties, "\n", nTabIndents + 2);
 				for (int j = 0; j < nProperties; j++)
 				{
-					// 속성의 이름(sTextureChannelNames)으로 FbxProperty를 찾는다
+					// 속성의 이름(sTextureChannelNames: 텍스처 채널의 배열)으로 FbxProperty(텍스처의 속성)를 찾는다
 					FbxProperty fbxProperty = pfbxMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[j]);
 					m_Display.DisplayIntString("<Property>: ", j, FbxLayerElement::sTextureChannelNames[j], m_Display.ReplaceBlank(fbxProperty.GetName(), '_'), "\n", nTabIndents + 3);
 					//0:DiffuseColor(FbxSurfaceMaterial::sDiffuse), 1:DiffuseFactor, 2:EmissiveColor, 3:EmissiveFactor, 4:AmbientColor, 5:AmbientFactor, 6:SpecularColor, 7:SpecularFactor, 8:ShininessExponent
@@ -745,6 +747,7 @@ void CHierarchyManager::DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMo
 	}
 	else
 	{
+		// FbxProceduralTexture: 텍스처를 절차적으로 생성하기 위한 정보 포함
 		FbxProceduralTexture* pfbxProceduralTexture = FbxCast<FbxProceduralTexture>(pfbxTexture);
 		if (pfbxProceduralTexture) m_Display.DisplayInt(" ", 1, " "); //1:"Procedural Texture"
 	}

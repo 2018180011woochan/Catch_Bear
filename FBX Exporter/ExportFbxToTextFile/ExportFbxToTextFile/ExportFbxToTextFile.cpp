@@ -46,9 +46,9 @@ int main(int argc, char** argv)
 
 	WriteStringToFile("<Animation>\n");
 #ifdef _WITH_SEPARATED_ANIMATIONS
-	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
+	CAnimationManager::Get_Instance()->Display_AllAnimations(ppfbxAnimationScenes, nSeparatedAnimations);
 #else
-	//CAnimationManager::Get_Instance()->Display_AllAnimations(pfbxModelScene);
+	CAnimationManager::Get_Instance()->Display_AllAnimations(pfbxModelScene);
 #endif
 	WriteStringToFile("</Animation>\n");
 
