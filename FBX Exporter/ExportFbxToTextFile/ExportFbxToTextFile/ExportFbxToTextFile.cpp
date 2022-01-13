@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 	// 읽어들일 fbx 파일 이름
 	FbxString pfbxstrModelFilePath("Bush_01.fbx");
 	// 출력할 txt 파일 이름
-	char* pszWriteFileName = "Bush_01.bin";
+	char* pszWriteFileName = "Bush_01.txt";
 
 	// FBX Scene 생성&로드
 	FbxScene* pfbxModelScene = FbxScene::Create(pfbxSdkManager, pfbxstrModelFilePath.Buffer());
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	if (fbxSceneSystemUnit.GetScaleFactor() != 1.0) FbxSystemUnit::cm.ConvertScene(pfbxModelScene);
 
 	// 파일 입출력
-	::fopen_s(&pFile, pszWriteFileName, "wb");
+	::fopen_s(&pFile, pszWriteFileName, "wt");
 
 	// 2. 출력할 파일에 필요한 정보를 쓴다
 	WriteStringToFile("<Hierarchy>\n");
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 #ifdef _WITH_SEPARATED_ANIMATIONS
 	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
 #else
-	CAnimationManager::Get_Instance()->Display_AllAnimations(pfbxModelScene);
+	//CAnimationManager::Get_Instance()->Display_AllAnimations(pfbxModelScene);
 #endif
 	WriteStringToFile("</Animation>\n");
 

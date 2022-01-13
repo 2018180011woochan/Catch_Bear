@@ -66,9 +66,9 @@ void CHierarchyManager::Display_ChildHierarchy(int* pnFrame, FbxNode* pfbxNode, 
 			// 3. 메쉬 출력
 			m_Display.DisplayString("<Mesh>: ", m_Display.ReplaceBlank(pfbxMesh->GetName(), '_'), "\n", nTabIndents + 1);
 			DisplayMesh(pfbxMesh, nTabIndents + 2);
-			// 4. 재질 출력
 			m_Display.DisplayString("</Mesh>", "", "\n", nTabIndents + 1);
-
+			
+			// 4. 재질 출력
 			DisplayMaterials(pfbxMesh, nTabIndents + 1); //DisplayTexture(pfbxMesh, nTabIndents + 1);
 		}
 	}
@@ -667,6 +667,7 @@ void CHierarchyManager::DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents)
 				m_Display.DisplayInt("<TextureProperties>: ", nProperties, "\n", nTabIndents + 2);
 				for (int j = 0; j < nProperties; j++)
 				{
+					// 속성의 이름(sTextureChannelNames)으로 FbxProperty를 찾는다
 					FbxProperty fbxProperty = pfbxMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[j]);
 					m_Display.DisplayIntString("<Property>: ", j, FbxLayerElement::sTextureChannelNames[j], m_Display.ReplaceBlank(fbxProperty.GetName(), '_'), "\n", nTabIndents + 3);
 					//0:DiffuseColor(FbxSurfaceMaterial::sDiffuse), 1:DiffuseFactor, 2:EmissiveColor, 3:EmissiveFactor, 4:AmbientColor, 5:AmbientFactor, 6:SpecularColor, 7:SpecularFactor, 8:ShininessExponent
@@ -674,49 +675,6 @@ void CHierarchyManager::DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents)
 					FindAndDisplayTextureInfoByProperty(pfbxMaterial, &fbxProperty, nTabIndents + 4);
 				}
 				m_Display.DisplayString("</TextureProperties>", "", "\n", nTabIndents + 2);
-
-				m_Display.DisplayString("<ShadingModel>: ", m_Display.ReplaceBlank((char*)pfbxMaterial->ShadingModel.Get().Buffer(), '_'), "\n", nTabIndents + 2);
-
-				FbxString fbxstrImplemenationType = "HLSL";
-				const FbxImplementation* pfbxImplementation = GetImplementation(pfbxMaterial, FBXSDK_IMPLEMENTATION_HLSL);
-				if (!pfbxImplementation)
-				{
-					pfbxImplementation = GetImplementation(pfbxMaterial, FBXSDK_IMPLEMENTATION_CGFX);
-					fbxstrImplemenationType = "CGFX";
-				}
-				if (pfbxImplementation)
-				{
-					//DisplayHardwareShaderImplementation(pfbxMaterial, pfbxImplementation, fbxstrImplemenationType, nTabIndents + 3);
-				}
-				else if (pfbxMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
-				{
-					m_Display.DisplayString("<Phong>: ", "", "", nTabIndents + 3);
-
-					FbxSurfacePhong* pfbxSurfacePhong = (FbxSurfacePhong*)pfbxMaterial;
-					m_Display.DisplayColor(pfbxSurfacePhong->Ambient);
-					m_Display.DisplayColor(pfbxSurfacePhong->Diffuse);
-					m_Display.DisplayColor(pfbxSurfacePhong->Specular);
-					m_Display.DisplayColor(pfbxSurfacePhong->Emissive);
-					m_Display.DisplayFloat((float)pfbxSurfacePhong->TransparencyFactor);
-					m_Display.DisplayFloat((float)pfbxSurfacePhong->Shininess);
-					m_Display.DisplayFloat((float)pfbxSurfacePhong->ReflectionFactor);
-					m_Display.DisplayString("\n");
-				}
-				else if (pfbxMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
-				{
-					m_Display.DisplayString("<Lambert>: ", "", "", nTabIndents + 3);
-
-					FbxSurfaceLambert* pfbxSurfaceLambert = (FbxSurfaceLambert*)pfbxMaterial;
-					m_Display.DisplayColor(pfbxSurfaceLambert->Ambient);
-					m_Display.DisplayColor(pfbxSurfaceLambert->Diffuse);
-					m_Display.DisplayColor(pfbxSurfaceLambert->Emissive);
-					m_Display.DisplayFloat((float)pfbxSurfaceLambert->TransparencyFactor);
-					m_Display.DisplayString("\n");
-				}
-				else
-				{
-					m_Display.DisplayString("<Unknown>", "", "", nTabIndents + 3);
-				}
 			}
 		}
 		m_Display.DisplayString("</Materials>", "", "\n", nTabIndents);
@@ -725,8 +683,10 @@ void CHierarchyManager::DisplayMaterials(FbxMesh* pfbxMesh, int nTabIndents)
 
 void CHierarchyManager::FindAndDisplayTextureInfoByProperty(FbxSurfaceMaterial* pfbxMaterial, FbxProperty* pfbxProperty, int nTabIndents)
 {
+	// 속성이 유효한지 판단
 	if (pfbxProperty->IsValid())
 	{
+		// pfbxProperty속성이 연결돼있는 주어진 기준(FbxLayeredTexture)을 충족하는 소스 개체 수
 		int nLayeredTextures = pfbxProperty->GetSrcObjectCount<FbxLayeredTexture>();
 		if (nLayeredTextures > 0)
 		{
@@ -734,15 +694,17 @@ void CHierarchyManager::FindAndDisplayTextureInfoByProperty(FbxSurfaceMaterial* 
 			for (int i = 0; i < nLayeredTextures; i++)
 			{
 				FbxLayeredTexture* pfbxLayeredTexture = pfbxProperty->GetSrcObject<FbxLayeredTexture>(i);
+				// pfbxLayeredTexture가 갖고 있는 소스 개체(텍스처) 수
 				int nTextures = pfbxLayeredTexture->GetSrcObjectCount<FbxTexture>();
 				m_Display.DisplayInt("<LayeredTexture>: ", i, nTextures, "\n", nTabIndents + 1);
+
 				for (int j = 0; j < nTextures; j++)
 				{
 					FbxTexture* pfbxTexture = pfbxLayeredTexture->GetSrcObject<FbxTexture>(j);
 					if (pfbxTexture)
 					{
 						m_Display.DisplayInt("<Texture>: ", j, " ", nTabIndents + 2);
-						FbxLayeredTexture::EBlendMode nBlendMode;
+						FbxLayeredTexture::EBlendMode nBlendMode;	// 혼합(블렌드) 모드
 						pfbxLayeredTexture->GetTextureBlendMode(j, nBlendMode);
 						DisplayTextureInfo(pfbxTexture, (int)nBlendMode);
 					}
@@ -776,6 +738,7 @@ void CHierarchyManager::DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMo
 	FbxFileTexture* pfbxFileTexture = FbxCast<FbxFileTexture>(pfbxTexture);
 	if (pfbxFileTexture)
 	{
+		// 상대적인 텍스처 파일 경로
 		FbxString fbxPathName = pfbxFileTexture->GetRelativeFileName();
 		FbxString fbxFileName = fbxPathName.Right(fbxPathName.GetLen() - fbxPathName.ReverseFind('\\') - 1);
 		m_Display.DisplayIntString(" ", 0, m_Display.ReplaceBlank(fbxFileName.Buffer(), '_'), " "); //0:"File Texture"
@@ -786,12 +749,15 @@ void CHierarchyManager::DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMo
 		if (pfbxProceduralTexture) m_Display.DisplayInt(" ", 1, " "); //1:"Procedural Texture"
 	}
 
+	// 텍스처 너비에 적용된 크기값
 	m_Display.DisplayFloat(pfbxTexture->GetScaleU(), pfbxTexture->GetScaleV());
+	// 텍스처 너비에 적용된 변환값
 	m_Display.DisplayFloat(pfbxTexture->GetTranslationU(), pfbxTexture->GetTranslationV());
 	m_Display.DisplayBool(pfbxTexture->GetSwapUV());
 	m_Display.DisplayFloat(pfbxTexture->GetRotationU(), pfbxTexture->GetRotationV(), pfbxTexture->GetRotationW());
 
 	m_Display.DisplayInt(pfbxTexture->GetAlphaSource()); //Alpha Source: 0:"None", 1:"Intensity", 2:"Black"
+	// Cropping: 자르기
 	m_Display.DisplayInt(pfbxTexture->GetCroppingLeft(), pfbxTexture->GetCroppingTop(), pfbxTexture->GetCroppingRight(), pfbxTexture->GetCroppingBottom());
 
 	m_Display.DisplayInt(pfbxTexture->GetMappingType()); //Mapping Type: 0:"Null", 1:"Planar", 2:"Spherical", 3:"Cylindrical", 4:"Box", 5:"Face", 6:"UV", 7:"Environment"
@@ -801,6 +767,7 @@ void CHierarchyManager::DisplayTextureInfo(FbxTexture* pfbxTexture, int nBlendMo
 
 	m_Display.DisplayFloat(pfbxTexture->GetDefaultAlpha()); //Default Alpha
 
+	// 재질 사용 유무
 	m_Display.DisplayInt((pfbxFileTexture) ? pfbxFileTexture->GetMaterialUse() : -1); //Material Use: 0:"Model Material", 1:"Default Material"
 
 	m_Display.DisplayInt(pfbxTexture->GetTextureUse()); //Texture Use: 0:"Standard", 1:"Shadow Map", 2:"Light Map", 3:"Spherical Reflexion Map", 4:"Sphere Reflexion Map", 5:"Bump Normal Map"
