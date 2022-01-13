@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SdkManager.h"
 #include "HierarchyManager.h"
+#include "AnimationManager.h"
 
 FILE* pFile = NULL;
 char pszBuffer[256];
@@ -43,13 +44,13 @@ int main(int argc, char** argv)
 	CHierarchyManager::Get_Instance()->Display_AllHierarchy(pfbxModelScene);
 	WriteStringToFile("</Hierarchy>\n");
 
-	//WriteStringToFile("<Animation>\n");
+	WriteStringToFile("<Animation>\n");
 #ifdef _WITH_SEPARATED_ANIMATIONS
 	DisplayAnimation(ppfbxAnimationScenes, nSeparatedAnimations);
 #else
-	//DisplayAnimation(pfbxModelScene);
+	CAnimationManager::Get_Instance()->Display_AllAnimations(pfbxModelScene);
 #endif
-	//WriteStringToFile("</Animation>\n");
+	WriteStringToFile("</Animation>\n");
 
 	::fclose(pFile);
 
