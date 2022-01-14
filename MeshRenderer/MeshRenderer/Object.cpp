@@ -927,7 +927,8 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			//CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
 
@@ -947,6 +948,9 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pGameObject->SetMesh(pSkinnedMesh);
 
 			/**/pGameObject->SetSkinnedAnimationWireFrameShader();
+		}
+		else if (!strcmp(pstrToken, "<Materials>:"))
+		{
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
