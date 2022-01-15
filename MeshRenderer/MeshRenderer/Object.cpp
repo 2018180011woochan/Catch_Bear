@@ -25,6 +25,31 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
 
+CTexture::CTexture(int nTextures, UINT nResourceType, int nSamplers, int nRootParameters)
+{
+	m_nTextureType = nTextures;
+
+	m_nTextures = nTextures;
+	if (m_nTextures > 0)
+	{
+		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
+		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
+		for (int i = 0; i < m_nTextures; i++) m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = NULL;
+
+		m_pRootArgumentInfos = new SRVROOTARGUMENTINFO[m_nTextures];
+		//m_pd3dSrvGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nTextures];
+
+		m_pnResourceTypes = new UINT[m_nTextures];
+		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
+		m_pnBufferElements = new int[m_nTextures];
+	}
+	m_nRootParameters = nRootParameters;
+	//if (nRootParameters > 0) m_pnRootParameterIndices = new UINT[nRootParameters];
+
+	m_nSamplers = nSamplers;
+	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
+}
+
 CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
@@ -143,6 +168,61 @@ void CMaterial::ReleaseUploadBuffers()
 
 CShader *CMaterial::m_pWireFrameShader = NULL;
 CShader *CMaterial::m_pSkinnedAnimationWireFrameShader = NULL;
+
+void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader)
+{
+	char pstrTextureName[64] = { '\0' };
+
+	::ReadStringFromFile(pInFile, pstrTextureName);
+	int nStrLength = strlen(pstrTextureName);
+
+	bool bDuplicated = false;
+	if (strcmp(pstrTextureName, "null"))
+	{
+		SetMaterialType(nType);
+
+		char pstrFilePath[64] = { '\0' };
+		strcpy_s(pstrFilePath, 64, "Model/Textures/");
+
+		bDuplicated = (pstrTextureName[0] == '@');
+		strcpy_s(pstrFilePath + 15, 64 - 15, (bDuplicated) ? (pstrTextureName + 1) : pstrTextureName);
+		strcpy_s(pstrFilePath + 15 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+
+		size_t nConverted = 0;
+		mbstowcs_s(&nConverted, pwstrTextureName, 64, pstrFilePath, _TRUNCATE);
+
+		//#define _WITH_DISPLAY_TEXTURE_NAME
+
+#ifdef _WITH_DISPLAY_TEXTURE_NAME
+		static int nTextures = 0, nRepeatedTextures = 0;
+		TCHAR pstrDebug[256] = { 0 };
+		_stprintf_s(pstrDebug, 256, _T("Texture Name: %d %c %s\n"), (pstrTextureName[0] == '@') ? nRepeatedTextures++ : nTextures++, (pstrTextureName[0] == '@') ? '@' : ' ', pwstrTextureName);
+		OutputDebugString(pstrDebug);
+#endif
+		if (!bDuplicated)
+		{
+			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+			(*ppTexture)->LoadTextureFromFile(pd3dDevice, pd3dCommandList, pwstrTextureName, 0/*RESOURCE_TEXTURE2D*/, true);
+			if (*ppTexture) (*ppTexture)->AddRef();
+
+			CScene::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
+		}
+		/*else
+		{
+			if (pParent)
+			{
+				while (pParent)
+				{
+					if (!pParent->m_pParent) break;
+					pParent = pParent->m_pParent;
+				}
+				CGameObject* pRootGameObject = pParent;
+				*ppTexture = pRootGameObject->FindReplicatedTexture(pwstrTextureName);
+				if (*ppTexture) (*ppTexture)->AddRef();
+			}
+		}*/
+	}
+}
 
 void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature)
 {
@@ -951,6 +1031,82 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
+			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pInFile, pShader);
+		}
+		else if (!strcmp(pstrToken, "<Children>:"))
+		{
+			int nChilds = ::ReadIntegerFromFile(pInFile);
+			if (nChilds > 0)
+			{
+				for (int i = 0; i < nChilds; i++)
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					if (!strcmp(pstrToken, "<Frame>:"))
+					{
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
+						if (pChild) pGameObject->SetChild(pChild);
+#ifdef _WITH_DEBUG_FRAME_HIERARCHY
+						TCHAR pstrDebug[256] = { 0 };
+						_stprintf_s(pstrDebug, 256, _T("(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
+						OutputDebugString(pstrDebug);
+#endif
+					}
+				}
+			}
+		}
+		else if (!strcmp(pstrToken, "</Frame>"))
+		{
+			break;
+		}
+	}
+	return(pGameObject);
+}
+
+CGameObject* CGameObject::LoadFrameHierarchyFromFileVer2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	int nFrame = ::ReadIntegerFromFile(pInFile);
+
+	CGameObject* pGameObject = new CGameObject();
+	::ReadStringFromFile(pInFile, pGameObject->m_pstrFrameName);
+
+	for (; ; )
+	{
+		::ReadStringFromFile(pInFile, pstrToken);
+		if (!strcmp(pstrToken, "<Transform>:"))
+		{
+			nReads = (UINT)::fread(&pGameObject->m_xmf4x4ToParent, sizeof(XMFLOAT4X4), 1, pInFile);
+
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Scale, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Rotation, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Translation, sizeof(XMFLOAT3), 1, pInFile);
+
+		}
+		else if (!strcmp(pstrToken, "<Mesh>:"))
+		{
+			//CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
+			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+			pGameObject->SetMesh(pMesh);
+
+			/**/pGameObject->SetWireFrameShader();
+		}
+		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
+		{
+			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
+
+			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			pSkinnedMesh->LoadSkinDeformationsFromFile(pd3dDevice, pd3dCommandList, pInFile);
+			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+			::ReadStringFromFile(pInFile, pstrToken); //<Mesh>:
+			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+
+			pGameObject->SetMesh(pSkinnedMesh);
+
+			/**/pGameObject->SetSkinnedAnimationWireFrameShader();
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -1015,6 +1171,7 @@ CLoadedModelInfo* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID
 					}
 				}
 			}
+
 		}
 		else
 		{
@@ -1025,6 +1182,34 @@ CLoadedModelInfo* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID
 	::fclose(pInFile);
 
 	return(pLoadedModel);
+}
+
+void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile, CShader* pShader)
+{
+	char pstrToken[64] = { '\0' };
+	char pstrTextureName[64] = { '\0' };
+
+	int nAllMaterials = ::ReadIntegerFromFile(pInFile);
+	if (nAllMaterials > 0)
+	{
+		m_ppMaterials = new CMaterial * [nAllMaterials];
+		for (int i = 0; i < nAllMaterials; ++i) m_ppMaterials[i] = NULL;
+
+		CMaterial* pMaterial = NULL;
+
+		::ReadStringFromFile(pInFile, pstrToken);
+		if (!strcmp(pstrToken, "<Material>:"))
+		{
+			int nTextures = ::ReadIntegerFromFile(pInFile);
+			
+			pMaterial = new CMaterial(7);
+
+			if (nTextures > -1)
+			{
+				pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 15, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), NULL, pInFile, pShader);
+			}
+		}
+	}
 }
 
 void CGameObject::PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent)
