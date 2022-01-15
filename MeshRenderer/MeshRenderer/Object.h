@@ -113,6 +113,7 @@ public:
 	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	void SetShader(CShader *pShader);
+	void SetTexturedShader() { CMaterial::SetShader(m_pTexturedShader); }
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
 
@@ -134,11 +135,12 @@ public:
 	_TCHAR							(*m_ppstrTextureNames)[64] = NULL;
 	CTexture						**m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal
 
-	void LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, CShader *pShader);
+	void LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR *pwstrTextureName, CTexture **ppTexture, CGameObject *pParent, FILE *pInFile, char* pstrTextureName, CShader *pShader);
 
 public:
 	static CShader					*m_pWireFrameShader;
 	static CShader					*m_pSkinnedAnimationWireFrameShader;
+	static CShader* m_pTexturedShader;
 
 	static void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 

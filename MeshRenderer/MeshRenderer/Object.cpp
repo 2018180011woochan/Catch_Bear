@@ -168,12 +168,13 @@ void CMaterial::ReleaseUploadBuffers()
 
 CShader *CMaterial::m_pWireFrameShader = NULL;
 CShader *CMaterial::m_pSkinnedAnimationWireFrameShader = NULL;
+CShader* CMaterial::m_pTexturedShader = NULL;
 
-void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader)
+void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, char* pstrTextureName, CShader* pShader)
 {
-	char pstrTextureName[64] = { '\0' };
+	//char pstrTextureName[64] = { '\0' };
 
-	::ReadStringFromFile(pInFile, pstrTextureName);
+	//::ReadStringFromFile(pInFile, pstrTextureName);
 	int nStrLength = strlen(pstrTextureName);
 
 	bool bDuplicated = false;
@@ -1027,7 +1028,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			pGameObject->SetMesh(pSkinnedMesh);
 
-			/**/pGameObject->SetSkinnedAnimationWireFrameShader();
+			pGameObject->SetSkinnedAnimationWireFrameShader();
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1186,8 +1187,9 @@ CLoadedModelInfo* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID
 
 void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile, CShader* pShader)
 {
-	char pstrToken[64] = { '\0' };
+	char pstrToken[100] = { '\0' };
 	char pstrTextureName[64] = { '\0' };
+	int nReads = 0;
 
 	int nAllMaterials = ::ReadIntegerFromFile(pInFile);
 	if (nAllMaterials > 0)
@@ -1197,16 +1199,59 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 
 		CMaterial* pMaterial = NULL;
 
-		::ReadStringFromFile(pInFile, pstrToken);
-		if (!strcmp(pstrToken, "<Material>:"))
-		{
-			int nTextures = ::ReadIntegerFromFile(pInFile);
-			
-			pMaterial = new CMaterial(7);
-
-			if (nTextures > -1)
+		for (; ; ) {
+			::ReadStringFromFile(pInFile, pstrToken);
+			if (!strcmp(pstrToken, "<Material>:"))
 			{
-				pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 15, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), NULL, pInFile, pShader);
+				int nTextures = ::ReadIntegerFromFile(pInFile);
+				pMaterial = new CMaterial(7);
+
+				if (!pShader)
+					pMaterial->SetTexturedShader();
+				SetMaterial(nTextures, pMaterial);
+
+				if (nTextures > -1)
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 15, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), NULL, pInFile, pstrToken, pShader);
+				}
+			}
+			else if (!strcmp(pstrToken, "<ShadingModel>:"))
+			{
+				char pstrShadingModel[64] = { '\0' };
+				::ReadStringFromFile(pInFile, pstrShadingModel);
+				if (!strcmp(pstrShadingModel, "Lambert"))
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					XMFLOAT3	xmf3Ambient, xmf3Diffuse, xmf3Emissive;
+
+					xmf3Ambient.x = ::ReadFloatFromFile(pInFile);
+					xmf3Ambient.y = ::ReadFloatFromFile(pInFile);
+					xmf3Ambient.z = ::ReadFloatFromFile(pInFile);
+
+					xmf3Diffuse.x = ::ReadFloatFromFile(pInFile);
+					xmf3Diffuse.y = ::ReadFloatFromFile(pInFile);
+					xmf3Diffuse.z = ::ReadFloatFromFile(pInFile);
+
+					xmf3Emissive.x = ::ReadFloatFromFile(pInFile);
+					xmf3Emissive.y = ::ReadFloatFromFile(pInFile);
+					xmf3Emissive.z = ::ReadFloatFromFile(pInFile);
+
+					pMaterial->m_fGlossiness = ::ReadFloatFromFile(pInFile);
+
+					//nReads = (UINT)::fread(&xmf3Ambient, sizeof(XMFLOAT3), 1, pInFile);
+					//nReads = (UINT)::fread(&xmf3Diffuse, sizeof(XMFLOAT3), 1, pInFile);
+					//nReads = (UINT)::fread(&xmf3Emissive, sizeof(XMFLOAT3), 1, pInFile);
+					//nReads = (UINT)::fread(&pMaterial->m_fGlossiness, sizeof(float), 1, pInFile);
+
+					pMaterial->m_xmf4AmbientColor = XMFLOAT4(xmf3Ambient.x, xmf3Ambient.y, xmf3Ambient.z, 1.0f);
+					pMaterial->m_xmf4AlbedoColor = XMFLOAT4(xmf3Diffuse.x, xmf3Diffuse.y, xmf3Diffuse.z, 1.0f);
+					pMaterial->m_xmf4EmissiveColor = XMFLOAT4(xmf3Emissive.x, xmf3Emissive.y, xmf3Emissive.z, 1.0f);
+				}
+			}
+			else if (!strcmp(pstrToken, "</Materials>"))
+			{
+				break;
 			}
 		}
 	}
