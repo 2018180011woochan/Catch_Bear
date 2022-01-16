@@ -234,6 +234,10 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationWireFrameShader = new CSkinnedAnimationWireFrameShader();
 	m_pSkinnedAnimationWireFrameShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pSkinnedAnimationWireFrameShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	m_pTexturedShader = new CTexturedShader();
+	m_pTexturedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTexturedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1213,8 +1217,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 				int nTextures = ::ReadIntegerFromFile(pInFile);
 				pMaterial = new CMaterial(7);
 
-				if (!pShader)
-					pMaterial->SetTexturedShader();
+				//if (!pShader)
+				pMaterial->SetTexturedShader();
 				SetMaterial(nTextures, pMaterial);
 
 				if (nTextures > -1)

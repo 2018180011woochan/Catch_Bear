@@ -105,7 +105,7 @@ VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 	return(output);
 }
 
-float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+float4 PSTexturedWithLighting(VS_TEXTURED_OUTPUT input) : SV_TARGET
 {
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
@@ -132,6 +132,12 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 	}
 	float4 cIllumination = Lighting(input.positionW, normalW);
 	return(lerp(cColor, cIllumination, 0.5f));
+}
+
+float4 PSTexturedWithoutLighting(VS_TEXTURED_OUTPUT input) : SV_TARGET
+{
+	float4 cTexColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	return cTexColor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
