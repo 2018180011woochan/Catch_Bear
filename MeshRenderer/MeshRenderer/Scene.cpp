@@ -95,7 +95,8 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[0] = new CTreeObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
 	m_ppGameObjects[0] = pTreeModel->m_pModelRootObject->m_pChild;
 	m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 650.0f);
-	m_ppGameObjects[0]->SetScale(0.06f, 0.06f, 0.06f);
+	/*m_ppGameObjects[0]->SetScale(0.06f, 0.06f, 0.06f);*/
+	m_ppGameObjects[0]->SetScale(0.1f, 0.1f, 0.1f);
 	if (pTreeModel) delete pTreeModel;
 
 	//pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Mushroom_01.bin", NULL);
