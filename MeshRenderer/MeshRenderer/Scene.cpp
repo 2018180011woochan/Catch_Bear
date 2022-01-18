@@ -88,7 +88,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	XMFLOAT4 xmf4Color(0.0f, 0.3f, 0.0f, 0.0f);
 	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, xmf3Scale, xmf4Color);
 
-	m_nGameObjects = 1;
+	m_nGameObjects = 2;
 	m_ppGameObjects = new CGameObject*[m_nGameObjects];
 	
 	CLoadedModelInfo* pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Tree_01.bin", NULL);
@@ -99,12 +99,12 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppGameObjects[0]->SetScale(0.1f, 0.1f, 0.1f);
 	if (pTreeModel) delete pTreeModel;
 
-	//pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Mushroom_01.bin", NULL);
-	//m_ppGameObjects[1] = new CTreeObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
-	//m_ppGameObjects[1] = pTreeModel->m_pModelRootObject->m_pChild;
-	//m_ppGameObjects[1]->SetPosition(340.0f, 230.0f, 650.0f);
-	//m_ppGameObjects[1]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pTreeModel) delete pTreeModel;
+	pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "EvilbearL.bin", NULL);
+	m_ppGameObjects[1] = new CTreeObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
+	m_ppGameObjects[1] = pTreeModel->m_pModelRootObject->m_pChild;
+	m_ppGameObjects[1]->SetPosition(370.0f, 230.0f, 650.0f);
+	m_ppGameObjects[1]->SetScale(1.0f, 1.0f, 1.0f);
+	if (pTreeModel) delete pTreeModel;
 
 	//pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Mushroom_02.bin", NULL);
 	//m_ppGameObjects[1] = new CTreeObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
