@@ -107,22 +107,27 @@ protected:
 	XMFLOAT2* m_pxmf2TextureCoords0 = NULL;
 	XMFLOAT2* m_pxmf2TextureCoords1 = NULL;
 
+	// UV0
 	ID3D12Resource* m_pd3dTextureCoord0Buffer = NULL;
 	ID3D12Resource* m_pd3dTextureCoord0UploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
 
+	// UV1
 	ID3D12Resource* m_pd3dTextureCoord1Buffer = NULL;
 	ID3D12Resource* m_pd3dTextureCoord1UploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
 
+	// Normal
 	ID3D12Resource* m_pd3dNormalBuffer = NULL;
 	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
 
+	// Tangent
 	ID3D12Resource* m_pd3dTangentBuffer = NULL;
 	ID3D12Resource* m_pd3dTangentUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dTangentBufferView;
 
+	// BiTangent
 	ID3D12Resource* m_pd3dBiTangentBuffer = NULL;
 	ID3D12Resource* m_pd3dBiTangentUploadBuffer = NULL;
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
@@ -208,9 +213,6 @@ public:
 	virtual ~CSkyBoxMesh();
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -262,4 +264,87 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+class CTexturingSkinnedMesh : public CMesh
+{
+public:
+	CTexturingSkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual ~CTexturingSkinnedMesh();
+
+public:
+	void LoadSkinDeformationsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile);
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile);
+
+public:
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void ReleaseUploadBuffers();
+
+	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+
+protected:
+	// Texturing
+	XMFLOAT4* m_pxmf4Colors = NULL;
+	XMFLOAT3* m_pxmf3Normals = NULL;
+	XMFLOAT3* m_pxmf3Tangents = NULL;
+	XMFLOAT3* m_pxmf3BiTangents = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords0 = NULL;
+	XMFLOAT2* m_pxmf2TextureCoords1 = NULL;
+
+	// UV0
+	ID3D12Resource* m_pd3dTextureCoord0Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord0UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord0BufferView;
+
+	// UV1
+	ID3D12Resource* m_pd3dTextureCoord1Buffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoord1UploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTextureCoord1BufferView;
+
+	// Normal
+	ID3D12Resource* m_pd3dNormalBuffer = NULL;
+	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
+
+	// Tangent
+	ID3D12Resource* m_pd3dTangentBuffer = NULL;
+	ID3D12Resource* m_pd3dTangentUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dTangentBufferView;
+
+	// BiTangent
+	ID3D12Resource* m_pd3dBiTangentBuffer = NULL;
+	ID3D12Resource* m_pd3dBiTangentUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBiTangentBufferView;
+
+protected:
+	// Skinning
+	int								m_nBonesPerVertex = 4;
+
+	XMINT4* m_pxmn4BoneIndices = NULL;
+
+	ID3D12Resource* m_pd3dBoneIndexBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneIndexUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneIndexBufferView;
+
+	XMFLOAT4* m_pxmf4BoneWeights = NULL;
+
+	ID3D12Resource* m_pd3dBoneWeightBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneWeightUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;
+
+	int								m_nSkinningBones = 0;
+
+	char(*m_ppstrSkinningBoneNames)[64];
+	CGameObject** m_ppSkinningBoneFrameCaches = NULL;
+
+	XMFLOAT4X4* m_pxmf4x4BindPoseBoneOffsets = NULL;
+
+	ID3D12Resource* m_pd3dcbBindPoseBoneOffsets = NULL;
+	XMFLOAT4X4* m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL; //Transposed
+
+	ID3D12Resource* m_pd3dcbSkinningBoneTransforms = NULL;
+	XMFLOAT4X4* m_pcbxmf4x4MappedSkinningBoneTransforms = NULL;
 };

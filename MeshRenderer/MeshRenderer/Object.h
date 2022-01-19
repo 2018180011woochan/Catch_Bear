@@ -114,6 +114,7 @@ public:
 
 	void SetShader(CShader *pShader);
 	void SetTexturedShader() { CMaterial::SetShader(m_pTexturedShader); }
+	void SetTexturingSkinnedShader() { CMaterial::SetShader(m_pTexturingSkinnedShader); }
 	void SetMaterialType(UINT nType) { m_nType |= nType; }
 	void SetTexture(CTexture *pTexture, UINT nTexture = 0);
 
@@ -141,6 +142,7 @@ public:
 	static CShader					*m_pWireFrameShader;
 	static CShader					*m_pSkinnedAnimationWireFrameShader;
 	static CShader* m_pTexturedShader;
+	static CShader* m_pTexturingSkinnedShader;
 
 	static void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature);
 
@@ -395,6 +397,7 @@ public:
 	void SetShader(int nMaterial, CShader *pShader);
 	void SetWireFrameShader();
 	void SetSkinnedAnimationWireFrameShader();
+	void SetTexturingSkinnedShader();
 	void SetMaterial(int nMaterial, CMaterial *pMaterial);
 
 	void SetChild(CGameObject *pChild, bool bReferenceUpdate=false);
@@ -460,6 +463,9 @@ public:
 	// static mesh
 	static CLoadedModelInfo* LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 	void LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile, CShader* pShader);
+
+	// skinning mesh
+	static CLoadedModelInfo* LoadSkinningGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 };

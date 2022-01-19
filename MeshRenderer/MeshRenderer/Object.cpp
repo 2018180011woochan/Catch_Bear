@@ -169,6 +169,7 @@ void CMaterial::ReleaseUploadBuffers()
 CShader *CMaterial::m_pWireFrameShader = NULL;
 CShader *CMaterial::m_pSkinnedAnimationWireFrameShader = NULL;
 CShader* CMaterial::m_pTexturedShader = NULL;
+CShader* CMaterial::m_pTexturingSkinnedShader = NULL;
 
 void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, char* pstrTextureName, CShader* pShader)
 {
@@ -725,6 +726,16 @@ void CGameObject::SetSkinnedAnimationWireFrameShader()
 	SetMaterial(0, pMaterial);
 }
 
+void CGameObject::SetTexturingSkinnedShader()
+{
+	m_nMaterials = 1;
+	m_ppMaterials = new CMaterial * [m_nMaterials];
+	m_ppMaterials[0] = NULL;
+	CMaterial* pMaterial = new CMaterial(0);
+	pMaterial->SetSkinnedAnimationWireFrameShader();
+	SetMaterial(0, pMaterial);
+}
+
 void CGameObject::SetMaterial(int nMaterial, CMaterial *pMaterial)
 {
 	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->Release();
@@ -1024,13 +1035,15 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
 
-			/**/pGameObject->SetWireFrameShader();
+			/**///pGameObject->SetWireFrameShader();
+			
 		}
 		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
 		{
 			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
 
-			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			//CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinDeformationsFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -1039,7 +1052,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 			pGameObject->SetMesh(pSkinnedMesh);
 
-			pGameObject->SetSkinnedAnimationWireFrameShader();
+			pGameObject->SetTexturingSkinnedShader();
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1232,7 +1245,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 			{
 				char pstrShadingModel[64] = { '\0' };
 				::ReadStringFromFile(pInFile, pstrShadingModel);
-				if (!strcmp(pstrShadingModel, "Lambert"))
+				if (!strcmp(pstrShadingModel, "Lambert"))	// 지금까지의 모델들은 다 Lambert만 씀, Phong 쓰는 모델 있으면 추후에 추가할 예정
 				{
 					::ReadStringFromFile(pInFile, pstrToken);
 					XMFLOAT3	xmf3Ambient, xmf3Diffuse, xmf3Emissive;
@@ -1267,6 +1280,52 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 			}
 		}
 	}
+}
+
+CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
+{
+	FILE* pInFile = NULL;
+	::fopen_s(&pInFile, pstrFileName, "rb");
+	::rewind(pInFile);
+
+	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
+	pLoadedModel->m_pModelRootObject = new CGameObject();
+	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
+
+	char pstrToken[64] = { '\0' };
+
+	for (; ; )
+	{
+		if (::ReadStringFromFile(pInFile, pstrToken))
+		{
+			if (!strcmp(pstrToken, "<Hierarchy>"))
+			{
+				for (; ; )
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					if (!strcmp(pstrToken, "<Frame>:"))
+					{
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+						if (pChild)
+							pLoadedModel->m_pModelRootObject->SetChild(pChild);
+					}
+					else if (!strcmp(pstrToken, "</Hierarchy>"))
+					{
+						break;
+					}
+				}
+			}
+
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	::fclose(pInFile);
+
+	return(pLoadedModel);
 }
 
 void CGameObject::PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent)
