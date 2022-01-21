@@ -219,6 +219,25 @@ struct VS_SKINNED_TEXTURED_OUTPUT
 
 VS_SKINNED_TEXTURED_OUTPUT VSTexturedSkinning(VS_SKINNED_TEXTURED_INPUT input)
 {
+	//VS_SKINNED_TEXTURED_OUTPUT output;
+
+	//output.positionW = float3(0.0f, 0.0f, 0.0f);
+	//output.normalW = float3(0.0f, 0.0f, 0.0f);
+	//output.tangentW = float3(0.0f, 0.0f, 0.0f);
+	//output.bitangentW = float3(0.0f, 0.0f, 0.0f);
+	//matrix mtxVertexToBoneWorld;
+	//for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	//{
+	//	mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+	//	output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	//	output.normalW += input.weights[i] * mul(input.normal, (float3x3)mtxVertexToBoneWorld);
+	//	output.tangentW += input.weights[i] * mul(input.tangent, (float3x3)mtxVertexToBoneWorld);
+	//	output.bitangentW += input.weights[i] * mul(input.bitangent, (float3x3)mtxVertexToBoneWorld);
+	//}
+
+	//output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	//output.uv = input.uv;
+
 	VS_SKINNED_TEXTURED_OUTPUT output;
 
 	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;

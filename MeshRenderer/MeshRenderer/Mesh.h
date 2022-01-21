@@ -218,6 +218,7 @@ public:
 //
 #define SKINNED_ANIMATION_BONES		128
 
+// 일반적인 메쉬 정보(정점/인덱스 버퍼) + m_pxmu4BoneIndices, m_pxmf4BoneWeights
 class CSkinnedMesh : public CMesh
 {
 public:
@@ -227,6 +228,7 @@ public:
 protected:
 	int								m_nBonesPerVertex = 4;
 
+	// 정점마다 뼈들의 인덱스/가중치를 가지고 있어야 한다!
 	XMINT4							*m_pxmn4BoneIndices = NULL;
 
 	ID3D12Resource					*m_pd3dBoneIndexBuffer = NULL;
@@ -240,16 +242,22 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;
 
 public:
+	// 스킨메쉬에 영향을 줄 수 있는 뼈의 전체 개수
 	int								m_nSkinningBones = 0; 
 
+	// 영향을 주는 뼈들의 이름들의 포인터들의 배열
 	char							(*m_ppstrSkinningBoneNames)[64];
+	// 뼈에 해당하는 트리에서의 노드에 대한 포인터들을 저장하기 위한 배열
 	CGameObject						**m_ppSkinningBoneFrameCaches = NULL;
 
+	// 스킨메쉬마다 뼈들의 리스트에 해당하는 오프셋 행렬
 	XMFLOAT4X4						*m_pxmf4x4BindPoseBoneOffsets = NULL; 
 
+	// 오프셋 행렬을 쉐이더로 넘기기 위한 리소스/상수버퍼
 	ID3D12Resource					*m_pd3dcbBindPoseBoneOffsets = NULL;
 	XMFLOAT4X4						*m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL; //Transposed
 
+	// 정점들에 영향을 주는 각 뼈들에 대한 애니메이션 정보의 리소스/상수버퍼
 	ID3D12Resource					*m_pd3dcbSkinningBoneTransforms = NULL;
 	XMFLOAT4X4						*m_pcbxmf4x4MappedSkinningBoneTransforms = NULL;
 

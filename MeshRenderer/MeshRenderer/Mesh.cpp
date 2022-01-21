@@ -507,6 +507,7 @@ CSkinnedMesh::~CSkinnedMesh()
 
 void CSkinnedMesh::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
+
 }
 
 void CSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -1135,6 +1136,7 @@ void CTexturingSkinnedMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12Gra
 
 void CTexturingSkinnedMesh::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+
 }
 
 void CTexturingSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
