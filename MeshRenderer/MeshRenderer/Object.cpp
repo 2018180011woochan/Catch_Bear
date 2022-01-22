@@ -1030,20 +1030,20 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			//CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
-			CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
+			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			//CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
 
-			/**///pGameObject->SetWireFrameShader();
+			pGameObject->SetWireFrameShader();
 
 		}
 		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
 		{
 			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
 
-			//CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
-			CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
+			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			//CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinDeformationsFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -1052,7 +1052,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 
 			pGameObject->SetMesh(pSkinnedMesh);
 
-			pGameObject->SetTexturingSkinnedShader();
+			pGameObject->SetSkinnedAnimationWireFrameShader();
+			//pGameObject->SetTexturingSkinnedShader();
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1638,15 +1639,18 @@ void CSkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 CAngrybotObject::CAngrybotObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo* pAngrybotModel = pModel;
-	if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	if (!pAngrybotModel) 
+		pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+
+	//SetMesh(pAngrybotModel->m_pModelRootObject->m_pChild->m_pMesh);
 
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pAngrybotModel);
-
+	//SetTrackAnimationSet(0, 0);
 	strcpy_s(m_pstrFrameName, "Angrybot");
 
-	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.2f, 0.2f, 0.2f);
+	//Rotate(-90.0f, 0.0f, 0.0f);
+	//SetScale(0.2f, 0.2f, 0.2f);
 }
 
 CAngrybotObject::~CAngrybotObject()

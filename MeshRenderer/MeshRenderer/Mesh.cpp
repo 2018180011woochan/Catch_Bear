@@ -112,6 +112,55 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 				m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 			}
 		}
+		else if (!strcmp(pstrToken, "<UVs>:"))
+		{
+			int nUVs = ::ReadIntegerFromFile(pInFile);
+			int nNum = ::ReadIntegerFromFile(pInFile);
+			if (nUVs)
+			{
+				m_nType |= VERTEXT_TEXTURE_COORD0;
+				m_pxmf2TextureCoords0 = new XMFLOAT2[nUVs];
+				nReads = (UINT)::fread(m_pxmf2TextureCoords0, sizeof(XMFLOAT2), nUVs, pInFile);
+			}
+		}
+		else if (!strcmp(pstrToken, "<Normals>:"))
+		{
+			int nNormals = ::ReadIntegerFromFile(pInFile);
+			int nNormalNum = ::ReadIntegerFromFile(pInFile);
+
+			if (nNormals > 0)
+			{
+				m_nType |= VERTEXT_NORMAL;
+				XMFLOAT3* m_pxmf3Normals = NULL;
+				m_pxmf3Normals = new XMFLOAT3[nNormals];
+				nReads = (UINT)::fread(m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
+			}
+		}
+		else if (!strcmp(pstrToken, "<Tangents>:"))
+		{
+			int nTangents = ::ReadIntegerFromFile(pInFile);
+			int nTangentNum = ::ReadIntegerFromFile(pInFile);
+
+			if (nTangents > 0)
+			{
+				m_nType |= VERTEXT_TANGENT;
+				XMFLOAT3* m_pxmf3Tangents = NULL;
+				m_pxmf3Tangents = new XMFLOAT3[nTangents];
+				nReads = (UINT)::fread(m_pxmf3Tangents, sizeof(XMFLOAT3), nTangents, pInFile);
+			}
+		}
+		else if (!strcmp(pstrToken, "<BiTangents>:"))
+		{
+			int nBiTangents = ::ReadIntegerFromFile(pInFile);
+			int nBiTangentNum = ::ReadIntegerFromFile(pInFile);
+
+			if (nBiTangents > 0)
+			{
+				XMFLOAT3* m_pxmf3BiTangents = NULL;
+				m_pxmf3BiTangents = new XMFLOAT3[nBiTangents];
+				nReads = (UINT)::fread(m_pxmf3BiTangents, sizeof(XMFLOAT3), nBiTangents, pInFile);
+			}
+		}
 		else if (!strcmp(pstrToken, "<Polygons>:"))
 		{
 			int nPolygons = ::ReadIntegerFromFile(pInFile);
