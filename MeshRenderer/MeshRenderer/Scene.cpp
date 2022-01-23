@@ -99,13 +99,13 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppGameObjects[0]->SetScale(0.1f, 0.1f, 0.1f);
 	//if (pTreeModel) delete pTreeModel;
 
-	//CLoadedModelInfo* pTreeModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
-	//m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
-	//m_ppGameObjects[0] = pTreeModel->m_pModelRootObject->m_pChild;
-	//m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
-	//m_ppGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-	////m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//if (pTreeModel) delete pTreeModel;
+	CLoadedModelInfo* pTreeModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
+	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
+	m_ppGameObjects[0] = pTreeModel->m_pModelRootObject->m_pChild;
+	m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
+	m_ppGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	if (pTreeModel) delete pTreeModel;
 
 	//pTreeModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Mushroom_02.bin", NULL);
 	//m_ppGameObjects[1] = new CTreeObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
@@ -115,21 +115,22 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//if (pTreeModel) delete pTreeModel;
 
 	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
-	m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1);
-	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.55f);
-	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.5f);
-	m_ppGameObjects[0]->SetPosition(380.0f, m_pTerrain->GetHeight(380.0f, 725.0f), 725.0f);
-	if (pAngrybotModel) delete pAngrybotModel;
+	////CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
+	//m_ppGameObjects[0] = new CAngrybotObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pAngrybotModel, 1);
+	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 1);
+	////m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackPosition(0, 0.0f);
+	////m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackSpeed(0, 0.5f);
+	////m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
+	//if (pAngrybotModel) delete pAngrybotModel;
 
-	/*CLoadedModelInfo* pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
-	m_ppGameObjects[2] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pElvenWitchModel, 1);
-	m_ppGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppGameObjects[2]->SetPosition(330.0f, m_pTerrain->GetHeight(330.0f, 700.0f) + 25.0f, 700.0f);
-	if (pElvenWitchModel) delete pElvenWitchModel;
+	//CLoadedModelInfo* pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
+	//m_ppGameObjects[0] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pElvenWitchModel, 1);
+	//m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
+	////m_ppGameObjects[2]->SetPosition(330.0f, m_pTerrain->GetHeight(330.0f, 700.0f) + 25.0f, 700.0f);
+	//if (pElvenWitchModel) delete pElvenWitchModel;
 
-	CLoadedModelInfo *pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/MonsterWeapon.bin", NULL);
+	/*CLoadedModelInfo *pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/MonsterWeapon.bin", NULL);
 	m_ppGameObjects[3] = new CMonsterWeaponObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 1);
 	m_ppGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[3]->SetPosition(300.0f, m_pTerrain->GetHeight(300.0f, 650.0f), 650.0f);
@@ -568,7 +569,8 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		if (m_ppGameObjects[i])
 		{
 			m_ppGameObjects[i]->Animate(m_fElapsedTime);
-			if (!m_ppGameObjects[i]->m_pSkinnedAnimationController) m_ppGameObjects[i]->UpdateTransform(NULL);
+			if (!m_ppGameObjects[i]->m_pSkinnedAnimationController) 
+				m_ppGameObjects[i]->UpdateTransform(NULL);
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

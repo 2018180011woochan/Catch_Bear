@@ -1642,12 +1642,13 @@ CAngrybotObject::CAngrybotObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	if (!pAngrybotModel) 
 		pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
 
-	//SetMesh(pAngrybotModel->m_pModelRootObject->m_pChild->m_pMesh);
+	SetMesh(pAngrybotModel->m_pModelRootObject->m_pChild->m_pMesh);
 
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pAngrybotModel);
 	//SetTrackAnimationSet(0, 0);
-	strcpy_s(m_pstrFrameName, "Angrybot");
+	//strcpy_s(m_pstrFrameName, "Angrybot");
+	strcpy_s(m_pstrFrameName, "Bear");
 
 	//Rotate(-90.0f, 0.0f, 0.0f);
 	//SetScale(0.2f, 0.2f, 0.2f);
