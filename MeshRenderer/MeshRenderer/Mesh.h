@@ -216,7 +216,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-#define SKINNED_ANIMATION_BONES		128
+//#define SKINNED_ANIMATION_BONES		128
+#define SKINNED_ANIMATION_BONES		288
 
 // 일반적인 메쉬 정보(정점/인덱스 버퍼) + m_pxmu4BoneIndices, m_pxmf4BoneWeights
 class CSkinnedMesh : public CMesh

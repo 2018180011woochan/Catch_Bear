@@ -143,7 +143,8 @@ float4 PSTexturedWithoutLighting(VS_TEXTURED_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			128
+//#define SKINNED_ANIMATION_BONES			128
+#define SKINNED_ANIMATION_BONES			288
 
 cbuffer cbBoneOffsets : register(b7)
 {

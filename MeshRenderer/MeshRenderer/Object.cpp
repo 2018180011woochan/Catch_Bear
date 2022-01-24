@@ -1646,7 +1646,7 @@ CAngrybotObject::CAngrybotObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pAngrybotModel);
-	//SetTrackAnimationSet(0, 0);
+	SetTrackAnimationSet(0, 0);
 	//strcpy_s(m_pstrFrameName, "Angrybot");
 	strcpy_s(m_pstrFrameName, "Bear");
 
@@ -1670,8 +1670,8 @@ CElvenWitchObject::CElvenWitchObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	strcpy_s(m_pstrFrameName, "ElvenWitch");
 
-	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.15f, 0.15f, 0.15f);
+	//Rotate(-90.0f, 0.0f, 0.0f);
+	//SetScale(0.15f, 0.15f, 0.15f);
 
 	SetActive("elven_staff", false);
 	SetActive("elven_staff01", false);
