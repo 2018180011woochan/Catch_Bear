@@ -601,6 +601,7 @@ void CSkinnedMesh::PrepareSkinning(CGameObject *pModelRootObject)
 	{
 		m_ppSkinningBoneFrameCaches[i] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[i]);
 	}
+	int k = 0;
 }
 
 void CSkinnedMesh::LoadSkinDeformationsFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile)

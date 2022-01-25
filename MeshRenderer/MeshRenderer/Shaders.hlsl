@@ -170,6 +170,10 @@ struct VS_SKINNED_WIREFRAME_OUTPUT
 
 VS_SKINNED_WIREFRAME_OUTPUT VSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_INPUT input)
 {
+
+
+	/////////////////////////////////////////////////
+
 	VS_SKINNED_WIREFRAME_OUTPUT output;
 
 	float3 positionW = float3(0.0f, 0.0f, 0.0f);
@@ -179,7 +183,6 @@ VS_SKINNED_WIREFRAME_OUTPUT VSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_INP
 		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 		positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	}
-
 	output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
 //	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 
