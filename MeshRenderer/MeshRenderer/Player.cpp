@@ -266,6 +266,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	// fbx파일을 바이너리로 익스포터를 만들어서 모델을 불러들여서
 	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL);
+	//	CLoadedModelInfo *pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
 	// 불러온 모델을 플레이어의 child로 set한다
 	// -> 플레이어가 움직이면 Angrybot모델도 따라서 움직일 것이다
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -273,7 +274,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	// 플레이어에 애니메이션 컨트롤러를 만든다
 	// - 2: 애니메이션 트랙의 개수
 	// - pAngrybotModel: 사용할 애니메이션 모델
-	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 1, pAngrybotModel);
 	// Animation Set들을 설정한다
 	// - 0번 트랙에 0번 애니메이션을 set한다
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);	
@@ -284,11 +285,11 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	// - 1번 트랙에 연결된 애니메이션은 2.5초부터 4.5초 사이에 있는 애니메이션을 재생한다
 	m_pSkinnedAnimationController->SetTrackStartEndTime(1, 2.5f, 4.5f);
 
-	//// 1번트랙 재생속도를 1(원래 재생속도) -> 0.3으로 바꾸면 걷기의 속도가 느려짐
-	//m_pSkinnedAnimationController->SetTrackSpeed(1, 0.3f);
+	// 1번트랙 재생속도를 1(원래 재생속도) -> 0.3으로 바꾸면 걷기의 속도가 느려짐
+	m_pSkinnedAnimationController->SetTrackSpeed(1, 0.3f);
 
-	// 1번트랙 재생속도를 1(원래 재생속도) -> 2으로 바꾸면 걷기의 속도가 빨라짐(빠르게 걷는듯한 느낌)
-	// (트랙의 시간이 게임세상의 시간보다 2배 빨리감)
+	 //1번트랙 재생속도를 1(원래 재생속도) -> 2으로 바꾸면 걷기의 속도가 빨라짐(빠르게 걷는듯한 느낌)
+	 //(트랙의 시간이 게임세상의 시간보다 2배 빨리감)
 	m_pSkinnedAnimationController->SetTrackSpeed(1, 2.f);
 
 #ifdef _WITH_SOUND_CALLBACK

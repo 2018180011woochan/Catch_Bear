@@ -170,8 +170,6 @@ struct VS_SKINNED_WIREFRAME_OUTPUT
 
 VS_SKINNED_WIREFRAME_OUTPUT VSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_INPUT input)
 {
-
-
 	/////////////////////////////////////////////////
 
 	VS_SKINNED_WIREFRAME_OUTPUT output;

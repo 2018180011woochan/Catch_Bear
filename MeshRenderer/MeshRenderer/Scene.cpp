@@ -123,12 +123,13 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	////m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
 	//if (pAngrybotModel) delete pAngrybotModel;
 
-	CLoadedModelInfo* pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
-	m_ppGameObjects[0] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pElvenWitchModel, 1);
+	// 이거
+	CLoadedModelInfo* pBearModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
+	m_ppGameObjects[0] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pBearModel, 1);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->SetPosition(340.0f, 230.0f, 590.0f);
 	//m_ppGameObjects[2]->SetPosition(330.0f, m_pTerrain->GetHeight(330.0f, 700.0f) + 25.0f, 700.0f);
-	if (pElvenWitchModel) delete pElvenWitchModel;
+	if (pBearModel) delete pBearModel;
 
 	/*CLoadedModelInfo *pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/MonsterWeapon.bin", NULL);
 	m_ppGameObjects[3] = new CMonsterWeaponObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 1);
@@ -568,9 +569,14 @@ void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	{
 		if (m_ppGameObjects[i])
 		{
+			// 1. 애니메이션 컨트롤러의 시간을 m_fElapsedTime만큼 증가시킨다
 			m_ppGameObjects[i]->Animate(m_fElapsedTime);
+			
+			// 2. 계층구조 Update, 행렬의 정보를 쉐이더에게 넘긴다
 			if (!m_ppGameObjects[i]->m_pSkinnedAnimationController) 
 				m_ppGameObjects[i]->UpdateTransform(NULL);
+
+			// 3. Render(리소스 버퍼에만 무언가를 써놓음)
 			m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 		}
 	}

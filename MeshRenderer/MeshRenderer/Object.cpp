@@ -1440,6 +1440,10 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
 
+	FILE* pInFile2 = NULL;
+	::fopen_s(&pInFile2, "Model/Anim@Alert.bin", "rb");
+	::rewind(pInFile2);
+
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
 	pLoadedModel->m_pModelRootObject = new CGameObject();
 	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
@@ -1468,7 +1472,13 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd
 			}
 			else if (!strcmp(pstrToken, "<Animation>"))
 			{
-				CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel);
+				if (!strcmp(pstrFileName, "Model/Angrybot.bin"))
+					CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel);
+				else {
+					::ReadStringFromFile(pInFile2, pstrToken);
+					//CGameObject::LoadAnimationFromFile(pInFile2, pLoadedModel);
+					CGameObject::LoadAnimationFromFile(pInFile, pLoadedModel);
+				}
 				pLoadedModel->PrepareSkinning();
 			}
 			else if (!strcmp(pstrToken, "</Animation>"))
@@ -1671,11 +1681,11 @@ CElvenWitchObject::CElvenWitchObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 	strcpy_s(m_pstrFrameName, "Evilbear");
 
-	//Rotate(-90.0f, 0.0f, 0.0f);
-	//SetScale(0.15f, 0.15f, 0.15f);
+	Rotate(0.0f, 180.0f, 0.0f);
+	//SetScale(0.1f, 0.1f, 0.1f);
 
-	SetActive("elven_staff", false);
-	SetActive("elven_staff01", false);
+	//SetActive("elven_staff", false);
+	//SetActive("elven_staff01", false);
 }
 
 CElvenWitchObject::~CElvenWitchObject()
