@@ -467,6 +467,11 @@ public:
 	// skinning mesh
 	static CLoadedModelInfo* LoadSkinningGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 
+	// Bear Mesh
+	static CLoadedModelInfo* LoadBearGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
+	static void LoadAnimationSetsFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel);
+	static void LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel);
+
 	static void PrintFrameInfo(CGameObject *pGameObject, CGameObject *pParent);
 };
 
