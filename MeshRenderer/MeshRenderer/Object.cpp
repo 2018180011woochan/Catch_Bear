@@ -1036,7 +1036,6 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 			nReads = (UINT)::fread(&pGameObject->m_xmf3Scale, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&pGameObject->m_xmf3Rotation, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&pGameObject->m_xmf3Translation, sizeof(XMFLOAT3), 1, pInFile);
-
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
@@ -1080,7 +1079,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					if (!strcmp(pstrToken, "<Frame>:"))
 					{
 						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
-						if (pChild) pGameObject->SetChild(pChild);
+						delete pChild;
+						//if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 						TCHAR pstrDebug[256] = { 0 };
 						_stprintf_s(pstrDebug, 256, _T("(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
@@ -1341,9 +1341,9 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 
 CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
 {
-	FILE* pInFile = NULL;
-	::fopen_s(&pInFile, pstrFileName, "rb");
-	::rewind(pInFile);
+	FILE* pInModelFile = NULL;
+	::fopen_s(&pInModelFile, pstrFileName, "rb");
+	::rewind(pInModelFile);
 
 	FILE* pInAniFile = NULL;
 	::fopen_s(&pInAniFile, "Model/Anim@Alert.bin", "rb");
@@ -1357,16 +1357,16 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 
 	for (; ; )
 	{
-		if (::ReadStringFromFile(pInFile, pstrToken))
+		if (::ReadStringFromFile(pInModelFile, pstrToken))
 		{
 			if (!strcmp(pstrToken, "<Hierarchy>"))
 			{
 				for (; ; )
 				{
-					::ReadStringFromFile(pInFile, pstrToken);
+					::ReadStringFromFile(pInModelFile, pstrToken);
 					if (!strcmp(pstrToken, "<Frame>:"))
 					{
-						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
 						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
 					}
 					else if (!strcmp(pstrToken, "</Hierarchy>"))
@@ -1401,7 +1401,7 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 	CGameObject::PrintFrameInfo(pLoadedModel->m_pModelRootObject, NULL);
 #endif
 
-	::fclose(pInFile);
+	::fclose(pInModelFile);
 
 	return(pLoadedModel);
 }
@@ -1445,7 +1445,7 @@ void CGameObject::LoadAnimationSetsFromFile(FILE* pInFile, CLoadedModelInfo* pLo
 	}
 }
 
-void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel)
+void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -1455,6 +1455,14 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
+		if (!strcmp(pstrToken, "<Transform>:"))
+		{
+			nReads = (UINT)::fread(&pGameObject->m_xmf4x4ToParent, sizeof(XMFLOAT4X4), 1, pInFile);
+
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Scale, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Rotation, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Translation, sizeof(XMFLOAT3), 1, pInFile);
+		}
 		if (!strcmp(pstrToken, "<AnimationSets>:"))
 		{
 			nAnimationSets = ::ReadIntegerFromFile(pInFile);
@@ -1537,6 +1545,73 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 			break;
 		}
 	}
+}
+
+CLoadedModelInfo* CGameObject::LoadBearFromModelFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
+{
+	FILE* pInModelFile = NULL;
+	::fopen_s(&pInModelFile, pstrFileName, "rb");
+	::rewind(pInModelFile);
+
+	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
+	pLoadedModel->m_pModelRootObject = new CGameObject();
+	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
+
+	char pstrToken[64] = { '\0' };
+
+	for (; ; )
+	{
+		if (::ReadStringFromFile(pInModelFile, pstrToken))
+		{
+			if (!strcmp(pstrToken, "<Hierarchy>"))
+			{
+				for (; ; )
+				{
+					::ReadStringFromFile(pInModelFile, pstrToken);
+					if (!strcmp(pstrToken, "<Frame>:"))
+					{
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
+					}
+					else if (!strcmp(pstrToken, "</Hierarchy>"))
+					{
+						break;
+					}
+				}
+			}
+			else if (!strcmp(pstrToken, "<Animation>"))
+			{
+				CGameObject::LoadAnimationSetsFromFile(pInFile, pLoadedModel);
+				CGameObject::LoadAnimationDatasFromFile(pInAniFile, pLoadedModel);
+				pLoadedModel->PrepareSkinning();
+				break;
+			}
+			else if (!strcmp(pstrToken, "</Animation>"))
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+#ifdef _WITH_DEBUG_FRAME_HIERARCHY
+	TCHAR pstrDebug[256] = { 0 };
+	_stprintf_s(pstrDebug, 256, _T("Frame Hierarchy\n"));
+	OutputDebugString(pstrDebug);
+
+	CGameObject::PrintFrameInfo(pLoadedModel->m_pModelRootObject, NULL);
+#endif
+
+	::fclose(pInModelFile);
+
+	return(pLoadedModel);
+}
+
+void CGameObject::LoadBearFromAnimationFile(char* pstrFileName, CLoadedModelInfo* pLoadModel)
+{
 }
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
