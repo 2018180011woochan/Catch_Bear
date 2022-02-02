@@ -1016,7 +1016,7 @@ int ReadStringFromFile(FILE* pInFile, char* pstrToken)
 	return(nStrLength);
 }
 
-CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes)
+CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes, FILE* pAniFile)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -1078,7 +1078,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					::ReadStringFromFile(pInFile, pstrToken);
 					if (!strcmp(pstrToken, "<Frame>:"))
 					{
-						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, pAniFile);
 						if (pChild) pGameObject->SetChild(pChild);
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
@@ -1090,15 +1090,8 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 				}
 			}
 		}
-		// 모델 fbx파일 다 읽어옴 -> 애니메이션 fbx파일 읽기 시작
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
-			FILE* pInAniFile = NULL;
-			::fopen_s(&pInAniFile, "Model/Anim@Alert.bin", "rb");
-			::rewind(pInAniFile);
-
-			CGameObject* pChild = CGameObject::LoadBearFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInAniFile, pShader, pnSkinnedMeshes);
-			if (pChild) pGameObject->SetChild(pChild);
 			break;
 		}
 	}
@@ -1352,6 +1345,10 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 	::fopen_s(&pInModelFile, pstrFileName, "rb");
 	::rewind(pInModelFile);
 
+	FILE* pInAniFile = NULL;
+	::fopen_s(&pInAniFile, "Model/Anim@Alert.bin", "rb");
+	::rewind(pInAniFile);
+
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
 	pLoadedModel->m_pModelRootObject = new CGameObject();
 	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
@@ -1369,7 +1366,7 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 					::ReadStringFromFile(pInModelFile, pstrToken);
 					if (!strcmp(pstrToken, "<Frame>:"))
 					{
-						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+						CGameObject* pChild = CGameObject::LoadBearMeshFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes, pInAniFile);
 						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
 					}
 					else if (!strcmp(pstrToken, "</Hierarchy>"))
@@ -1407,6 +1404,92 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 	::fclose(pInModelFile);
 
 	return(pLoadedModel);
+}
+
+CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes, FILE* pAniFile)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	int nFrame = ::ReadIntegerFromFile(pInFile);
+
+	CGameObject* pGameObject = new CGameObject();
+	::ReadStringFromFile(pInFile, pGameObject->m_pstrFrameName);
+
+	for (; ; )
+	{
+		::ReadStringFromFile(pInFile, pstrToken);
+		if (!strcmp(pstrToken, "<Transform>:"))
+		{
+			nReads = (UINT)::fread(&pGameObject->m_xmf4x4ToParent, sizeof(XMFLOAT4X4), 1, pInFile);
+
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Scale, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Rotation, sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&pGameObject->m_xmf3Translation, sizeof(XMFLOAT3), 1, pInFile);
+		}
+		else if (!strcmp(pstrToken, "<Mesh>:"))
+		{
+			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			//CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
+			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+			pGameObject->SetMesh(pMesh);
+
+			pGameObject->SetWireFrameShader();
+
+		}
+		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
+		{
+			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
+
+			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			//CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
+			pSkinnedMesh->LoadSkinDeformationsFromFile(pd3dDevice, pd3dCommandList, pInFile);
+			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+			::ReadStringFromFile(pInFile, pstrToken); //<Mesh>:
+			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+
+			pGameObject->SetMesh(pSkinnedMesh);
+
+			pGameObject->SetSkinnedAnimationWireFrameShader();
+			//pGameObject->SetTexturingSkinnedShader();
+		}
+		else if (!strcmp(pstrToken, "<Materials>:"))
+		{
+			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pInFile, pShader);
+		}
+		else if (!strcmp(pstrToken, "<Children>:"))
+		{
+			int nChilds = ::ReadIntegerFromFile(pInFile);
+			if (nChilds > 0)
+			{
+				for (int i = 0; i < nChilds; i++)
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					if (!strcmp(pstrToken, "<Frame>:"))
+					{
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, pAniFile);
+						if (pChild) pGameObject->SetChild(pChild);
+
+#ifdef _WITH_DEBUG_FRAME_HIERARCHY
+						TCHAR pstrDebug[256] = { 0 };
+						_stprintf_s(pstrDebug, 256, _T("(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
+						OutputDebugString(pstrDebug);
+#endif
+					}
+					// 모델 fbx파일 다 읽어옴 -> 애니메이션 fbx파일 읽기 시작
+					else if (!strcmp(pstrToken, "</Frame>"))
+					{
+						CGameObject* pChild = CGameObject::LoadBearFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pAniFile, pShader, pnSkinnedMeshes);
+						if (pChild) pGameObject->SetChild(pChild);
+						break;
+					}
+				}
+			}
+		}
+
+	}
+	return(pGameObject);
 }
 
 CGameObject* CGameObject::LoadBearFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes)
@@ -1457,6 +1540,10 @@ CGameObject* CGameObject::LoadBearFrameHierarchyFromFile(ID3D12Device* pd3dDevic
 			{
 				break;
 			}
+		}
+		else if (!strcmp(pstrToken, "</Hierarchy>"))
+		{
+			break;
 		}
 	}
 	return(pGameObject);
