@@ -1369,10 +1369,6 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 						CGameObject* pChild = CGameObject::LoadBearMeshFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes, pInAniFile);
 						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
 					}
-					else if (!strcmp(pstrToken, "</Hierarchy>"))
-					{
-						break;
-					}
 				}
 			}
 			else if (!strcmp(pstrToken, "<Animation>"))
@@ -1487,6 +1483,8 @@ CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12G
 				}
 			}
 		}
+		else if (!strcmp(pstrToken, "</Hierarchy>"))
+			break;
 
 	}
 	return(pGameObject);
