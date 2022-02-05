@@ -488,7 +488,7 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
 	m_ppSkinnedMeshes = new CSkinnedMesh * [m_nSkinnedMeshes];
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i] = pModel->m_ppSkinnedMeshes[i];
-
+	
 	m_ppd3dcbSkinningBoneTransforms = new ID3D12Resource * [m_nSkinnedMeshes];
 	m_ppcbxmf4x4MappedSkinningBoneTransforms = new XMFLOAT4X4 * [m_nSkinnedMeshes];
 
@@ -1349,6 +1349,10 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 	::fopen_s(&pInAniFile, "Model/Anim@Alert.bin", "rb");
 	::rewind(pInAniFile);
 
+	FILE* pInAniFile2 = NULL;
+	::fopen_s(&pInAniFile2, "Model/Alert.bin", "rb");
+	::rewind(pInAniFile2);
+
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
 	pLoadedModel->m_pModelRootObject = new CGameObject();
 	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
@@ -1368,15 +1372,16 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 					{
 						CGameObject* pChild = CGameObject::LoadBearMeshFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInModelFile, pShader, &pLoadedModel->m_nSkinnedMeshes, pInAniFile);
 						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
+						CGameObject::LoadAnimationSetsFromFile(pInModelFile, pLoadedModel);
+						CGameObject::LoadAnimationDatasFromFile(pInAniFile2, pLoadedModel, NULL);
+						return pLoadedModel;
 					}
+					//else if (!strcmp(pstrToken, "<AnimationSets>:")) {
+						/*CGameObject::LoadAnimationSetsFromFile(pInModelFile, pLoadedModel);
+						CGameObject::LoadAnimationDatasFromFile(pInAniFile, pLoadedModel, NULL);
+						return pLoadedModel;*/
+					//}
 				}
-			}
-			else if (!strcmp(pstrToken, "<Animation>"))
-			{
-				//CGameObject::LoadAnimationSetsFromFile(pInFile, pLoadedModel);
-				//CGameObject::LoadAnimationDatasFromFile(pInAniFile, pLoadedModel);
-				pLoadedModel->PrepareSkinning();
-				break;
 			}
 			else if (!strcmp(pstrToken, "</Animation>"))
 			{
@@ -1464,7 +1469,7 @@ CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12G
 					::ReadStringFromFile(pInFile, pstrToken);
 					if (!strcmp(pstrToken, "<Frame>:"))
 					{
-						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, pAniFile);
+						CGameObject* pChild = CGameObject::LoadBearMeshFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, pAniFile);
 						if (pChild) pGameObject->SetChild(pChild);
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
@@ -1472,6 +1477,12 @@ CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12G
 						_stprintf_s(pstrDebug, 256, _T("(Frame: %p) (Parent: %p)\n"), pChild, pGameObject);
 						OutputDebugString(pstrDebug);
 #endif
+					}
+					else if (!strcmp(pstrToken, "<Animation>"))
+					{
+						int k = 0;
+						// 이 함수 나가서 애니메이션 정보 읽어야함
+						return pGameObject;
 					}
 					// 모델 fbx파일 다 읽어옴 -> 애니메이션 fbx파일 읽기 시작
 					else if (!strcmp(pstrToken, "</Frame>"))
@@ -1575,11 +1586,11 @@ void CGameObject::LoadAnimationSetsFromFile(FILE* pInFile, CLoadedModelInfo* pLo
 			pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet] = new CAnimationSet(fStartTime, fEndTime, pstrToken);
 			CAnimationSet* pAnimationSet = pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet];
 
-			::ReadStringFromFile(pInFile, pstrToken);
-			if (nAnimationSet == 0)
-				break;
+			//::ReadStringFromFile(pInFile, pstrToken);
+			//if (nAnimationSet == 0)
+			//	break;
 		}
-		else if (!strcmp(pstrToken, "</AnimationSets>"))
+		else if (!strcmp(pstrToken, "</AnimationSet>"))
 		{
 			break;
 		}
@@ -1681,7 +1692,7 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 			}
 			::ReadStringFromFile(pInFile, pstrToken); //</AnimationSet>
 		}
-		else if (!strcmp(pstrToken, "</AnimationSets>"))
+		else if (!strcmp(pstrToken, "</Animation>"))
 		{
 			break;
 		}
