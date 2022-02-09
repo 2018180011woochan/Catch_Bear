@@ -488,7 +488,7 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
 	m_ppSkinnedMeshes = new CSkinnedMesh * [m_nSkinnedMeshes];
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i] = pModel->m_ppSkinnedMeshes[i];
-	
+
 	m_ppd3dcbSkinningBoneTransforms = new ID3D12Resource * [m_nSkinnedMeshes];
 	m_ppcbxmf4x4MappedSkinningBoneTransforms = new XMFLOAT4X4 * [m_nSkinnedMeshes];
 
@@ -1374,6 +1374,7 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
 						CGameObject::LoadAnimationSetsFromFile(pInModelFile, pLoadedModel);
 						CGameObject::LoadAnimationDatasFromFile(pInAniFile2, pLoadedModel, NULL);
+						pLoadedModel->PrepareSkinning();
 						return pLoadedModel;
 					}
 					//else if (!strcmp(pstrToken, "<AnimationSets>:")) {
@@ -1448,7 +1449,8 @@ CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12G
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 			::ReadStringFromFile(pInFile, pstrToken); //<Mesh>:
-			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
+			if (!strcmp(pstrToken, "<Mesh>:")) 
+				pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
 
@@ -2103,6 +2105,7 @@ CElvenWitchObject::CElvenWitchObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
 
 	SetChild(pElvenWitchModel->m_pModelRootObject, true);
+	SetMesh(pElvenWitchModel->m_pModelRootObject->m_pChild->m_pMesh);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pElvenWitchModel);
 
 	strcpy_s(m_pstrFrameName, "Evilbear");
