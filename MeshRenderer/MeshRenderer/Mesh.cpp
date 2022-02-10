@@ -561,6 +561,7 @@ void CSkinnedMesh::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphic
 
 void CSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	int k = 0;
 	if (m_pd3dcbBindPoseBoneOffsets)
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbBoneOffsetsGpuVirtualAddress = m_pd3dcbBindPoseBoneOffsets->GetGPUVirtualAddress();
@@ -574,7 +575,10 @@ void CSkinnedMesh::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandL
 
 		for (int j = 0; j < m_nSkinningBones; j++)
 		{
-			XMStoreFloat4x4(&m_pcbxmf4x4MappedSkinningBoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&m_ppSkinningBoneFrameCaches[j]->m_xmf4x4World)));
+			if (m_ppSkinningBoneFrameCaches[j] != NULL)
+				XMStoreFloat4x4(&m_pcbxmf4x4MappedSkinningBoneTransforms[j], XMMatrixTranspose(XMLoadFloat4x4(&m_ppSkinningBoneFrameCaches[j]->m_xmf4x4World)));
+			if (m_ppSkinningBoneFrameCaches[j] == NULL)
+				int k = 0;
 		}
 	}
 }
