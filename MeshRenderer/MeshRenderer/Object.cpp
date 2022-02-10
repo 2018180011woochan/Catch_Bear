@@ -1486,15 +1486,22 @@ CGameObject* CGameObject::LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12G
 						// 이 함수 나가서 애니메이션 정보 읽어야함
 						return pGameObject;
 					}
-					// 모델 fbx파일 다 읽어옴 -> 애니메이션 fbx파일 읽기 시작
+					
 					else if (!strcmp(pstrToken, "</Frame>"))
 					{
-						CGameObject* pChild = CGameObject::LoadBearFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pAniFile, pShader, pnSkinnedMeshes);
-						if (pChild) pGameObject->SetChild(pChild);
+						//CGameObject* pChild = CGameObject::LoadBearFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pAniFile, pShader, pnSkinnedMeshes);
+						//if (pChild) pGameObject->SetChild(pChild);
 						break;
 					}
 				}
 			}
+		}
+		// 모델 fbx파일 다 읽어옴 -> 애니메이션 fbx파일 읽기 시작(계층구조)
+		else if (!strcmp(pstrToken, "</Frame>"))
+		{
+			CGameObject* pChild = CGameObject::LoadBearFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pAniFile, pShader, pnSkinnedMeshes);
+			if (pChild) pGameObject->SetChild(pChild);
+			break;
 		}
 		else if (!strcmp(pstrToken, "</Hierarchy>"))
 			break;
@@ -1522,7 +1529,8 @@ CGameObject* CGameObject::LoadBearFrameHierarchyFromFile(ID3D12Device* pd3dDevic
 			if (!strcmp(pstrToken, "<Frame>:"))
 			{
 				CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
-				if (pChild) pGameObject->SetChild(pChild);
+				//if (pChild) pGameObject->SetChild(pChild);
+				if (pChild) pGameObject = pChild;
 			}
 
 			if (!strcmp(pstrToken, "<Children>:"))
@@ -1536,7 +1544,8 @@ CGameObject* CGameObject::LoadBearFrameHierarchyFromFile(ID3D12Device* pd3dDevic
 						if (!strcmp(pstrToken, "<Frame>:"))
 						{
 							CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes);
-							if (pChild) pGameObject->SetChild(pChild);
+							//if (pChild) pGameObject->SetChild(pChild);
+							if (pChild) pGameObject = pChild;
 
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 							TCHAR pstrDebug[256] = { 0 };

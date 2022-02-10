@@ -596,7 +596,7 @@ void CSkinnedMesh::ReleaseUploadBuffers()
 
 void CSkinnedMesh::PrepareSkinning(CGameObject *pModelRootObject)
 {
-//	m_ppSkinningBoneFrameCaches = new CGameObject*[m_nSkinningBones];
+	//m_ppSkinningBoneFrameCaches = new CGameObject*[m_nSkinningBones];
 	for (int i = 0; i < m_nSkinningBones; i++)
 	{
 		m_ppSkinningBoneFrameCaches[i] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[i]);
