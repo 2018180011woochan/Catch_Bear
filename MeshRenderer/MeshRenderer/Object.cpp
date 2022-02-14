@@ -1710,6 +1710,163 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 	}
 }
 
+CLoadedModelInfo* CGameObject::LoadBearModelGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
+{
+	FILE* pInFile = NULL;
+	::fopen_s(&pInFile, pstrFileName, "rb");
+	::rewind(pInFile);
+	
+	FILE* pAniFile = NULL;
+	::fopen_s(&pAniFile, "Model/Alert.bin", "rb");
+	::rewind(pAniFile);
+
+	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
+	pLoadedModel->m_pModelRootObject = new CGameObject();
+	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
+
+	char pstrToken[64] = { '\0' };
+	bool	bIsModelFinish = false;
+
+	for (; ; )
+	{
+		if (::ReadStringFromFile(pInFile, pstrToken))
+		{
+			// 1. 계층구조, 메쉬, 스키닝 정보: 모델fbx
+			if (!strcmp(pstrToken, "<Hierarchy>"))
+			{
+				for (; ; )
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					if (!strcmp(pstrToken, "<Frame>:"))
+					{
+						CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes);
+						if (pChild) pLoadedModel->m_pModelRootObject->SetChild(pChild);
+					}
+					else if (!strcmp(pstrToken, "</Hierarchy>"))
+					{
+						bIsModelFinish = true;
+						break;
+					}
+				}
+			}
+			// 2. 애니메이션 데이터: 애니메이션fbx
+			if (bIsModelFinish)
+			{
+				CGameObject::LoadAnimationFromFile(pAniFile, pLoadedModel);
+				pLoadedModel->PrepareSkinning();
+			}
+			else if (!strcmp(pstrToken, "</Animation>"))
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+#ifdef _WITH_DEBUG_FRAME_HIERARCHY
+	TCHAR pstrDebug[256] = { 0 };
+	_stprintf_s(pstrDebug, 256, _T("Frame Hierarchy\n"));
+	OutputDebugString(pstrDebug);
+
+	CGameObject::PrintFrameInfo(pLoadedModel->m_pModelRootObject, NULL);
+#endif
+
+	::fclose(pInFile);
+
+	return(pLoadedModel);
+}
+
+void CGameObject::LoadBearAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel)
+{
+	char pstrToken[64] = { '\0' };
+	UINT nReads = 0;
+
+	int nAnimationSets = 0;
+
+	for (; ; )
+	{
+		::ReadStringFromFile(pInFile, pstrToken);
+		if (!strcmp(pstrToken, "<AnimationSet>:"))
+		{
+			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
+
+			::ReadStringFromFile(pInFile, pstrToken); //Animation Set Name
+
+			float fStartTime = ::ReadFloatFromFile(pInFile);
+			float fEndTime = ::ReadFloatFromFile(pInFile);
+
+			pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet] = new CAnimationSet(fStartTime, fEndTime, pstrToken);
+			CAnimationSet* pAnimationSet = pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet];
+
+			::ReadStringFromFile(pInFile, pstrToken);
+			if (!strcmp(pstrToken, "<AnimationLayers>:"))
+			{
+				pAnimationSet->m_nAnimationLayers = ::ReadIntegerFromFile(pInFile);
+				pAnimationSet->m_pAnimationLayers = new CAnimationLayer[pAnimationSet->m_nAnimationLayers];
+
+				for (int i = 0; i < pAnimationSet->m_nAnimationLayers; i++)
+				{
+					::ReadStringFromFile(pInFile, pstrToken);
+					if (!strcmp(pstrToken, "<AnimationLayer>:"))
+					{
+						int nAnimationLayer = ::ReadIntegerFromFile(pInFile);
+						CAnimationLayer* pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
+
+						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
+
+						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject * [pAnimationLayer->m_nAnimatedBoneFrames];
+						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve * [pAnimationLayer->m_nAnimatedBoneFrames][9];
+
+						pAnimationLayer->m_fWeight = ::ReadFloatFromFile(pInFile);
+
+						for (int j = 0; j < pAnimationLayer->m_nAnimatedBoneFrames; j++)
+						{
+							::ReadStringFromFile(pInFile, pstrToken);
+							if (!strcmp(pstrToken, "<AnimationCurve>:"))
+							{
+								int nCurveNode = ::ReadIntegerFromFile(pInFile); //j
+
+								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
+
+								::ReadStringFromFile(pInFile, pstrToken);
+								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
+
+								for (; ; )
+								{
+									::ReadStringFromFile(pInFile, pstrToken);
+									if (!strcmp(pstrToken, "<TX>:")) pAnimationLayer->LoadAnimationKeyValues(j, 0, pInFile);
+									else if (!strcmp(pstrToken, "<TY>:")) pAnimationLayer->LoadAnimationKeyValues(j, 1, pInFile);
+									else if (!strcmp(pstrToken, "<TZ>:")) pAnimationLayer->LoadAnimationKeyValues(j, 2, pInFile);
+									else if (!strcmp(pstrToken, "<RX>:")) pAnimationLayer->LoadAnimationKeyValues(j, 3, pInFile);
+									else if (!strcmp(pstrToken, "<RY>:")) pAnimationLayer->LoadAnimationKeyValues(j, 4, pInFile);
+									else if (!strcmp(pstrToken, "<RZ>:")) pAnimationLayer->LoadAnimationKeyValues(j, 5, pInFile);
+									else if (!strcmp(pstrToken, "<SX>:")) pAnimationLayer->LoadAnimationKeyValues(j, 6, pInFile);
+									else if (!strcmp(pstrToken, "<SY>:")) pAnimationLayer->LoadAnimationKeyValues(j, 7, pInFile);
+									else if (!strcmp(pstrToken, "<SZ>:")) pAnimationLayer->LoadAnimationKeyValues(j, 8, pInFile);
+									else if (!strcmp(pstrToken, "</AnimationCurve>"))
+									{
+										break;
+									}
+								}
+							}
+						}
+						::ReadStringFromFile(pInFile, pstrToken); //</AnimationLayer>
+					}
+				}
+				::ReadStringFromFile(pInFile, pstrToken); //</AnimationLayers>
+			}
+			::ReadStringFromFile(pInFile, pstrToken); //</AnimationSet>
+		}
+		else if (!strcmp(pstrToken, "</AnimationSets>"))
+		{
+			break;
+		}
+	}
+}
+
 CLoadedModelInfo* CGameObject::LoadBearFromModelFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
 {
 	FILE* pInModelFile = NULL;

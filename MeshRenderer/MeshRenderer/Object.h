@@ -467,13 +467,17 @@ public:
 	// skinning mesh
 	static CLoadedModelInfo* LoadSkinningGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 
-	// Bear Mesh
+	// Bear Mesh: 계층구조(애니메이션fbx)
 	static CLoadedModelInfo* LoadBearGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
 	static CGameObject* LoadBearMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes, FILE* pAniFile = NULL);
 	static CGameObject* LoadBearFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes);
 
 	static void LoadAnimationSetsFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel);
 	static void LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel, CGameObject* pGameObject);
+
+	// Bear Mesh: 계층구조(모델fbx)
+	static CLoadedModelInfo* LoadBearModelGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);
+	static void LoadBearAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel);
 
 	// Bear Mesh ver2 (1.29.토)
 	static CLoadedModelInfo* LoadBearFromModelFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader);

@@ -604,6 +604,8 @@ void CSkinnedMesh::PrepareSkinning(CGameObject *pModelRootObject)
 	for (int i = 0; i < m_nSkinningBones; i++)
 	{
 		m_ppSkinningBoneFrameCaches[i] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[i]);
+		if (!m_ppSkinningBoneFrameCaches[i])
+			int k = 0;
 	}
 	int k = 0;
 }
