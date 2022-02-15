@@ -309,7 +309,7 @@ public:
 	CAnimationSets					*m_pAnimationSets = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	CSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	CTexturingSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 
 public:
 	void PrepareSkinning();
@@ -331,7 +331,8 @@ public:
 	CAnimationSets					*m_pAnimationSets = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	CSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	//CSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	CTexturingSkinnedMesh** m_ppSkinnedMeshes = NULL;
 
 	ID3D12Resource					**m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 	XMFLOAT4X4						**m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL;
@@ -447,8 +448,8 @@ public:
 public:
 	CAnimationController 			*m_pSkinnedAnimationController = NULL;
 
-	CSkinnedMesh *FindSkinnedMesh(char *pstrSkinnedMeshName);
-	void FindAndSetSkinnedMesh(CSkinnedMesh **ppSkinnedMeshes, int *pnSkinnedMesh);
+	CTexturingSkinnedMesh*FindSkinnedMesh(char *pstrSkinnedMeshName);
+	void FindAndSetSkinnedMesh(CTexturingSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh);
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);

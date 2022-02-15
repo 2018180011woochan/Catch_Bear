@@ -143,7 +143,7 @@ float4 PSTexturedWithoutLighting(VS_TEXTURED_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			128
+#define SKINNED_ANIMATION_BONES			288
 
 cbuffer cbBoneOffsets : register(b7)
 {
@@ -221,11 +221,23 @@ VS_SKINNED_TEXTURED_OUTPUT VSTexturedSkinning(VS_SKINNED_TEXTURED_INPUT input)
 {
 	VS_SKINNED_TEXTURED_OUTPUT output;
 
-	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	float3 positionW = float3(0.0f, 0.0f, 0.0f);
+	matrix mtxVertexToBoneWorld;
+	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	{
+		mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
+		positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	}
+
+
+	//output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.positionW = mul(float4(positionW, 1.0f), gmtxGameObject).xyz;
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
 	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
-	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	//output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+
 	output.uv = input.uv;
 
 	return(output);

@@ -239,6 +239,10 @@ void CMaterial::PrepareShaders(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	m_pTexturedShader = new CTexturedShader();
 	m_pTexturedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	m_pTexturedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	m_pTexturingSkinnedShader = new CTexturingSkinnedShader();
+	m_pTexturingSkinnedShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pTexturingSkinnedShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -477,7 +481,7 @@ CAnimationController::CAnimationController(ID3D12Device *pd3dDevice, ID3D12Graph
 	SetAnimationSets(pModel->m_pAnimationSets);
 
 	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
-	m_ppSkinnedMeshes = new CSkinnedMesh*[m_nSkinnedMeshes];
+	m_ppSkinnedMeshes = new CTexturingSkinnedMesh*[m_nSkinnedMeshes];
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i] = pModel->m_ppSkinnedMeshes[i];
 
 	m_ppd3dcbSkinningBoneTransforms = new ID3D12Resource*[m_nSkinnedMeshes];
@@ -612,7 +616,7 @@ CLoadedModelInfo::~CLoadedModelInfo()
 void CLoadedModelInfo::PrepareSkinning()
 {
 	int nSkinnedMesh = 0;
-	m_ppSkinnedMeshes = new CSkinnedMesh*[m_nSkinnedMeshes];
+	m_ppSkinnedMeshes = new CTexturingSkinnedMesh*[m_nSkinnedMeshes];
 	m_pModelRootObject->FindAndSetSkinnedMesh(m_ppSkinnedMeshes, &nSkinnedMesh);
 
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i]->PrepareSkinning(m_pModelRootObject);
@@ -732,7 +736,7 @@ void CGameObject::SetTexturingSkinnedShader()
 	m_ppMaterials = new CMaterial * [m_nMaterials];
 	m_ppMaterials[0] = NULL;
 	CMaterial* pMaterial = new CMaterial(0);
-	pMaterial->SetSkinnedAnimationWireFrameShader();
+	pMaterial->SetTexturingSkinnedShader();
 	SetMaterial(0, pMaterial);
 }
 
@@ -743,12 +747,12 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial *pMaterial)
 	if (m_ppMaterials[nMaterial]) m_ppMaterials[nMaterial]->AddRef();
 }
 
-CSkinnedMesh *CGameObject::FindSkinnedMesh(char *pstrSkinnedMeshName)
+CTexturingSkinnedMesh*CGameObject::FindSkinnedMesh(char *pstrSkinnedMeshName)
 {
-	CSkinnedMesh *pSkinnedMesh = NULL;
+	CTexturingSkinnedMesh*pSkinnedMesh = NULL;
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT)) 
 	{
-		pSkinnedMesh = (CSkinnedMesh *)m_pMesh;
+		pSkinnedMesh = (CTexturingSkinnedMesh*)m_pMesh;
 		if(!strcmp(pSkinnedMesh->m_pstrMeshName, pstrSkinnedMeshName)) return(pSkinnedMesh);
 	}
 
@@ -758,9 +762,10 @@ CSkinnedMesh *CGameObject::FindSkinnedMesh(char *pstrSkinnedMeshName)
 	return(NULL);
 }
 
-void CGameObject::FindAndSetSkinnedMesh(CSkinnedMesh **ppSkinnedMeshes, int *pnSkinnedMesh)
+void CGameObject::FindAndSetSkinnedMesh(CTexturingSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh)
 {
-	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT)) ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CSkinnedMesh *)m_pMesh;
+	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT)) 
+		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CTexturingSkinnedMesh *)m_pMesh;
 
 	if (m_pSibling) m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
 	if (m_pChild) m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
@@ -806,7 +811,8 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+	if (m_pSkinnedAnimationController) 
+		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
@@ -1288,11 +1294,17 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
 
+	FILE* pAniFile = NULL;
+	::fopen_s(&pAniFile, "Model/Idle2.bin", "rb");
+	::rewind(pAniFile);
+
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
 	pLoadedModel->m_pModelRootObject = new CGameObject();
 	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
 
 	char pstrToken[64] = { '\0' };
+
+	bool	bIsFinishModel = false;
 
 	for (; ; )
 	{
@@ -1311,9 +1323,14 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 					}
 					else if (!strcmp(pstrToken, "</Hierarchy>"))
 					{
+						bIsFinishModel = true;
 						break;
 					}
 				}
+			}
+			if (bIsFinishModel) {
+				CGameObject::LoadAnimationFromFile(pAniFile, pLoadedModel);
+				pLoadedModel->PrepareSkinning();
 			}
 
 		}
@@ -1381,6 +1398,7 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 						CAnimationLayer *pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
+						pAnimationLayer->m_nAnimatedBoneFrames -= 3;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject *[pAnimationLayer->m_nAnimatedBoneFrames];
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve *[pAnimationLayer->m_nAnimatedBoneFrames][9];
@@ -1397,6 +1415,9 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
 
 								::ReadStringFromFile(pInFile, pstrToken);
+								if (!strcmp(pstrToken, "Helmet"))
+									strcpy_s(pstrToken, "Eye_R");
+
 								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
 
 								for ( ; ; )
@@ -1658,18 +1679,18 @@ CAngrybotObject::~CAngrybotObject()
 CElvenWitchObject::CElvenWitchObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo *pElvenWitchModel = pModel;
-	if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
+	//if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
 
 	SetChild(pElvenWitchModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pElvenWitchModel);
 
 	strcpy_s(m_pstrFrameName, "ElvenWitch");
 
-	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.15f, 0.15f, 0.15f);
-
-	SetActive("elven_staff", false);
-	SetActive("elven_staff01", false);
+	//Rotate(-90.0f, 0.0f, 0.0f);
+	//SetScale(0.15f, 0.15f, 0.15f);
+	//
+	//SetActive("elven_staff", false);
+	//SetActive("elven_staff01", false);
 }
 
 CElvenWitchObject::~CElvenWitchObject()

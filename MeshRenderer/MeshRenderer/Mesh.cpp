@@ -869,6 +869,16 @@ CTexturingSkinnedMesh::~CTexturingSkinnedMesh()
 {
 }
 
+void CTexturingSkinnedMesh::PrepareSkinning(CGameObject* pModelRootObject)
+{
+	for (int i = 0; i < m_nSkinningBones; i++)
+	{
+		m_ppSkinningBoneFrameCaches[i] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[i]);
+		if (!m_ppSkinningBoneFrameCaches[i])
+			int k = 0;
+	}
+}
+
 void CTexturingSkinnedMesh::LoadSkinDeformationsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile)
 {
 	char pstrToken[64] = { '\0' };
