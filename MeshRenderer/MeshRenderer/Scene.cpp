@@ -124,7 +124,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//if (pAngrybotModel) delete pAngrybotModel;
 
 	// ÀÌ°Å
-	CLoadedModelInfo* pBearModel = CGameObject::LoadBearGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearL.bin", NULL);
+	CLoadedModelInfo* pBearModel = CGameObject::LoadBearModelGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/EvilbearA.bin", NULL);
 	m_ppGameObjects[0] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pBearModel, 1);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->SetPosition(340.0f, 240.0f, 590.0f);

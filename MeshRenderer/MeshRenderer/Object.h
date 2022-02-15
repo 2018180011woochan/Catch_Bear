@@ -453,7 +453,7 @@ public:
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
 
-	static void LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoadedModel);
+	static void LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoadedModel, bool bIsBear = false);
 	static CGameObject *LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CGameObject *pParent, FILE *pInFile, CShader *pShader, int *pnSkinnedMeshes, FILE* pAniFile = NULL);
 	static CGameObject* LoadFrameHierarchyFromFileVer2(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CGameObject* pParent, FILE* pInFile, CShader* pShader, int* pnSkinnedMeshes);
 

@@ -1717,7 +1717,7 @@ CLoadedModelInfo* CGameObject::LoadBearModelGeometryAndAnimationFromFile(ID3D12D
 	::rewind(pInFile);
 	
 	FILE* pAniFile = NULL;
-	::fopen_s(&pAniFile, "Model/Alert.bin", "rb");
+	::fopen_s(&pAniFile, "Model/Idle2.bin", "rb");
 	::rewind(pAniFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
@@ -1726,6 +1726,7 @@ CLoadedModelInfo* CGameObject::LoadBearModelGeometryAndAnimationFromFile(ID3D12D
 
 	char pstrToken[64] = { '\0' };
 	bool	bIsModelFinish = false;
+	bool	bIsAllFinish = false;
 
 	for (; ; )
 	{
@@ -1749,12 +1750,16 @@ CLoadedModelInfo* CGameObject::LoadBearModelGeometryAndAnimationFromFile(ID3D12D
 					}
 				}
 			}
-			// 2. 애니메이션 데이터: 애니메이션fbx
+			// 2. Animation Set Data: 모델fbx
+			// 2. Animation Curve Data: 애니메이션fbx
 			if (bIsModelFinish)
 			{
-				CGameObject::LoadAnimationFromFile(pAniFile, pLoadedModel);
+				CGameObject::LoadAnimationSetsFromFile(pInFile, pLoadedModel);
+				CGameObject::LoadAnimationFromFile(pAniFile, pLoadedModel, true);
 				pLoadedModel->PrepareSkinning();
+				bIsAllFinish = true;
 			}
+			if (bIsAllFinish)	break;
 			else if (!strcmp(pstrToken, "</Animation>"))
 			{
 				break;
@@ -1945,7 +1950,7 @@ void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 	if (pGameObject->m_pChild) CGameObject::PrintFrameInfo(pGameObject->m_pChild, pGameObject);
 }
 
-void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel)
+void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel, bool bIsBear)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -1987,6 +1992,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 						CAnimationLayer* pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
+						if (bIsBear)	pAnimationLayer->m_nAnimatedBoneFrames -= 3;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject * [pAnimationLayer->m_nAnimatedBoneFrames];
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve * [pAnimationLayer->m_nAnimatedBoneFrames][9];
@@ -1998,11 +2004,16 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 							::ReadStringFromFile(pInFile, pstrToken);
 							if (!strcmp(pstrToken, "<AnimationCurve>:"))
 							{
+								// AnimationCurve: 순서
 								int nCurveNode = ::ReadIntegerFromFile(pInFile); //j
 
 								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
 
+								// AnimationCurve: 영향을 주는 뼈 이름
 								::ReadStringFromFile(pInFile, pstrToken);
+								if (!strcmp(pstrToken, "Helmet"))
+									strcpy_s(pstrToken, "Eye_R");
+								// 계층구조에서 영향을 주는 뼈 객체를 찾는다
 								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
 
 								for (; ; )
@@ -2271,13 +2282,12 @@ CElvenWitchObject::CElvenWitchObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
 
 	SetChild(pElvenWitchModel->m_pModelRootObject, true);
-	SetMesh(pElvenWitchModel->m_pModelRootObject->m_pChild->m_pMesh);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pElvenWitchModel);
 
 	strcpy_s(m_pstrFrameName, "Evilbear");
 
 	//Rotate(0.0f, 180.0f, 0.0f);
-	//SetScale(0.1f, 0.1f, 0.1f);
+	SetScale(3.0f, 3.0f, 3.0f);
 
 	//SetActive("elven_staff", false);
 	//SetActive("elven_staff01", false);
