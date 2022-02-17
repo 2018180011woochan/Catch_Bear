@@ -415,7 +415,8 @@ void CAnimationSet::Animate(float fElapsedTime, float fTrackWeight, float fTrack
 	{
 		for (int j = 0; j < m_pAnimationLayers[i].m_nAnimatedBoneFrames; j++) 
 		{
-			m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
+			if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
+				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
 		}
 	}
 }
@@ -1237,7 +1238,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 				pMaterial = new CMaterial(7);
 
 				//if (!pShader)
-				pMaterial->SetTexturedShader();
+				//pMaterial->SetTexturedShader();
+				pMaterial->SetTexturingSkinnedShader();
 				SetMaterial(nTextures, pMaterial);
 
 				if (nTextures > -1)

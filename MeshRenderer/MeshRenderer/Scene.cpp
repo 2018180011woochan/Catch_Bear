@@ -102,7 +102,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	CLoadedModelInfo* pTreeModel = CGameObject::LoadSkinningGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "EvilbearL.bin", NULL);
 	m_ppGameObjects[0] = new CElvenWitchObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pTreeModel, 1);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppGameObjects[0] = pTreeModel->m_pModelRootObject->m_pChild;
 	m_ppGameObjects[0]->SetPosition(370.0f, 230.0f, 650.0f);
 	m_ppGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
 	if (pTreeModel) delete pTreeModel;
