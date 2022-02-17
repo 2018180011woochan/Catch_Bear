@@ -393,6 +393,7 @@ float CAnimationSet::SetPosition(float fElapsedTime, float fTrackStartTime, floa
 			m_fPosition += fElapsedTime;
 			if (m_fPosition < fTrackStartTime) m_fPosition = fTrackStartTime;
 			if (m_fPosition >= fTrackEndTime) m_fPosition = fTrackStartTime;
+
 //			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTimes[m_nKeyFrames-1]) * m_pfKeyFrameTimes[m_nKeyFrames-1];
 //			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
 //			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
@@ -415,8 +416,9 @@ void CAnimationSet::Animate(float fElapsedTime, float fTrackWeight, float fTrack
 	{
 		for (int j = 0; j < m_pAnimationLayers[i].m_nAnimatedBoneFrames; j++) 
 		{
-			if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
-				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
+			//if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
+				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent 
+					= m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
 		}
 	}
 }
@@ -600,10 +602,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 		// 루트 오브젝트 업데이트
 		pRootGameObject->UpdateTransform(NULL);
 
-		for (int k = 0; k < m_nAnimationTracks; k++)
-		{
-			if (m_pAnimationTracks[k].m_bEnable) m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->HandleCallback();
-		}
+		//for (int k = 0; k < m_nAnimationTracks; k++)
+		//{
+		//	if (m_pAnimationTracks[k].m_bEnable) m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->HandleCallback();
+		//}
 	}
 } 
 
@@ -766,7 +768,7 @@ CTexturingSkinnedMesh*CGameObject::FindSkinnedMesh(char *pstrSkinnedMeshName)
 void CGameObject::FindAndSetSkinnedMesh(CTexturingSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh)
 {
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT)) 
-		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CTexturingSkinnedMesh *)m_pMesh;
+		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CTexturingSkinnedMesh*)m_pMesh;
 
 	if (m_pSibling) m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
 	if (m_pChild) m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
@@ -811,6 +813,7 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
+	printf("%c\n", m_pstrFrameName);
 
 	if (m_pSkinnedAnimationController) 
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
@@ -1042,7 +1045,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
 
-			/**///pGameObject->SetWireFrameShader();
+			//pGameObject->SetWireFrameShader();
 			
 		}
 		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
@@ -1058,7 +1061,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
-
+			//pGameObject->SetSkinnedAnimationWireFrameShader();
 			pGameObject->SetTexturingSkinnedShader();
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
@@ -1237,9 +1240,9 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 				int nTextures = ::ReadIntegerFromFile(pInFile);
 				pMaterial = new CMaterial(7);
 
-				//if (!pShader)
-				//pMaterial->SetTexturedShader();
-				pMaterial->SetTexturingSkinnedShader();
+				if (!pShader)
+					pMaterial->SetTexturingSkinnedShader();
+
 				SetMaterial(nTextures, pMaterial);
 
 				if (nTextures > -1)
@@ -1277,9 +1280,9 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 					//nReads = (UINT)::fread(&xmf3Emissive, sizeof(XMFLOAT3), 1, pInFile);
 					//nReads = (UINT)::fread(&pMaterial->m_fGlossiness, sizeof(float), 1, pInFile);
 
-					pMaterial->m_xmf4AmbientColor = XMFLOAT4(xmf3Ambient.x, xmf3Ambient.y, xmf3Ambient.z, 1.0f);
-					pMaterial->m_xmf4AlbedoColor = XMFLOAT4(xmf3Diffuse.x, xmf3Diffuse.y, xmf3Diffuse.z, 1.0f);
-					pMaterial->m_xmf4EmissiveColor = XMFLOAT4(xmf3Emissive.x, xmf3Emissive.y, xmf3Emissive.z, 1.0f);
+					//pMaterial->m_xmf4AmbientColor = XMFLOAT4(xmf3Ambient.x, xmf3Ambient.y, xmf3Ambient.z, 1.0f);
+					//pMaterial->m_xmf4AlbedoColor = XMFLOAT4(xmf3Diffuse.x, xmf3Diffuse.y, xmf3Diffuse.z, 1.0f);
+					//pMaterial->m_xmf4EmissiveColor = XMFLOAT4(xmf3Emissive.x, xmf3Emissive.y, xmf3Emissive.z, 1.0f);
 				}
 			}
 			else if (!strcmp(pstrToken, "</Materials>"))
@@ -1297,7 +1300,7 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 	::rewind(pInFile);
 
 	FILE* pAniFile = NULL;
-	::fopen_s(&pAniFile, "Model/Idle2.bin", "rb");
+	::fopen_s(&pAniFile, "Model/Idle3.bin", "rb");
 	::rewind(pAniFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
@@ -1400,7 +1403,7 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 						CAnimationLayer *pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
-						pAnimationLayer->m_nAnimatedBoneFrames -= 3;
+						pAnimationLayer->m_nAnimatedBoneFrames -= 4;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject *[pAnimationLayer->m_nAnimatedBoneFrames];
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve *[pAnimationLayer->m_nAnimatedBoneFrames][9];
@@ -1417,9 +1420,6 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
 
 								::ReadStringFromFile(pInFile, pstrToken);
-								if (!strcmp(pstrToken, "Helmet"))
-									strcpy_s(pstrToken, "Eye_R");
-
 								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
 
 								for ( ; ; )

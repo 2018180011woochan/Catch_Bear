@@ -309,7 +309,7 @@ public:
 	CAnimationSets					*m_pAnimationSets = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	CTexturingSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	CTexturingSkinnedMesh**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 
 public:
 	void PrepareSkinning();
