@@ -1346,13 +1346,14 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 	::rewind(pInFile);
 
 	FILE* pInAniFile = NULL;
-	::fopen_s(&pInAniFile, "Model/Anim@Alert.bin", "rb");
+	::fopen_s(&pInAniFile, "Model/Idle3.bin", "rb");
 	::rewind(pInAniFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
 	pLoadedModel->m_pModelRootObject = new CGameObject();
 	strcpy_s(pLoadedModel->m_pModelRootObject->m_pstrFrameName, "RootNode");
-
+	bool a = false;
+	bool b = false;
 	char pstrToken[64] = { '\0' };
 
 	for (; ; )
@@ -1371,18 +1372,20 @@ CLoadedModelInfo* CGameObject::LoadBearGeometryAndAnimationFromFile(ID3D12Device
 					}
 					else if (!strcmp(pstrToken, "</Hierarchy>"))
 					{
+						a = true;
 						break;
 					}
 				}
 			}
-			else if (!strcmp(pstrToken, "<Animation>"))
+			else if (a/*!strcmp(pstrToken, "<Animation>")*/)
 			{
-				CGameObject::LoadAnimationSetsFromFile(pInFile, pLoadedModel);
+				//CGameObject::LoadAnimationSetsFromFile(pInFile, pLoadedModel);
 				CGameObject::LoadAnimationDatasFromFile(pInAniFile, pLoadedModel);
 				pLoadedModel->PrepareSkinning();
+				b = true;
 				break;
 			}
-			else if (!strcmp(pstrToken, "</Animation>"))
+			else if (b/*!strcmp(pstrToken, "</Animation>")*/)
 			{
 				break;
 			}
@@ -1458,6 +1461,7 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 		if (!strcmp(pstrToken, "<AnimationSets>:"))
 		{
 			nAnimationSets = ::ReadIntegerFromFile(pInFile);
+			pLoadedModel->m_pAnimationSets = new CAnimationSets(nAnimationSets);
 		}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
@@ -1468,6 +1472,7 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 			float fStartTime = ::ReadFloatFromFile(pInFile);
 			float fEndTime = ::ReadFloatFromFile(pInFile);
 
+			pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet] = new CAnimationSet(fStartTime, fEndTime, pstrToken);
 			CAnimationSet* pAnimationSet = pLoadedModel->m_pAnimationSets->m_ppAnimationSets[nAnimationSet];
 
 			::ReadStringFromFile(pInFile, pstrToken);
@@ -1485,8 +1490,10 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 						CAnimationLayer* pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);	// 영향을 주는 뼈의 개수
+						pAnimationLayer->m_nAnimatedBoneFrames -= 4;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject * [pAnimationLayer->m_nAnimatedBoneFrames];
+
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve * [pAnimationLayer->m_nAnimatedBoneFrames][9];
 
 						pAnimationLayer->m_fWeight = ::ReadFloatFromFile(pInFile);	// 가중치
@@ -1496,7 +1503,6 @@ void CGameObject::LoadAnimationDatasFromFile(FILE* pInFile, CLoadedModelInfo* pL
 							::ReadStringFromFile(pInFile, pstrToken);
 							if (!strcmp(pstrToken, "<AnimationCurve>:"))
 							{
-								
 								int nCurveNode = ::ReadIntegerFromFile(pInFile); // j, 몇 번째 커브노드인지
 
 								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
