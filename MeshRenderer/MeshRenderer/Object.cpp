@@ -416,9 +416,11 @@ void CAnimationSet::Animate(float fElapsedTime, float fTrackWeight, float fTrack
 	{
 		for (int j = 0; j < m_pAnimationLayers[i].m_nAnimatedBoneFrames; j++) 
 		{
-			//if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
+			int a = 0;
+			if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
 				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent 
 					= m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
+				int k = 0;
 		}
 	}
 }
@@ -484,7 +486,7 @@ CAnimationController::CAnimationController(ID3D12Device *pd3dDevice, ID3D12Graph
 	SetAnimationSets(pModel->m_pAnimationSets);
 
 	m_nSkinnedMeshes = pModel->m_nSkinnedMeshes;
-	m_ppSkinnedMeshes = new CTexturingSkinnedMesh*[m_nSkinnedMeshes];
+	m_ppSkinnedMeshes = new CSkinnedMesh*[m_nSkinnedMeshes];
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i] = pModel->m_ppSkinnedMeshes[i];
 
 	m_ppd3dcbSkinningBoneTransforms = new ID3D12Resource*[m_nSkinnedMeshes];
@@ -619,7 +621,7 @@ CLoadedModelInfo::~CLoadedModelInfo()
 void CLoadedModelInfo::PrepareSkinning()
 {
 	int nSkinnedMesh = 0;
-	m_ppSkinnedMeshes = new CTexturingSkinnedMesh*[m_nSkinnedMeshes];
+	m_ppSkinnedMeshes = new CSkinnedMesh *[m_nSkinnedMeshes];
 	m_pModelRootObject->FindAndSetSkinnedMesh(m_ppSkinnedMeshes, &nSkinnedMesh);
 
 	for (int i = 0; i < m_nSkinnedMeshes; i++) m_ppSkinnedMeshes[i]->PrepareSkinning(m_pModelRootObject);
@@ -765,10 +767,10 @@ CTexturingSkinnedMesh*CGameObject::FindSkinnedMesh(char *pstrSkinnedMeshName)
 	return(NULL);
 }
 
-void CGameObject::FindAndSetSkinnedMesh(CTexturingSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh)
+void CGameObject::FindAndSetSkinnedMesh(CSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh)
 {
 	if (m_pMesh && (m_pMesh->GetType() & VERTEXT_BONE_INDEX_WEIGHT)) 
-		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CTexturingSkinnedMesh*)m_pMesh;
+		ppSkinnedMeshes[(*pnSkinnedMesh)++] = (CSkinnedMesh*)m_pMesh;
 
 	if (m_pSibling) m_pSibling->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
 	if (m_pChild) m_pChild->FindAndSetSkinnedMesh(ppSkinnedMeshes, pnSkinnedMesh);
@@ -786,6 +788,26 @@ CGameObject *CGameObject::FindFrame(char *pstrFrameName)
 	return(NULL);
 }
 
+CGameObject* CGameObject::FindFrameToSetMatrixToParent(char* pstrFrameName, XMFLOAT4X4* xmf4x4Mat)
+{
+	CGameObject* pFrameObject = NULL;
+
+	if (!strcmp(m_pstrFrameName, pstrFrameName))
+	{
+		m_xmf4x4ToParent._11 = xmf4x4Mat->_11; m_xmf4x4ToParent._12 = xmf4x4Mat->_12; m_xmf4x4ToParent._13 = xmf4x4Mat->_13; m_xmf4x4ToParent._14 = xmf4x4Mat->_14;
+		m_xmf4x4ToParent._21 = xmf4x4Mat->_21; m_xmf4x4ToParent._22 = xmf4x4Mat->_22; m_xmf4x4ToParent._23 = xmf4x4Mat->_23; m_xmf4x4ToParent._24 = xmf4x4Mat->_24;
+		m_xmf4x4ToParent._31 = xmf4x4Mat->_31; m_xmf4x4ToParent._32 = xmf4x4Mat->_32; m_xmf4x4ToParent._33 = xmf4x4Mat->_33; m_xmf4x4ToParent._34 = xmf4x4Mat->_34;
+		m_xmf4x4ToParent._41 = xmf4x4Mat->_41; m_xmf4x4ToParent._42 = xmf4x4Mat->_42; m_xmf4x4ToParent._43 = xmf4x4Mat->_43; m_xmf4x4ToParent._44 = xmf4x4Mat->_44;
+		return this;
+	}
+	else
+	{
+		if (m_pSibling) if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) return FindFrameToSetMatrixToParent(pstrFrameName, xmf4x4Mat);
+		if (m_pChild) if (pFrameObject = m_pChild->FindFrame(pstrFrameName)) return FindFrameToSetMatrixToParent(pstrFrameName, xmf4x4Mat);
+	}
+	return NULL;
+}
+
 void CGameObject::SetActive(char *pstrFrameName, bool bActive)
 {
 	CGameObject *pFrameObject = FindFrame(pstrFrameName);
@@ -794,6 +816,7 @@ void CGameObject::SetActive(char *pstrFrameName, bool bActive)
 
 void CGameObject::UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent)
 {
+	printf("%c", m_pstrFrameName);
 	m_xmf4x4World = (pxmf4x4Parent) ? Matrix4x4::Multiply(m_xmf4x4ToParent, *pxmf4x4Parent) : m_xmf4x4ToParent;
 
 	if (m_pSibling) m_pSibling->UpdateTransform(pxmf4x4Parent);
@@ -1025,7 +1048,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 
 	CGameObject* pGameObject = new CGameObject();
 	::ReadStringFromFile(pInFile, pGameObject->m_pstrFrameName);
-
+	int k = 0;
 	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
@@ -1040,20 +1063,20 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			//CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
-			CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
+			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList);
+			//CTexturedMesh* pMesh = new CTexturedMesh(pd3dDevice, pd3dCommandList);
 			pMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pGameObject->SetMesh(pMesh);
 
-			//pGameObject->SetWireFrameShader();
+			pGameObject->SetWireFrameShader();
 			
 		}
 		else if (!strcmp(pstrToken, "<SkinDeformations>:"))
 		{
 			if (pnSkinnedMeshes) (*pnSkinnedMeshes)++;
 
-			//CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
-			CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
+			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
+			//CTexturingSkinnedMesh* pSkinnedMesh = new CTexturingSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinDeformationsFromFile(pd3dDevice, pd3dCommandList, pInFile);
 			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -1061,8 +1084,8 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
 
 			pGameObject->SetMesh(pSkinnedMesh);
-			//pGameObject->SetSkinnedAnimationWireFrameShader();
-			pGameObject->SetTexturingSkinnedShader();
+			pGameObject->SetSkinnedAnimationWireFrameShader();
+			//pGameObject->SetTexturingSkinnedShader();
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
@@ -1086,6 +1109,10 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 						OutputDebugString(pstrDebug);
 #endif
 					}
+					else if (!strcmp(pstrToken, "</Hierarchy>>"))
+					{
+						break;
+					}
 				}
 			}
 		}
@@ -1093,6 +1120,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		{
 			break;
 		}
+
 	}
 	return(pGameObject);
 }
@@ -1300,7 +1328,7 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 	::rewind(pInFile);
 
 	FILE* pAniFile = NULL;
-	::fopen_s(&pAniFile, "Model/Idle3.bin", "rb");
+	::fopen_s(&pAniFile, "Model/Anim@Idle.bin", "rb");
 	::rewind(pAniFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
@@ -1403,7 +1431,7 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 						CAnimationLayer *pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
-						pAnimationLayer->m_nAnimatedBoneFrames -= 4;
+						//pAnimationLayer->m_nAnimatedBoneFrames -= 4;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject *[pAnimationLayer->m_nAnimatedBoneFrames];
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve *[pAnimationLayer->m_nAnimatedBoneFrames][9];
@@ -1421,6 +1449,7 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 
 								::ReadStringFromFile(pInFile, pstrToken);
 								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
+								
 
 								for ( ; ; )
 								{

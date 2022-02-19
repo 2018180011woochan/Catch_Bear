@@ -309,7 +309,7 @@ public:
 	CAnimationSets					*m_pAnimationSets = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	CTexturingSkinnedMesh**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	CSkinnedMesh**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
 
 public:
 	void PrepareSkinning();
@@ -331,8 +331,8 @@ public:
 	CAnimationSets					*m_pAnimationSets = NULL;
 
 	int 							m_nSkinnedMeshes = 0;
-	//CSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
-	CTexturingSkinnedMesh** m_ppSkinnedMeshes = NULL;
+	CSkinnedMesh					**m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache
+	//CTexturingSkinnedMesh** m_ppSkinnedMeshes = NULL;
 
 	ID3D12Resource					**m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes]
 	XMFLOAT4X4						**m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL;
@@ -441,6 +441,7 @@ public:
 	void UpdateTransform(XMFLOAT4X4 *pxmf4x4Parent=NULL);
 
 	CGameObject *FindFrame(char *pstrFrameName);
+	CGameObject* FindFrameToSetMatrixToParent(char* pstrFrameName, XMFLOAT4X4* xmf4x4Mat);
 	void SetActive(char *pstrFrameName, bool bActive);
 
 	UINT GetMeshType() { return((m_pMesh) ? m_pMesh->GetType() : 0x00); }
@@ -449,7 +450,7 @@ public:
 	CAnimationController 			*m_pSkinnedAnimationController = NULL;
 
 	CTexturingSkinnedMesh*FindSkinnedMesh(char *pstrSkinnedMeshName);
-	void FindAndSetSkinnedMesh(CTexturingSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh);
+	void FindAndSetSkinnedMesh(CSkinnedMesh**ppSkinnedMeshes, int *pnSkinnedMesh);
 
 	void SetTrackAnimationSet(int nAnimationTrack, int nAnimationSet);
 	void SetTrackAnimationPosition(int nAnimationTrack, float fPosition);
