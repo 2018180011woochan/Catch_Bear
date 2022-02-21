@@ -416,9 +416,10 @@ void CAnimationSet::Animate(float fElapsedTime, float fTrackWeight, float fTrack
 	{
 		for (int j = 0; j < m_pAnimationLayers[i].m_nAnimatedBoneFrames; j++) 
 		{
+
 			int a = 0;
-			if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
-				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent 
+			//if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
+				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4World 
 					= m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
 				int k = 0;
 		}
@@ -594,6 +595,16 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 			// 활성화된 트랙들의 시간을 지나게 한다
 			if (m_pAnimationTracks[i].m_bEnable)
 			{				
+				//CAnimationSet* pAnimationSet = m_ppAnimationSets[i]->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
+				//pAnimationSet->SetPosition(m_pAnimationTracks[k].m_fPosition);
+				//XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
+				//xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+
+
+				CAnimationSet* pAnimationSet = m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[i].m_nAnimationSet];
+				float fPosition = pAnimationSet->SetPosition(fTimeElapsed * m_pAnimationTracks[i].m_fSpeed, m_pAnimationTracks[i].m_fStartTime, m_pAnimationTracks[i].m_fEndTime);
+				
+
 				CAnimationSet *pAnimationSet = m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[i].m_nAnimationSet];
 				// 애니메이션 셋들을 애니메이션한다
 				// - 계층구조의 프레임들을 애니메이션 데이터에 있는 변환의 정보들로 바꾸는 것이다
@@ -604,10 +615,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 		// 루트 오브젝트 업데이트
 		pRootGameObject->UpdateTransform(NULL);
 
-		//for (int k = 0; k < m_nAnimationTracks; k++)
-		//{
-		//	if (m_pAnimationTracks[k].m_bEnable) m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->HandleCallback();
-		//}
+		for (int k = 0; k < m_nAnimationTracks; k++)
+		{
+			if (m_pAnimationTracks[k].m_bEnable) m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->HandleCallback();
+		}
 	}
 } 
 
@@ -1328,7 +1339,7 @@ CLoadedModelInfo* CGameObject::LoadSkinningGeometryFromFile(ID3D12Device* pd3dDe
 	::rewind(pInFile);
 
 	FILE* pAniFile = NULL;
-	::fopen_s(&pAniFile, "Model/Anim@Idle.bin", "rb");
+	::fopen_s(&pAniFile, "Model/Idle3.bin", "rb");
 	::rewind(pAniFile);
 
 	CLoadedModelInfo* pLoadedModel = new CLoadedModelInfo();
@@ -1431,7 +1442,7 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 						CAnimationLayer *pAnimationLayer = &pAnimationSet->m_pAnimationLayers[nAnimationLayer];
 
 						pAnimationLayer->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
-						//pAnimationLayer->m_nAnimatedBoneFrames -= 4;
+						pAnimationLayer->m_nAnimatedBoneFrames -= 4;
 
 						pAnimationLayer->m_ppAnimatedBoneFrameCaches = new CGameObject *[pAnimationLayer->m_nAnimatedBoneFrames];
 						pAnimationLayer->m_ppAnimationCurves = new CAnimationCurve *[pAnimationLayer->m_nAnimatedBoneFrames][9];
