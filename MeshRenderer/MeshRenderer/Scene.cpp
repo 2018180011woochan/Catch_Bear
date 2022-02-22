@@ -133,7 +133,7 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppGameObjects[3]->SetPosition(300.0f, m_pTerrain->GetHeight(300.0f, 650.0f), 650.0f);
 	//if (pMonsterModel) delete pMonsterModel;
 
-	CLoadedModelInfo *pEagleModel = CGameObject::LoadSkinningGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Bear.bin", NULL);
+	CLoadedModelInfo *pEagleModel = CGameObject::LoadSkinningGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/ver2/Bunny(Clone).bin", NULL);
 	m_ppGameObjects[0] = new CEagleObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pEagleModel, 1);
 	m_ppGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppGameObjects[0]->SetPosition(370.0f, 239.0f, 650.0f);

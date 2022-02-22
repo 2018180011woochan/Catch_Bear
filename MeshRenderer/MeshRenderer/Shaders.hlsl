@@ -158,7 +158,7 @@ cbuffer cbBoneTransforms : register(b8)
 struct VS_SKINNED_WIREFRAME_INPUT
 {
 	float3 position : POSITION;
-	int4 indices : BONEINDEX;
+	uint4 indices : BONEINDEX;
 	float4 weights : BONEWEIGHT;
 };
 
