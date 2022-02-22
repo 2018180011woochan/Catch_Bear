@@ -4,27 +4,23 @@
 
 Shader::Shader() : Object(OBJECT_TYPE::SHADER)
 {
+
 }
 
 Shader::~Shader()
 {
+
 }
 
-void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderArg arg)
+void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const string& vs, const string& ps, const string& gs)
 {
 	_info = info;
 
-	CreateVertexShader(path, arg.vs, "vs_5_0");
-	CreatePixelShader(path, arg.ps, "ps_5_0");
+	CreateVertexShader(path, vs, "vs_5_0");
+	CreatePixelShader(path, ps, "ps_5_0");
 
-	if (arg.hs.empty() == false)
-		CreateHullShader(path, arg.hs, "hs_5_0");
-
-	if (arg.ds.empty() == false)
-		CreateDomainShader(path, arg.ds, "ds_5_0");
-
-	if (arg.gs.empty() == false)
-		CreateGeometryShader(path, arg.gs, "gs_5_0");
+	if (gs.empty() == false)
+		CreateGeometryShader(path, gs, "gs_5_0");
 
 	D3D12_INPUT_ELEMENT_DESC desc[] =
 	{
@@ -60,7 +56,6 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 	_graphicsPipelineDesc.SampleDesc.Count = 1;
 	_graphicsPipelineDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
-	// ShaderType
 	switch (info.shaderType)
 	{
 	case SHADER_TYPE::DEFERRED:
@@ -91,7 +86,6 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 		break;
 	}
 
-	// RasterizerType
 	switch (info.rasterizerType)
 	{
 	case RASTERIZER_TYPE::CULL_BACK:
@@ -112,7 +106,6 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 		break;
 	}
 
-	// DepthStencil
 	switch (info.depthStencilType)
 	{
 	case DEPTH_STENCIL_TYPE::LESS:
@@ -144,10 +137,8 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 		_graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 		_graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		break;
-
 	}
 
-	// BlendType
 	D3D12_RENDER_TARGET_BLEND_DESC& rt = _graphicsPipelineDesc.BlendState.RenderTarget[0];
 
 	// SrcBlend = Pixel Shader
@@ -174,7 +165,6 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 		break;
 	}
 
-
 	DEVICE->CreateGraphicsPipelineState(&_graphicsPipelineDesc, IID_PPV_ARGS(&_pipelineState));
 }
 
@@ -193,7 +183,6 @@ void Shader::Update()
 {
 	if (GetShaderType() == SHADER_TYPE::COMPUTE)
 		COMPUTE_CMD_LIST->SetPipelineState(_pipelineState.Get());
-
 	else
 	{
 		GRAPHICS_CMD_LIST->IASetPrimitiveTopology(_info.topology);
@@ -222,24 +211,14 @@ void Shader::CreateVertexShader(const wstring& path, const string& name, const s
 	CreateShader(path, name, version, _vsBlob, _graphicsPipelineDesc.VS);
 }
 
-void Shader::CreateHullShader(const wstring& path, const string& name, const string& version)
+void Shader::CreatePixelShader(const wstring& path, const string& name, const string& version)
 {
-	CreateShader(path, name, version, _hsBlob, _graphicsPipelineDesc.HS);
-}
-
-void Shader::CreateDomainShader(const wstring& path, const string& name, const string& version)
-{
-	CreateShader(path, name, version, _dsBlob, _graphicsPipelineDesc.DS);
+	CreateShader(path, name, version, _psBlob, _graphicsPipelineDesc.PS);
 }
 
 void Shader::CreateGeometryShader(const wstring& path, const string& name, const string& version)
 {
 	CreateShader(path, name, version, _gsBlob, _graphicsPipelineDesc.GS);
-}
-
-void Shader::CreatePixelShader(const wstring& path, const string& name, const string& version)
-{
-	CreateShader(path, name, version, _psBlob, _graphicsPipelineDesc.PS);
 }
 
 D3D12_PRIMITIVE_TOPOLOGY_TYPE Shader::GetTopologyType(D3D_PRIMITIVE_TOPOLOGY topology)

@@ -14,7 +14,7 @@ public:
 private:
 	int32 _sizeX = 15;
 	int32 _sizeZ = 15;
-	float _maxTesselation = 4.f;
+	//float _maxTesselation = 4.f;
 
 	shared_ptr<class Material> _material;
 };
