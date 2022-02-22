@@ -321,6 +321,8 @@ void CAnimationLayer::LoadAnimationKeyValues(int nBoneFrame, int nCurve, FILE *p
 XMFLOAT4X4 CAnimationLayer::GetSRT(int nBoneFrame, float fPosition, float fTrackWeight) 
 { 
 	CGameObject *pBoneFrame = m_ppAnimatedBoneFrameCaches[nBoneFrame];
+	if (!pBoneFrame)
+		int k = 0;
 	XMFLOAT3 xmf3S = pBoneFrame->m_xmf3Scale;
 	XMFLOAT3 xmf3R = pBoneFrame->m_xmf3Rotation;
 	XMFLOAT3 xmf3T = pBoneFrame->m_xmf3Translation;
@@ -416,12 +418,8 @@ void CAnimationSet::Animate(float fElapsedTime, float fTrackWeight, float fTrack
 	{
 		for (int j = 0; j < m_pAnimationLayers[i].m_nAnimatedBoneFrames; j++) 
 		{
-
-			int a = 0;
-			//if (m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j])
-				m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4World 
-					= m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
-				int k = 0;
+			m_pAnimationLayers[i].m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent
+				= m_pAnimationLayers[i].GetSRT(j, fPosition, fTrackWeight);
 		}
 	}
 }
@@ -608,7 +606,8 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 		//for (int k = 0; k < m_nAnimationTracks; k++)
 		//{
 		//	if (m_pAnimationTracks[k].m_bEnable) m_pAnimationSets->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet]->HandleCallback();
-		//}
+	
+	//}
 	}
 } 
 
@@ -1090,7 +1089,7 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-			pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pInFile, pShader);
+			//pGameObject->LoadMaterialsFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pInFile, pShader);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -1711,7 +1710,7 @@ CAngrybotObject::~CAngrybotObject()
 CElvenWitchObject::CElvenWitchObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, CLoadedModelInfo *pModel, int nAnimationTracks)
 {
 	CLoadedModelInfo *pElvenWitchModel = pModel;
-	//if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Elven_Witch.bin", NULL);
+	if (!pElvenWitchModel) pElvenWitchModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Bear.bin", NULL);
 
 	SetChild(pElvenWitchModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pElvenWitchModel);
@@ -1784,8 +1783,8 @@ CEagleObject::CEagleObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *
 
 	strcpy_s(m_pstrFrameName, "Eagle");
 
-	Rotate(-90.0f, 0.0f, 0.0f);
-	SetScale(0.2f, 0.2f, 0.2f);
+	Rotate(0.0f, 90.0f, 90.0f);
+	//SetScale(0.2f, 0.2f, 0.2f);
 }
 
 CEagleObject::~CEagleObject()
