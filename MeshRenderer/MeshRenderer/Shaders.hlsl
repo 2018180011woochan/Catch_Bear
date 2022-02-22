@@ -143,7 +143,7 @@ float4 PSTexturedWithoutLighting(VS_TEXTURED_OUTPUT input) : SV_TARGET
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define MAX_VERTEX_INFLUENCES			4
-#define SKINNED_ANIMATION_BONES			72
+#define SKINNED_ANIMATION_BONES			324
 
 cbuffer cbBoneOffsets : register(b7)
 {
@@ -179,8 +179,8 @@ VS_SKINNED_WIREFRAME_OUTPUT VSSkinnedAnimationWireFrame(VS_SKINNED_WIREFRAME_INP
 		positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
 	}
 
-	output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
-//	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	//output.position = mul(mul(float4(positionW, 1.0f), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 
 	return(output);
 }
