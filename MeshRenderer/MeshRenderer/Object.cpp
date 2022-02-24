@@ -1050,8 +1050,8 @@ CGameObject *CGameObject::LoadFrameHierarchyFromFile(ID3D12Device *pd3dDevice, I
 	CGameObject* pGameObject = new CGameObject();
 	::ReadStringFromFile(pInFile, pGameObject->m_pstrFrameName);
 
-	/*if (nFrame == 84)
-		strcpy_s(pGameObject->m_pstrFrameName, "tail2");*/
+	if (!strcmp(pGameObject->m_pstrFrameName, "tail_1"))
+		strcpy_s(pGameObject->m_pstrFrameName, "tail2");
 
 	int k = 0;
 	for (; ; )
@@ -1453,8 +1453,8 @@ void CGameObject::LoadAnimationFromFile(FILE *pInFile, CLoadedModelInfo *pLoaded
 								for (int k = 0; k < 9; k++) pAnimationLayer->m_ppAnimationCurves[j][k] = NULL;
 
 								::ReadStringFromFile(pInFile, pstrToken);
-								//if (j == 34)
-								//	strcpy_s(pstrToken, "tail2");
+								if (j == 34)
+									strcpy_s(pstrToken, "tail2");
 								pAnimationLayer->m_ppAnimatedBoneFrameCaches[j] = pLoadedModel->m_pModelRootObject->FindFrame(pstrToken);
 								int k = 0;
 
@@ -1791,7 +1791,7 @@ CEagleObject::CEagleObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *
 	//strcpy_s(m_pstrFrameName, "Eagle");
 
 	Rotate(0.0f, 90.0f, 90.0f);
-	SetScale(0.7, 0.7f, 0.7f);
+	SetScale(0.5, 0.5f, 0.5f);
 }
 
 CEagleObject::~CEagleObject()

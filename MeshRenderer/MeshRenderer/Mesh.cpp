@@ -736,6 +736,8 @@ void CSkinnedMesh::LoadSkinDeformationsFromFile(ID3D12Device *pd3dDevice, ID3D12
 				for (int i = 0; i < m_nSkinningBones; i++)
 				{
 					::ReadStringFromFile(pInFile, m_ppstrSkinningBoneNames[i]);
+					if (!strcmp(m_ppstrSkinningBoneNames[i], "tail_1"))
+						strcpy_s(m_ppstrSkinningBoneNames[i], "tail2");
 					m_ppSkinningBoneFrameCaches[i] = NULL;
 				}
 			}
