@@ -488,7 +488,11 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	//SetTrackAnimationSet(0, ::IsZero(fLength) ? 0 : 1);
-	if (m_eCurState == ATK)	SetTrackAnimationSet(0, 4);
+	if (m_eCurState == ATK)
+	{
+		if (fLength)	SetTrackAnimationSet(0, 1);
+		else SetTrackAnimationSet(0, 4);
+	}
 	else
 	{
 		if (fLength)	SetTrackAnimationSet(0, 1);

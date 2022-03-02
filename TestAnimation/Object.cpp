@@ -260,6 +260,7 @@ void *CAnimationSet::GetCallbackData()
 void CAnimationSet::SetPosition(float fTrackPosition)
 {
 	m_fPosition = fTrackPosition;
+	int i = 0;
 	switch (m_nType)
 	{
 		case ANIMATION_TYPE_LOOP:
@@ -270,6 +271,10 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 			break;
 		}
 		case ANIMATION_TYPE_ONCE:
+			if (m_fPosition > 3.0f)
+				i = 4; 
+			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames - 1]);
+			
 			break;
 		case ANIMATION_TYPE_PINGPONG:
 			break;
@@ -503,14 +508,17 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 			for (int j = 0; j < m_pnAnimatedBoneFrames[i]; j++)
 			{
 				XMFLOAT4X4 xmf4x4Transform = Matrix4x4::Zero();
+
 				for (int k = 0; k < m_nAnimationTracks; k++)
 				{
 					if (m_pAnimationTracks[k].m_bEnable)
 					{
 						CAnimationSet *pAnimationSet = m_ppAnimationSets[i]->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
 						pAnimationSet->SetPosition(m_pAnimationTracks[k].m_fPosition);
+
 						XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
-						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, 
+														Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
 					}
 				}
 				m_pppAnimatedBoneFrameCaches[i][j]->m_xmf4x4ToParent = xmf4x4Transform;
