@@ -260,7 +260,7 @@ void *CAnimationSet::GetCallbackData()
 void CAnimationSet::SetPosition(float fTrackPosition)
 {
 	m_fPosition = fTrackPosition;
-	int i = 0;
+	double i = 0;
 	switch (m_nType)
 	{
 		case ANIMATION_TYPE_LOOP:
@@ -271,11 +271,21 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 			break;
 		}
 		case ANIMATION_TYPE_ONCE:
-			if (m_fPosition > 3.0f)
-				i = 4; 
-			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames - 1]);
+			m_fPosition = fmod(fTrackPosition, m_fLength+1.f);
+			if (m_fPosition >= m_fLength)
+			{
+				// 이번 동작 끝
+				m_fPosition = m_fLength;
+			}
+			//m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
+
+			//char buf[100];
+			//sprintf_s(buf, "m_fPosition: %d\n", i);
+			//OutputDebugStringA(buf);
+
 			
 			break;
+			
 		case ANIMATION_TYPE_PINGPONG:
 			break;
 	}

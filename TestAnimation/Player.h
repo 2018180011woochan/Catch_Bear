@@ -58,7 +58,7 @@ public:
 	virtual ~CPlayer();
 
 public:
-	void Set_MoveState(CPlayer::STATE eState) { m_eCurState = eState; }
+	void Set_MoveState(CPlayer::STATE eState);
 
 public:
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }

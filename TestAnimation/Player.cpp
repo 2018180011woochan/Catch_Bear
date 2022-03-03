@@ -39,6 +39,13 @@ CPlayer::~CPlayer()
 	if (m_pCamera) delete m_pCamera;
 }
 
+void CPlayer::Set_MoveState(CPlayer::STATE eState)
+{
+	m_eCurState = eState;
+	//if (eState == STATE::ATK)
+	//	m_pSkinnedAnimationController->SetTrackPosition(STATE::ATK, 0.0f);
+}
+
 void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);

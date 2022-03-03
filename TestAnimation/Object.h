@@ -202,6 +202,8 @@ public:
 
 	CAnimationCallbackHandler 		*m_pAnimationCallbackHandler = NULL;
 
+	bool	m_bIsFinish = false;
+
 public:
 	void SetPosition(float fTrackPosition);
 
