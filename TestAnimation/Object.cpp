@@ -260,7 +260,8 @@ void *CAnimationSet::GetCallbackData()
 void CAnimationSet::SetPosition(float fTrackPosition)
 {
 	m_fPosition = fTrackPosition;
-	double i = 0;
+	int i = 0;
+
 	switch (m_nType)
 	{
 		case ANIMATION_TYPE_LOOP:
@@ -270,20 +271,19 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 //			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 			break;
 		}
+
 		case ANIMATION_TYPE_ONCE:
-			m_fPosition = fmod(fTrackPosition, m_fLength+1.f);
+			m_fPosition = fmod(fTrackPosition, m_fLength);
 			if (m_fPosition >= m_fLength)
 			{
 				// 이번 동작 끝
-				m_fPosition = m_fLength;
+				i = 1;
+				//m_fPosition = 0.0f;
 			}
-			//m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 
 			//char buf[100];
 			//sprintf_s(buf, "m_fPosition: %d\n", i);
 			//OutputDebugStringA(buf);
-
-			
 			break;
 			
 		case ANIMATION_TYPE_PINGPONG:
@@ -293,6 +293,45 @@ void CAnimationSet::SetPosition(float fTrackPosition)
 	if (m_pAnimationCallbackHandler)
 	{
 		void *pCallbackData = GetCallbackData();
+		if (pCallbackData) m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
+	}
+}
+
+void CAnimationSet::SetAnimationPos(float fTimeElapsed)
+{
+	switch (m_nType)
+	{
+	case ANIMATION_TYPE_LOOP:
+	{
+		m_fPosition += fTimeElapsed;
+		break;
+	}
+
+	case ANIMATION_TYPE_ONCE:
+		m_fPosition = fmod(fTimeElapsed, m_fLength);
+		if (m_fPosition >= m_fLength)
+		{
+			if (m_bIsFinish)
+				m_bEnd = true;
+			if (!m_bIsFinish)
+				m_bIsFinish = true;
+
+			// 이번 동작 끝
+			//m_fPosition = 0.0f;
+		}
+
+		//char buf[100];
+		//sprintf_s(buf, "m_fPosition: %d\n", i);
+		//OutputDebugStringA(buf);
+		break;
+
+	case ANIMATION_TYPE_PINGPONG:
+		break;
+	}
+
+	if (m_pAnimationCallbackHandler)
+	{
+		void* pCallbackData = GetCallbackData();
 		if (pCallbackData) m_pAnimationCallbackHandler->HandleCallback(pCallbackData);
 	}
 }
@@ -523,9 +562,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 				{
 					if (m_pAnimationTracks[k].m_bEnable)
 					{
-						CAnimationSet *pAnimationSet = m_ppAnimationSets[i]->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
+						CAnimationSet *pAnimationSet = 
+							m_ppAnimationSets[i]->m_ppAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
 						pAnimationSet->SetPosition(m_pAnimationTracks[k].m_fPosition);
-
+						
 						XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
 						xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, 
 														Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));

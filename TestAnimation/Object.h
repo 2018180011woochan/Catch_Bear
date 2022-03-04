@@ -13,6 +13,7 @@
 #define DIR_RIGHT					0x08
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
+#define DIR_ATK						0x30
 
 class CShader;
 class CStandardShader;
@@ -203,9 +204,11 @@ public:
 	CAnimationCallbackHandler 		*m_pAnimationCallbackHandler = NULL;
 
 	bool	m_bIsFinish = false;
+	bool	m_bEnd = false;
 
 public:
 	void SetPosition(float fTrackPosition);
+	void SetAnimationPos(float fTimeElapsed);
 
 	XMFLOAT4X4 GetSRT(int nBone);
 

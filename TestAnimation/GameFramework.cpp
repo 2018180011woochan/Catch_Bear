@@ -454,11 +454,18 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
 		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
-
-		if (GetAsyncKeyState(VK_TAB)) {
+		if (pKeysBuffer[VK_SPACE] & 0xF0)
+		{
 			bAtk = true;
-			m_pPlayer->Set_MoveState(CPlayer::ATK);
+			dwDirection |= DIR_ATK;
 		}
+		else
+			bAtk = false;
+
+		//if (GetAsyncKeyState(VK_TAB)) {
+		//	bAtk = true;
+		//	m_pPlayer->Set_MoveState(CPlayer::ATK);
+		//}
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
@@ -482,16 +489,20 @@ void CGameFramework::ProcessInput()
 			}
 			if (dwDirection)
 			{
-				m_pPlayer->Set_MoveState(CPlayer::MOVE);
-				m_pPlayer->Move(dwDirection, 12.25f, true);
+				if (bAtk)	m_pPlayer->Set_MoveState(CPlayer::ATK);
+				else
+				{
+					m_pPlayer->Set_MoveState(CPlayer::MOVE);
+					m_pPlayer->Move(dwDirection, 12.25f, true);
+				}
 			}
 			else
 			{
 				int k = 0;
-				if (!bAtk)
-					m_pPlayer->Set_MoveState(CPlayer::IDLE);
+				m_pPlayer->Set_MoveState(CPlayer::IDLE);
 			}
 		}
+
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
