@@ -21,6 +21,7 @@ private:
 private:
 	float	_scoreTime = 0.f;
 	int		_score = 0;
+	int		_playerCnt = 0;
 
 	array<int, 3> _playerScore;
 };

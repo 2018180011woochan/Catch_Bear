@@ -31,10 +31,14 @@ public:
 	void SetCurItem(Player::ITEM curItem, bool value) { _curPlayerItem[curItem] = value; }	// 이 함수 사용해서 플레이어에게 아이템 효과 부여
 	void SetPlayerSpeed(float speed) { _speed = speed; }
 	void SetPlayerStunned(bool value) { _bStunned = value; }
+	void SetTagger(bool value) { _bTagger = value; }
+	void AddPlayerScore(int score) { _iScore += score; }
 
 	bool GetCurItem(Player::ITEM curItem) { return _curPlayerItem[curItem]; }
 	const float GetPlayerOriginalSpeed() { return _originalSpeed; }
 	const bool GetPlayerStunned() { return _bStunned; }
+	const bool GetTagger() { return _bTagger; }
+	const int GetPlayerScore() { return _iScore; }
 	
 private:
 	void KeyCheck();
@@ -44,7 +48,7 @@ private:
 	void ApplyItemEffect();	
 
 private:
-	// 아이템 사용하는(내가 상대방에게) 함수
+	// 아이템 사용하는 함수
 	void Item_SpeedUp();
 	void Item_Teleport();
 	void Item_Shield();
@@ -70,6 +74,9 @@ private:
 	float	_fShieldTime = 0.f;
 	float	_fBlindTime = 0.f;
 	float	_fStunTime = 0.f;
+
+	bool	_bTagger = false;	// 술래인지 아닌지 판단
+	int		_iScore = 0;
 
 	shared_ptr<GameObject>		_player = make_shared<GameObject>();
 	shared_ptr<GameObject>		_camera = make_shared<GameObject>();

@@ -105,14 +105,10 @@ void ItemManager::CreateCommonItem()
 				item->GetTransform()->SetLocalScale(Vec3(2.f, 2.f, 2.f));
 				item->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
 
+				// 충돌 바운딩박스 설정
 				item->SetBoundingExtents(XMFLOAT3(0.5f, 0.5f, 0.5f));
 				item->SetBoundingBox(BoundingOrientedBox(
 					XMFLOAT3(0.0f, 0.0f, 0.0f), item->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-
-				//item->_boundingExtents = XMFLOAT3(0.5f, 0.5f, 0.5f);
-				//item->_boundingBox = BoundingOrientedBox(
-				//	XMFLOAT3(0.0f, 0.0f, 0.0f), item->_boundingExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
 				item->AddComponent(make_shared<Item>());
 
 				// Item enum값 설정 - ItemType, ItemEffect
@@ -154,15 +150,10 @@ void ItemManager::CreateUniqueItem()
 				item->GetTransform()->SetLocalScale(Vec3(2.f, 2.f, 2.f));
 				item->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
 
+				// 충돌 바운딩박스 설정
 				item->SetBoundingExtents(XMFLOAT3(0.5f, 0.5f, 0.5f));
 				item->SetBoundingBox(BoundingOrientedBox(
 					XMFLOAT3(0.0f, 0.0f, 0.0f), item->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-
-
-				//item->_boundingExtents = XMFLOAT3(0.5f, 0.5f, 0.5f);
-				//item->_boundingBox = BoundingOrientedBox(
-				//	XMFLOAT3(0.0f, 0.0f, 0.0f), item->_boundingExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
 				item->AddComponent(make_shared<Item>());
 
 				// Item enum값 설정 - ItemType, ItemEffect
@@ -203,22 +194,16 @@ void ItemManager::CreateTreasure()
 			gameObject->GetTransform()->SetLocalScale(Vec3(0.5f, 0.5f, 0.5f));
 			gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
 
+			// 충돌 바운딩박스 설정
 			gameObject->SetBoundingExtents(XMFLOAT3(0.5f, 0.5f, 0.5f));
 			gameObject->SetBoundingBox(BoundingOrientedBox(
 				XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-
-
-			//gameObject->_boundingExtents = XMFLOAT3(0.5f, 0.5f, 0.5f);
-			//gameObject->_boundingBox = BoundingOrientedBox(
-			//	XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->_boundingExtents, XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
 			gameObject->AddComponent(make_shared<Item>());
 
 			// Item enum값 설정 - ItemType, ItemEffect
 			static_pointer_cast<Item>(gameObject->GetScript(0))->SetItemType(ITEM_TYPE::TRESURE);
-			static_pointer_cast<Item>(gameObject->GetScript(0))->SetItemEffect((ITEM_EFFECT)(7));
+			static_pointer_cast<Item>(gameObject->GetScript(0))->SetItemEffect(ITEM_EFFECT::NONE);
 			_treasureList.push_back(gameObject);
-
 
 			shared_ptr<Scene> scene = make_shared<Scene>();
 			scene = GET_SINGLE(SceneManager)->GetActiveScene();
@@ -270,4 +255,17 @@ void ItemManager::Collision_ItemToPlayer()
 		else item++;
 	}
 
+	// treasure & player
+	for (auto treasure = _treasureList.begin(); treasure != _treasureList.end();)
+	{
+		if ((*treasure)->GetBoundingBox().Intersects(_player->GetBoundingBox()))
+		{
+			// 보물을 먹으면 점수 30점 획득
+			static_pointer_cast<Player>(_player->GetScript(0))->AddPlayerScore(30);
+			scene->RemoveGameObject(*treasure);
+			treasure = _treasureList.erase(treasure);
+		}
+		else
+			treasure++;
+	}
 }
