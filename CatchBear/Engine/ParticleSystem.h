@@ -44,13 +44,13 @@ private:
 	shared_ptr<Material>		_material;
 	shared_ptr<Mesh>			_mesh;
 
-	float				_createInterval = 0.005f;
+	float				_createInterval = 0.001f;
 	float				_accTime = 0.f;
 
-	float				_minLifeTime = 0.5f;
-	float				_maxLifeTime = 1.f;
+	float				_minLifeTime = 2.f;
+	float				_maxLifeTime = 3.f;
 	float				_minSpeed = 100;
 	float				_maxSpeed = 50;
-	float				_startScale = 10.f;
-	float				_endScale = 5.f;
+	float				_startScale = 0.5f;
+	float				_endScale = 1.f;
 };

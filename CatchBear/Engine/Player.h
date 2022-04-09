@@ -46,6 +46,8 @@ private:
 	void KeyCheck_Item();
 	void UseItem(int itemNum);
 	void ApplyItemEffect();	
+	void CreateParticle();
+	void RemoveParticle();
 
 private:
 	// 아이템 사용하는 함수

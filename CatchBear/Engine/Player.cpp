@@ -25,6 +25,7 @@
 #include "ItemManager.h"
 #include "Item.h"
 #include "Light.h"
+#include "ParticleSystem.h"
 
 Player::Player()
 {
@@ -40,6 +41,9 @@ Player::~Player()
 void Player::Update()
 {
 	ApplyItemEffect();
+
+	//CreateParticle();
+
 }
 
 void Player::LateUpdate()
@@ -115,6 +119,9 @@ void Player::KeyCheck()
 		_state->Enter(*GetGameObject());
 	}
 	//////////////////////////////////////////////////////////////////////////
+
+	if (INPUT->GetButtonDown(KEY_TYPE::TEST_KEY))
+		CreateParticle();
 
 	Move();
 	KeyCheck_Item();
@@ -246,9 +253,6 @@ void Player::KeyCheck_Item()
 		if (_playerItemVec.size() < 2) return;
 		UseItem(2);
 	}
-
-	if (INPUT->GetButtonDown(KEY_TYPE::TEST_KEY))
-		SlowDown();
 }
 
 void Player::UseItem(int itemNum)
@@ -315,6 +319,35 @@ void Player::ApplyItemEffect()
 
 	if (_curPlayerItem[Player::ITEM::STUN])
 		Stunned();
+}
+
+void Player::CreateParticle()
+{
+	auto& scene = GET_SINGLE(SceneManager)->GetActiveScene();
+
+	Vec3 playerPos = GetTransform()->GetLocalPosition();
+
+	shared_ptr<GameObject> particle = make_shared<GameObject>();
+	particle->SetName(L"Particle");
+	particle->AddComponent(make_shared<Transform>());
+	particle->AddComponent(make_shared<ParticleSystem>());
+	particle->SetCheckFrustum(false);
+	particle->GetTransform()->SetLocalPosition(playerPos);
+	scene->AddGameObject(particle);
+}
+
+void Player::RemoveParticle()
+{
+	auto& scene = GET_SINGLE(SceneManager)->GetActiveScene();
+	auto& gameObjects = scene->GetGameObjects();
+
+	for (auto& gameObject : gameObjects)
+	{
+		if (gameObject->GetName() == L"Particle")
+		{
+
+		}
+	}
 }
 
 void Player::Item_SpeedUp()
