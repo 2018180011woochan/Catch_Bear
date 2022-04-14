@@ -214,9 +214,9 @@ void CS_Main(int3 threadIndex : SV_DispatchThreadID)
 
         float ratio = g_particle[threadIndex.x].curTime / g_particle[threadIndex.x].lifeTime;
         float speed = (maxSpeed - minSpeed) * ratio + minSpeed;
-        //g_particle[threadIndex.x].worldPos += g_particle[threadIndex.x].worldDir * speed * deltaTime;
+        g_particle[threadIndex.x].worldPos += g_particle[threadIndex.x].worldDir * speed * deltaTime;
 
-        g_particle[threadIndex.x].worldPos += /*g_particle[threadIndex.x].worldDir * */speed * deltaTime;
+        //g_particle[threadIndex.x].worldPos += /*g_particle[threadIndex.x].worldDir * */speed * deltaTime;
     }
 }
 

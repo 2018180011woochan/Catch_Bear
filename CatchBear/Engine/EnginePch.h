@@ -71,7 +71,7 @@ enum class CBV_REGISTER : uint8
 	b2,
 	b3,
 	b4,
-	b5,
+	//b5,
 
 	END
 };

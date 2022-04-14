@@ -31,11 +31,12 @@ void Engine::Init(const WindowInfo& info)
 	
 	// 특정 레지스터와 Constant Buffer 설정
 	CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
-	CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
+	//CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
+	CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 512);
 	CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
 	CreateConstantBuffer(CBV_REGISTER::b3, sizeof(BoneOffsetParams), 4);
 	CreateConstantBuffer(CBV_REGISTER::b4, sizeof(AnimatedBoneParams), 4);
-	CreateConstantBuffer(CBV_REGISTER::b5, sizeof(TimeParams), 4);
+	//CreateConstantBuffer(CBV_REGISTER::b5, sizeof(TimeParams), 4);
 
 	CreateRenderTargetGroups();
 

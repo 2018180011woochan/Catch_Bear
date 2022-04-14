@@ -48,6 +48,8 @@ void Player::Update()
 
 void Player::LateUpdate()
 {
+	//if (_bStunned) return;
+
 	// 서버에서 컨트롤하는 플레이어는 서버에서 위치값도 받아오니까 필요없을듯
 	KeyCheck();
 
@@ -120,8 +122,8 @@ void Player::KeyCheck()
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	if (INPUT->GetButtonDown(KEY_TYPE::TEST_KEY))
-		CreateParticle();
+	//if (INPUT->GetButtonDown(KEY_TYPE::TEST_KEY))
+	//	CreateParticle();
 
 	Move();
 	KeyCheck_Item();

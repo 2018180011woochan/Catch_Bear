@@ -89,8 +89,8 @@ void ConstantBuffer::Clear()
 void ConstantBuffer::PushGraphicsData(void* buffer, uint32 size)
 {
 	// 디버그용
-	//assert(_currentIndex < _elementCount);
-	//assert(_elementSize == ((size + 255) & ~255));
+	assert(_currentIndex < _elementCount);
+	assert(_elementSize == ((size + 255) & ~255));
 
 	// 해당 인덱스 위치에 요청해준 버퍼를 복사
 	::memcpy(&_mappedBuffer[_currentIndex * _elementSize], buffer, size);

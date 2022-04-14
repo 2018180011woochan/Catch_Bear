@@ -10,6 +10,7 @@
 
 Light::Light() : Component(COMPONENT_TYPE::LIGHT)
 {
+	// shadowCamera는 따로 씬에 존재x, Light Component가 그림자를 찍기 위해 내부적으로 가지고 있는 아이
 	_shadowCamera = make_shared<GameObject>();
 	_shadowCamera->AddComponent(make_shared<Transform>());
 	_shadowCamera->AddComponent(make_shared<Camera>());
@@ -31,7 +32,6 @@ void Light::FinalUpdate()
 	_shadowCamera->GetTransform()->SetLocalScale(GetTransform()->GetLocalScale());
 
 	_shadowCamera->FinalUpdate();
-
 }
 
 void Light::Render()

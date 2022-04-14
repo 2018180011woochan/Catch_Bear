@@ -39,7 +39,7 @@ void Scene::Update()
 	int time = (int)_curTime;
 	float time2 = _curTime / 2.f;
 	int time3 = time % 2;
-	CONST_BUFFER(CONSTANT_BUFFER_TYPE::TIME)->PushGraphicsData(&time, sizeof(int));
+//	CONST_BUFFER(CONSTANT_BUFFER_TYPE::TIME)->PushGraphicsData(&time, sizeof(int));
 
 	for (const shared_ptr<GameObject>& gameObject : _gameObjects)
 	{
@@ -77,7 +77,7 @@ void Scene::Render()
 
 	ClearRTV();		// Render Target 정리
 
-	//RenderShadow();	// shadow는 순서 상관 없음, light 이전에만 해주면 됨
+	RenderShadow();	// shadow는 순서 상관 없음, light 이전에만 해주면 됨
 
 	RenderDeferred();	// Deferred 물체들 그려줌
 

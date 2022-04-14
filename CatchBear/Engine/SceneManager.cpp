@@ -128,27 +128,27 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	}
 #pragma endregion
 
-#pragma region TestObject
-	{
-		shared_ptr<GameObject> obj = make_shared<GameObject>();
-		obj->SetName(L"OBJ");
-		obj->AddComponent(make_shared<Transform>());
-		obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-		obj->GetTransform()->SetLocalPosition(Vec3(0, 0.f, 300.f));
-		obj->SetStatic(false);
-		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-		{
-			shared_ptr<Mesh> sphereMesh = GET_SINGLE(Resources)->LoadSphereMesh();
-			meshRenderer->SetMesh(sphereMesh);
-		}
-		{
-			shared_ptr<Material> material = GET_SINGLE(Resources)->Get<Material>(L"GameObject");
-			meshRenderer->SetMaterial(material->Clone());
-		}
-		obj->AddComponent(meshRenderer);
-		scene->AddGameObject(obj);
-	}
-#pragma endregion
+//#pragma region TestObject
+//	{
+//		shared_ptr<GameObject> obj = make_shared<GameObject>();
+//		obj->SetName(L"OBJ");
+//		obj->AddComponent(make_shared<Transform>());
+//		obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+//		obj->GetTransform()->SetLocalPosition(Vec3(0, 100.f, 0.f));
+//		obj->SetStatic(false);
+//		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+//		{
+//			shared_ptr<Mesh> sphereMesh = GET_SINGLE(Resources)->LoadSphereMesh();
+//			meshRenderer->SetMesh(sphereMesh);
+//		}
+//		{ 
+//			shared_ptr<Material> material = GET_SINGLE(Resources)->Get<Material>(L"GameObject");
+//			meshRenderer->SetMaterial(material->Clone());
+//		}
+//		obj->AddComponent(meshRenderer);
+//		scene->AddGameObject(obj);
+//	}
+//#pragma endregion
 
 #pragma region SkyBox
 	{
@@ -177,56 +177,27 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	LoadMapFile(scene);
 #pragma endregion
 
-#pragma region Item
-	// present1
-	// Resources::LoadFBX()
-	// fbx기반으로 된 바이너리 파일을 로드 & 로드한 정보를 바탕으로 MeshData 객체 생성해서 리턴
-	//shared_ptr<MeshData> meshPresent1 = GET_SINGLE(Resources)->LoadFBX(L"present1.bin");
-
-	//for (int i = 0; i < 2; ++i)
-	//{
-	//	vector<shared_ptr<GameObject>>	objectsPresent1 = meshPresent1->Instantiate();
-	//	for (auto& gameObject : objectsPresent1)
-	//	{
-	//		gameObject->SetName(L"Present1");
-	//		gameObject->SetCheckFrustum(false);
-	//		gameObject->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, 10 + i * 10));
-	//		gameObject->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-	//		gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-	//		scene->AddGameObject(gameObject);
-	//	}
-	//}
-
-	//// present4
-	//shared_ptr<MeshData> meshPresent4 = GET_SINGLE(Resources)->LoadFBX(L"present4.bin");
-	//vector<shared_ptr<GameObject>>	objectsPresent4 = meshPresent4->Instantiate();
-
-	//for (auto& gameObject : objectsPresent4)
-	//{
-	//	gameObject->SetName(L"Present4");
-	//	gameObject->SetCheckFrustum(false);
-	//	gameObject->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, 3));
-	//	gameObject->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-	//	gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-	//	scene->AddGameObject(gameObject);
-	//}
-
-	//// Diamond
-	//shared_ptr<MeshData> meshPresent5 = GET_SINGLE(Resources)->LoadFBX(L"Diamond.bin");
-
-	//vector<shared_ptr<GameObject>>	objectsPresent4 = meshPresent5->Instantiate();
-
-	//for (auto& gameObject : objectsPresent4)
-	//{
-	//	gameObject->SetName(L"Present4");
-	//	gameObject->SetCheckFrustum(false);
-	//	gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, -2.f, 0.f));
-	//	gameObject->GetTransform()->SetLocalRotation(Vec3(-90.f, 270.f, 0.f));
-	//	gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-	//	gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-	//	scene->AddGameObject(gameObject);
-	//}
+#pragma region Object
+	{
+		shared_ptr<GameObject> obj = make_shared<GameObject>();
+		obj->AddComponent(make_shared<Transform>());
+		obj->GetTransform()->SetLocalScale(Vec3(2.f, 2.f, 2.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(0, -2.f, 0.f));
+		obj->SetStatic(false);
+		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+		{ 
+			shared_ptr<Mesh> sphereMesh = GET_SINGLE(Resources)->LoadSphereMesh();
+			meshRenderer->SetMesh(sphereMesh);
+		}
+		{
+			shared_ptr<Material> material = GET_SINGLE(Resources)->Get<Material>(L"GameObject");
+			meshRenderer->SetMaterial(material->Clone());
+		}
+		obj->AddComponent(meshRenderer);
+		scene->AddGameObject(obj);
+	}
 #pragma endregion
+
 
 #pragma region TestPlayer
 	{
@@ -237,21 +208,16 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		for (auto& gameObject : gameObjects)
 		{
 			gameObject->SetName(L"Player");
-			gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, -2.f, 0.f));
+			gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -2.f, 0.f));
 			gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
 			gameObject->AddComponent(make_shared<Player>());
 			gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
 			gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
 			gameObject->SetStatic(false);
 
-			gameObject->SetBoundingExtents(XMFLOAT3(3.f, 3.f, 3.f));
+			gameObject->SetBoundingExtents(XMFLOAT3(1.f, 1.f, 1.f));
 			gameObject->SetBoundingBox(BoundingOrientedBox(
 				XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-
-
-			//gameObject->_boundingBox = BoundingOrientedBox(
-			//	XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(3.f, 3.f, 3.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-			//gameObject->_boundingExtents = XMFLOAT3(3.f, 3.f, 3.f);
 
 			gameObject->SetCheckFrustum(false);
 			gameObject->SetPlayerID(0);
@@ -381,46 +347,46 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma endregion
 
 #pragma region UI_Test
-	//for (int32 i = 0; i < 6; i++)
-	//{
-	//	shared_ptr<GameObject> obj = make_shared<GameObject>();
-	//	obj->SetLayerIndex(GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI")); // UI
-	//	obj->AddComponent(make_shared<Transform>());
-	//	obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-	//	obj->GetTransform()->SetLocalPosition(Vec3(-350.f + (i * 120), 250.f, 500.f));
-	//	shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-	//	{
-	//		shared_ptr<Mesh> mesh = GET_SINGLE(Resources)->LoadRectangleMesh();
-	//		meshRenderer->SetMesh(mesh);
-	//	}
-	//	{
-	//		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Texture");
+	for (int32 i = 0; i < 6; i++)
+	{
+		shared_ptr<GameObject> obj = make_shared<GameObject>();
+		obj->SetLayerIndex(GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI")); // UI
+		obj->AddComponent(make_shared<Transform>());
+		obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(-350.f + (i * 120), 250.f, 500.f));
+		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+		{
+			shared_ptr<Mesh> mesh = GET_SINGLE(Resources)->LoadRectangleMesh();
+			meshRenderer->SetMesh(mesh);
+		}
+		{
+			shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Texture");
 
-	//		shared_ptr<Texture> texture;
-	//		if (i < 3)
-	//			texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->GetRTTexture(i);
-	//		else if (i < 5)
-	//			texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->GetRTTexture(i - 3);
-	//		else
-	//			texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->GetRTTexture(0);
+			shared_ptr<Texture> texture;
+			if (i < 3)
+				texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->GetRTTexture(i);
+			else if (i < 5)
+				texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->GetRTTexture(i - 3);
+			else
+				texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->GetRTTexture(0);
 
-	//		shared_ptr<Material> material = make_shared<Material>();
-	//		material->SetShader(shader);
-	//		material->SetTexture(0, texture);
-	//		meshRenderer->SetMaterial(material);
-	//	}
-	//	//obj->AddComponent(meshRenderer);
-	//	scene->AddGameObject(obj);
-	//}
+			shared_ptr<Material> material = make_shared<Material>();
+			material->SetShader(shader);
+			material->SetTexture(0, texture);
+			meshRenderer->SetMaterial(material);
+		}
+		obj->AddComponent(meshRenderer);
+		scene->AddGameObject(obj);
+	}
 #pragma endregion
 
 #pragma region Directional Light
 	{
 		shared_ptr<GameObject> light = make_shared<GameObject>();
 		light->AddComponent(make_shared<Transform>());
-		light->GetTransform()->SetLocalPosition(Vec3(0, 1000, 0));
+		light->GetTransform()->SetLocalPosition(Vec3(0, 100, 0));
 		light->AddComponent(make_shared<Light>());
-		light->GetLight()->SetLightDirection(Vec3(0, -1, 0.f));
+		light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
 		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 		light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
 		light->GetLight()->SetAmbient(Vec3(0.3f, 0.3f, 0.3f));
@@ -496,7 +462,8 @@ void SceneManager::LoadMapFile(shared_ptr<Scene> scene)
 				wstring name = s2ws(pStrTocken);
 
 				if (!strcmp(pStrTocken, "Fence_Type1_02_mesh"))
-					name = L"Fence_Type1_02";
+					return;
+					//name = L"Fence_Type1_02";
 
 				shared_ptr<MeshData> meshData = GET_SINGLE(Resources)->LoadFBX(name + L".bin");
 				vector<shared_ptr<GameObject>> obj = meshData->Instantiate();
