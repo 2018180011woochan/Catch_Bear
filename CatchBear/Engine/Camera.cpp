@@ -104,24 +104,24 @@ void Camera::SortShadowObject()
 		if (gameObject->GetMeshRenderer() == nullptr)
 			continue;
 
-		// 정적인 애들은 동적인 그림자를 그리는게 아니라 미리 그림자를 계산해서 이용함
-		// 지금은 우리가 그림자를 그릴지 안그릴지만 판별하는 용도
-		// static이 아니라 dynamic, 움직이는 물체들만 실시간으로 판별해서 그려줌
-		if (gameObject->IsStatic())
-			continue;
+		//// 정적인 애들은 동적인 그림자를 그리는게 아니라 미리 그림자를 계산해서 이용함
+		//// 지금은 우리가 그림자를 그릴지 안그릴지만 판별하는 용도
+		//// static이 아니라 dynamic, 움직이는 물체들만 실시간으로 판별해서 그려줌
+		//if (gameObject->IsStatic())
+		//	continue;
 
-		if (IsCulled(gameObject->GetLayerIndex()))
-			continue;
+		//if (IsCulled(gameObject->GetLayerIndex()))
+		//	continue;
 
-		if (gameObject->GetCheckFrustum())
-		{
-			if (_frustum.ContainsSphere(
-				gameObject->GetTransform()->GetWorldPosition(),
-				gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
-			{
-				continue;
-			}
-		}
+		//if (gameObject->GetCheckFrustum())
+		//{
+		//	if (_frustum.ContainsSphere(
+		//		gameObject->GetTransform()->GetWorldPosition(),
+		//		gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
+		//	{
+		//		continue;
+		//	}
+		//}
 
 		// 최종적으로 그림자 영역을 받아야 하는 애들만 벡터에 넣어준다.
 		_vecShadow.push_back(gameObject);

@@ -118,6 +118,7 @@ PS_OUT PS_Main(VS_OUT input)
     output.position = float4(input.pos.xyz, 0.f);
     output.normal = float4(viewNormal.xyz, 0.f);
     output.color = color;
+    //output.color = float4(0.f, 0.f, 0.f, 1.f);
 
     return output;
 }
@@ -144,7 +145,6 @@ PS_OUT PS_TagMark(VS_OUT input) // ¼ú·¡
     output.position = float4(input.pos.xyz, 0.f);
     output.normal = float4(input.viewNormal.xyz, 0.f);
     output.color = color;
-
     return output;
 }
 
