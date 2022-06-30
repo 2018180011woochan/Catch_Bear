@@ -10,8 +10,8 @@
 
 CameraScript::CameraScript()
 {
+	//m_xmf3Offset = Vec3(0.0f, 3.f, -8.f);
 	m_xmf3Offset = Vec3(0.0f, 3.f, -8.f);
-	//m_xmf3Offset = Vec3(0.0f, 5.f, -10.f);
 }
 
 CameraScript::~CameraScript()

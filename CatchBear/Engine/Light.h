@@ -45,7 +45,7 @@ public:
 	
 	virtual void FinalUpdate() override;
 	void Render();
-	void RenderShadow();
+	//void RenderShadow();
 
 public:
 	LIGHT_TYPE GetLightType() { return static_cast<LIGHT_TYPE>(_lightInfo.lightType); }
@@ -71,6 +71,6 @@ private:
 	shared_ptr<class Mesh>		_volumeMesh;		// 내가 어떤 영역을 차지하는지
 	shared_ptr<class Material>	_lightMaterial;		// 셰이더에 인자를 넘겨줄때
 
-	shared_ptr<GameObject>		_shadowCamera;
+	//shared_ptr<GameObject>		_shadowCamera;
 };
 
