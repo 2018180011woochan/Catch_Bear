@@ -51,13 +51,14 @@ void Player::Update()
 	//cout << "플레이어 " << _player->GetPlayerID() << ": " << /*static_pointer_cast<Player>(_player->GetScript(0))->*/_iScore << endl;
 	ApplyItemEffect();
 
-
 }
 
 void Player::LateUpdate()
 {
 	// 서버에서 컨트롤하는 플레이어는 서버에서 위치값도 받아오니까 필요없을듯
 	KeyCheck();
+	Vec3 pos = GetTransform()->GetLocalPosition();
+	//_playerLight->GetTransform()->SetLocalPosition(pos);
 
 	////////////////////////////////////////////////////////////////////
 	// 이 부분은 직접 플레이하고 있는 플레이어에만 적용되야 함!!

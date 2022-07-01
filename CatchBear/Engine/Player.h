@@ -46,6 +46,8 @@ public:
 	const int GetPlayerScore() { return _iScore; }
 	const int GetItemCount() { return _iItemCnt; }
 	
+	void SetPlayerLight(shared_ptr<GameObject>& light) { _playerLight = light; }
+
 private:
 	void KeyCheck();
 	void Move();
@@ -99,6 +101,8 @@ private:
 private:
 	STATE	_curStatePlayer = STATE::END;
 	STATE	_preState = STATE::END;
+
+	shared_ptr<GameObject>	_playerLight = make_shared<GameObject>();
 
 public:
 	class PlayerState* _state;

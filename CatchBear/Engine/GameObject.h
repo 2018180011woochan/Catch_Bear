@@ -84,7 +84,7 @@ private:
 
 	bool	_checkFrustum = true;
 	uint8	_layerIndex = 0;
-	bool	_static = false;
+	bool	_static = true;
 	uint64  _playerID = 0;
 	bool	_isAllowPlayerMove = true;
 	bool	_isTagger = false;			// 술래인가?

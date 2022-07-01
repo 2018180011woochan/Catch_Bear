@@ -70,14 +70,14 @@ void Light::Render()
 
 }
 
-//void Light::RenderShadow()
-//{
-//	// 쉐도우 카메라를 이용해서 빛이 바라보고 있는 똑같은 방향으로 카메라를 찍어줌
-//	// 그림자 영향을 받은 모든 물체들을 그려준다
-//
-//	_shadowCamera->GetCamera()->SortShadowObject();	// 씬에 존재하는 모든 물체 중 그림자 영향 받는 애들 걸러냄
-//	_shadowCamera->GetCamera()->Render_Shadow();	// 그 애들을 실질적으로 그려줌
-//}
+void Light::RenderShadow()
+{
+	// 쉐도우 카메라를 이용해서 빛이 바라보고 있는 똑같은 방향으로 카메라를 찍어줌
+	// 그림자 영향을 받은 모든 물체들을 그려준다
+
+	_shadowCamera->GetCamera()->SortShadowObject();	// 씬에 존재하는 모든 물체 중 그림자 영향 받는 애들 걸러냄
+	_shadowCamera->GetCamera()->Render_Shadow();	// 그 애들을 실질적으로 그려줌
+}
 
 void Light::SetLightDirection(Vec3& direction)
 {
@@ -98,10 +98,10 @@ void Light::SetLightType(LIGHT_TYPE type)
 		_volumeMesh = GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle");
 		_lightMaterial = GET_SINGLE(Resources)->Get<Material>(L"DirLight");
 
-		//_shadowCamera->GetCamera()->SetScale(1.f);
-		//_shadowCamera->GetCamera()->SetFar(10000.f);
-		//_shadowCamera->GetCamera()->SetWidth(4096);
-		//_shadowCamera->GetCamera()->SetHeight(4096);
+		_shadowCamera->GetCamera()->SetScale(1.f);
+		_shadowCamera->GetCamera()->SetFar(10000.f);
+		_shadowCamera->GetCamera()->SetWidth(4096);
+		_shadowCamera->GetCamera()->SetHeight(4096);
 		break;
 	case LIGHT_TYPE::POINT_LIGHT:
 		_volumeMesh = GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle");

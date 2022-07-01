@@ -849,4 +849,13 @@ void Resources::CreateDefaultMaterial()
 		Add<Material>(L"Terrain", material);
 	}
 
+	// Player Stun
+	{
+		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Deferred");
+		shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"PlayerStun", L"..\\Resources\\Texture\\stun.jpg");
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(shader);
+		material->SetTexture(0, texture);
+		Add<Material>(L"PlayerStun", material);
+	}
 }
