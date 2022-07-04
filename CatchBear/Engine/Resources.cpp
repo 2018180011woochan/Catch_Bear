@@ -841,21 +841,11 @@ void Resources::CreateDefaultMaterial()
 	// Terrain
 	{
 		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Terrain");
-		shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\terrain_2.jpg");
+		shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\terrain.jpg");
 		//shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\Grass_lighted_down.png");
 		shared_ptr<Material> material = make_shared<Material>();
 		material->SetShader(shader);
 		material->SetTexture(0, texture);	// 0번이 색상
 		Add<Material>(L"Terrain", material);
-	}
-
-	// Player Stun
-	{
-		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Deferred");
-		shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"PlayerStun", L"..\\Resources\\Texture\\stun.jpg");
-		shared_ptr<Material> material = make_shared<Material>();
-		material->SetShader(shader);
-		material->SetTexture(0, texture);
-		Add<Material>(L"PlayerStun", material);
 	}
 }
