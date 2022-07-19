@@ -31,6 +31,9 @@ public:
 	void Render(uint32 instanceCount = 1, uint32 idx = 0);
 	void Render(shared_ptr<class InstancingBuffer>& buffer, uint32 idx = 0);
 
+	//void Render(uint32 instanceCount = 1);
+	//void Render(shared_ptr<class InstancingBuffer>& buffer);
+
 public:
 	shared_ptr<StructuredBuffer>	GetBoneOffsetBuffer() { return _offsetBuffer; }
 		
@@ -53,6 +56,9 @@ private:
 
 	vector<IndexBufferInfo>		_vecIndexInfo;
 
+	//ComPtr<ID3D12Resource>		_indexBuffer;
+	//D3D12_INDEX_BUFFER_VIEW		_indexBufferView;
+	//uint32						_indexCount = 0;
 
 	// Animation
 	vector<AnimClipInfo>		_animClips;

@@ -130,7 +130,6 @@ void SceneManager::ReStart()
 	//_activeScene->RemoveItems();
 }
 
-
 bool SceneManager::IsEnd()
 {
 	return _activeScene->_isEnd;
@@ -212,6 +211,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma region SkyBox
 	{
 		shared_ptr<GameObject> skybox = make_shared<GameObject>();
+		skybox->SetName(L"SkyBox");
 		skybox->AddComponent(make_shared<Transform>());
 		skybox->SetCheckFrustum(false);
 		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -233,7 +233,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma endregion
 
 #pragma region StaticMesh
-	LoadMapFile(scene);
+	//LoadMapFile(scene);
 #pragma endregion
 
 #pragma region TestPlayer
@@ -579,13 +579,35 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	}
 #pragma endregion
 
+#pragma region TestItem
+	{
+		//shared_ptr<MeshData> mesh = GET_SINGLE(Resources)->LoadFBX(L"present4.bin");
+		shared_ptr<MeshData> mesh = GET_SINGLE(Resources)->LoadFBX(L"Bush_01.bin");
+		vector<shared_ptr<GameObject>>	uniqueItem = mesh->Instantiate();
+
+		for (auto& item : uniqueItem)
+		{
+			item->SetName(L"UniqueItem");
+			item->SetStatic(false);
+			item->SetCheckFrustum(false);
+
+			item->GetTransform()->SetLocalPosition(Vec3(10.f, 2.f, 0.f));
+			item->GetTransform()->SetLocalScale(Vec3(2.f, 2.f, 2.f));
+			item->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
+			scene->AddGameObject(item);
+		}
+	}
+#pragma endregion
+
 
 #pragma region Terrain
 	{
 		shared_ptr<GameObject> obj = make_shared<GameObject>();
+		obj->SetName(L"Terrain");
 		obj->AddComponent(make_shared<Transform>());
 		obj->GetTransform()->SetLocalScale(Vec3(8.f, 500.f, 8.f));
 		obj->GetTransform()->SetLocalPosition(Vec3(-60.f, 0.f, -60.f));
+
 		obj->SetStatic(true);
 		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
 		{
@@ -1118,9 +1140,10 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	{
 		shared_ptr<GameObject> light = make_shared<GameObject>();
 		light->AddComponent(make_shared<Transform>());
-		light->GetTransform()->SetLocalPosition(Vec3(0, 1000, 0));
+		light->GetTransform()->SetLocalPosition(Vec3(0, 100, 0));
+		light->GetTransform()->SetLocalRotation(Vec3(0.f, 0.f, 0.f));
 		light->AddComponent(make_shared<Light>());
-		light->GetLight()->SetLightDirection(Vec3(0, -1, 0.f));
+		light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
 		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 		light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
 		light->GetLight()->SetAmbient(Vec3(0.3f, 0.3f, 0.3f));

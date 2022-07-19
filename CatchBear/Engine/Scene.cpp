@@ -86,7 +86,7 @@ void Scene::Render()
 
 	ClearRTV();		// Render Target 정리
 
-	//RenderShadow();	// shadow는 순서 상관 없음, light 이전에만 해주면 됨
+	RenderShadow();	// shadow는 순서 상관 없음, light 이전에만 해주면 됨
 
 	RenderDeferred();	// Deferred 물체들 그려줌
 
