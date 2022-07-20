@@ -12,7 +12,6 @@
 
 #include "CameraScript.h"
 #include "Resources.h"
-#include "ParticleSystem.h"
 #include "Player.h"
 #include "MeshData.h"
 #include "CharacterData.h"
@@ -154,28 +153,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	}
 #pragma endregion
 
-#pragma region 테스트용 Object
-	{
-		//shared_ptr<GameObject> obj = make_shared<GameObject>();
-		//obj->SetName(L"Wall");
-		//obj->AddComponent(make_shared<Transform>());
-		//obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-		//obj->GetTransform()->SetLocalPosition(Vec3(0, 0.f, 700.f));
-		//obj->SetStatic(false);
-		//shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-		//{
-		//	shared_ptr<Mesh> sphereMesh = GET_SINGLE(Resources)->LoadSphereMesh();
-		//	meshRenderer->SetMesh(sphereMesh);
-		//}
-		//{
-		//	shared_ptr<Material> material = GET_SINGLE(Resources)->Get<Material>(L"GameObject");
-		//	meshRenderer->SetMaterial(material->Clone());
-		//}
-		//obj->AddComponent(meshRenderer);
-		//scene->AddGameObject(obj);
-	}
-#pragma endregion
-
 #pragma region SkyBox
 	{
 		shared_ptr<GameObject> skybox = make_shared<GameObject>();
@@ -200,47 +177,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 #pragma endregion
 
 #pragma region StaticMesh
-	//LoadMapFile(scene);
-	//LoadMap(scene);
-#pragma endregion
-
-#pragma region Item
-	// present1
-	// Resources::LoadFBX()
-	// fbx기반으로 된 바이너리 파일을 로드 & 로드한 정보를 바탕으로 MeshData 객체 생성해서 리턴
-	//shared_ptr<MeshData> meshPresent1 = GET_SINGLE(Resources)->LoadFBX(L"present1.bin");
-
-	//for (int i = 0; i < 2; ++i)
-	//{
-	//	vector<shared_ptr<GameObject>>	objectsPresent1 = meshPresent1->Instantiate();
-
-	//	for (auto& gameObject : objectsPresent1)
-	//	{
-	//		gameObject->SetName(L"Present1");
-	//		gameObject->SetCheckFrustum(false);
-	//		gameObject->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, 10 + i * 10));
-	//		gameObject->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-	//		gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-	//		scene->AddGameObject(gameObject);
-	//	}
-	//}
-
-	//// present4
-	//shared_ptr<MeshData> meshPresent4 = GET_SINGLE(Resources)->LoadFBX(L"present4.bin");
-
-	//vector<shared_ptr<GameObject>>	objectsPresent4 = meshPresent4->Instantiate();
-
-	//for (auto& gameObject : objectsPresent4)
-	//{
-	//	gameObject->SetName(L"Present4");
-	//	gameObject->SetCheckFrustum(false);
-	//	gameObject->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, 3));
-	//	gameObject->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-	//	gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-	//	scene->AddGameObject(gameObject);
-	//}
-
-
+	LoadMapFile(scene);
+	LoadMap(scene);
 #pragma endregion
 
 #pragma region TestPlayer
@@ -252,8 +190,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		for (auto& gameObject : gameObjects)
 		{
 			gameObject->SetName(L"Player");
-			gameObject->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, -1.120835f));
-			gameObject->GetTransform()->SetLocalScale(Vec3(5.f, 5.f, 5.f));
+			gameObject->GetTransform()->SetLocalPosition(Vec3(2.f, 1.5f, 0.f));
+			gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
 			gameObject->GetTransform()->SetLocalRotation(Vec3(0.f, 0.f, 0.f));
 			gameObject->AddComponent(make_shared<Player>());
 			gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
@@ -266,7 +204,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 
 		for (auto&Object : gameObjects)
 		{
-			Object->SetName(L"Player");
+			//Object->SetName(L"Player");
 			Object->GetTransform()->SetLocalPosition(Vec3(5.324442f, -47.f, 10));
 			Object->GetTransform()->SetLocalScale(Vec3(5.f, 5.f, 5.f));
 			Object->GetTransform()->SetLocalRotation(Vec3(0.f, 0.f, 0.f));
@@ -278,12 +216,32 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	}
 #pragma endregion
 
+#pragma region TestItem
+	{
+		shared_ptr<MeshData> mesh = GET_SINGLE(Resources)->LoadFBX(L"present4.bin");	// unique
+		vector<shared_ptr<GameObject>>	uniqueItem = mesh->Instantiate();
+
+		for (auto& item : uniqueItem)
+		{
+			item->SetName(L"UniqueItem");
+			item->SetStatic(false);
+			item->SetCheckFrustum(false);
+
+			item->GetTransform()->SetLocalPosition(Vec3(0.f, 3.f, 0.f));
+			item->GetTransform()->SetLocalScale(Vec3(2.f, 2.f, 2.f));
+			item->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
+			scene->AddGameObject(item);
+		}
+	}
+#pragma endregion
+
+
 #pragma region Terrain
 	{
 		shared_ptr<GameObject> obj = make_shared<GameObject>();
 		obj->AddComponent(make_shared<Transform>());
-		obj->GetTransform()->SetLocalScale(Vec3(1000.f, 1000.f, 50.f));
-		obj->GetTransform()->SetLocalPosition(Vec3(-500.f, -50.f, 0.f));
+		obj->GetTransform()->SetLocalScale(Vec3(8.f, 500.f, 8.f));
+		obj->GetTransform()->SetLocalPosition(Vec3(-60.f, 0.f, -60.f));
 		obj->SetStatic(true);
 		shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
 		{
@@ -329,7 +287,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 			material->SetTexture(0, texture);
 			meshRenderer->SetMaterial(material);
 		}
-		//obj->AddComponent(meshRenderer);
+		obj->AddComponent(meshRenderer);
 		scene->AddGameObject(obj);
 	}
 #pragma endregion
@@ -338,55 +296,17 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 	{
 		shared_ptr<GameObject> light = make_shared<GameObject>();
 		light->AddComponent(make_shared<Transform>());
-		light->GetTransform()->SetLocalPosition(Vec3(0, 1000, 0));
+		light->GetTransform()->SetLocalPosition(Vec3(0, 100, 0));
 		light->AddComponent(make_shared<Light>());
 		light->GetLight()->SetLightDirection(Vec3(0, -1, 0.f));
 		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 		light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
-		light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
+		light->GetLight()->SetAmbient(Vec3(0.3f, 0.3f, 0.3f));
 		light->GetLight()->SetSpecular(Vec3(0.1f, 0.1f, 0.1f));
 
 		scene->AddGameObject(light);
 	}
 #pragma endregion
-
-	//
-//#pragma region Point Light
-//	{
-//		shared_ptr<GameObject> light = make_shared<GameObject>();
-//		light->AddComponent(make_shared<Transform>());
-//		light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 150.f));
-//		light->AddComponent(make_shared<Light>());
-//		//light->GetLight()->SetLightDirection(Vec3(-1.f, -1.f, 0));
-//		light->GetLight()->SetLightType(LIGHT_TYPE::POINT_LIGHT);
-//		light->GetLight()->SetDiffuse(Vec3(0.0f, 0.5f, 0.0f));
-//		light->GetLight()->SetAmbient(Vec3(0.0f, 0.3f, 0.0f));
-//		light->GetLight()->SetSpecular(Vec3(0.0f, 0.3f, 0.0f));
-//		light->GetLight()->SetLightRange(200.f);
-//
-//		scene->AddGameObject(light);
-//	}
-//#pragma endregion
-//
-//#pragma region Spot Light
-//	{
-//		shared_ptr<GameObject> light = make_shared<GameObject>();
-//		light->AddComponent(make_shared<Transform>());
-//		light->GetTransform()->SetLocalPosition(Vec3(75.f, 0.f, 150.f));
-//		light->AddComponent(make_shared<Light>());
-//		light->GetLight()->SetLightDirection(Vec3(-1.f, 0, 0));
-//		light->GetLight()->SetLightType(LIGHT_TYPE::SPOT_LIGHT);
-//		light->GetLight()->SetDiffuse(Vec3(0.0f, 0.f, 0.5f));
-//		light->GetLight()->SetAmbient(Vec3(0.0f, 0.0f, 0.1f));
-//		light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
-//		light->GetLight()->SetLightRange(200.f);
-//		light->GetLight()->SetLightAngle(3.14f / 2);
-//
-//		scene->AddGameObject(light);
-//	}
-//#pragma endregion
-//
-
 
 	return scene;
 }
@@ -453,7 +373,7 @@ void SceneManager::LoadMapFile(shared_ptr<Scene> scene)
 				if (!strcmp(pStrTocken, "<Scale>:"))
 				{
 					nReads = (UINT)::fread(&scale, sizeof(Vec3), 1, pFile);
-					scale = Vec3(10.f, 10.f, 10.f);
+					scale = Vec3(1.f, 1.f, 1.f);
 					_scale.push_back(scale);
 					//obj->GetTransform()->SetLocalScale(scale);
 					//scene->AddGameObject(obj);
@@ -473,8 +393,10 @@ void SceneManager::LoadMap(shared_ptr<Scene> scene)
 		{
 			gameObj->SetName(_objectName[i] + L"1");
 			gameObj->SetCheckFrustum(false);
+			gameObj->SetStatic(false);
+			_transform[i].y = 2.f;
 			gameObj->GetTransform()->SetLocalPosition(_transform[i]);
-			gameObj->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
+			gameObj->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
 			gameObj->GetTransform()->SetLocalRotation(_rotate[i]);
 			scene->AddGameObject(gameObj);
 		}

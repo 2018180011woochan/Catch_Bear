@@ -7,9 +7,7 @@ class MeshRenderer;
 class Camera;
 class Light;
 class MonoBehaviour;
-class ParticleSystem;
 class Terrain;
-class BaseCollider;
 class AnimationController;
 
 // Component 무리들을 관리하는 조립체
@@ -42,9 +40,7 @@ public:
 	shared_ptr<MeshRenderer> GetMeshRenderer();
 	shared_ptr<Camera> GetCamera();
 	shared_ptr<Light> GetLight();
-	shared_ptr<ParticleSystem> GetParticleSystem();
 	shared_ptr<Terrain> GetTerrain();
-	shared_ptr<BaseCollider> GetCollider();
 	shared_ptr<AnimationController> GetAnimationController();
 
 public:

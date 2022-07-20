@@ -10,7 +10,7 @@
 
 CameraScript::CameraScript()
 {
-	m_xmf3Offset = Vec3(0.0f, 20.f, -50.f);
+	m_xmf3Offset = Vec3(0.0f, 3.f, -8.f);
 }
 
 CameraScript::~CameraScript()
@@ -23,53 +23,6 @@ void CameraScript::LateUpdate()
 
 void CameraScript::Revolve(float rotSize, Vec3 playerPos)
 {
-	//if (INPUT->GetButton(KEY_TYPE::W))
-	//{
-	//	Vec3 rotation = GetTransform()->GetLocalRotation();
-	//	rotation.x += DELTA_TIME * 0.5f;
-	//	GetTransform()->SetLocalRotation(rotation);
-	//}
-
-	//if (INPUT->GetButton(KEY_TYPE::S))
-	//{
-	//	Vec3 rotation = GetTransform()->GetLocalRotation();
-	//	rotation.x -= DELTA_TIME * 0.5f;
-	//	GetTransform()->SetLocalRotation(rotation);
-	//}
-
-	//if (INPUT->GetButton(KEY_TYPE::A))
-	//{
-	//	Vec3 rotation = GetTransform()->GetLocalRotation();
-	//	rotation.y += DELTA_TIME * 0.5f;
-	//	GetTransform()->SetLocalRotation(rotation);
-	//}
-
-	//if (INPUT->GetButton(KEY_TYPE::D))
-	//{
-	//	Vec3 rotation = GetTransform()->GetLocalRotation();
-	//	rotation.y -= DELTA_TIME * 0.5f;
-	//	GetTransform()->SetLocalRotation(rotation);
-	//}
-
-
-	///////
-
-	//Vec3 pos = GetTransform()->GetLocalPosition();
-
-	//if (INPUT->GetButton(KEY_TYPE::UP))
-	//	pos += GetTransform()->GetUp() * _speed * DELTA_TIME;
-
-	//if (INPUT->GetButton(KEY_TYPE::DOWN))
-	//	pos -= GetTransform()->GetUp() * _speed * DELTA_TIME;
-
-	//if (INPUT->GetButton(KEY_TYPE::LEFT))
-	//	pos -= GetTransform()->GetRight() * _speed * DELTA_TIME;
-
-	//if (INPUT->GetButton(KEY_TYPE::RIGHT))
-	//	pos += GetTransform()->GetRight() * _speed * DELTA_TIME;
-
-	//GetTransform()->SetLocalPosition(pos);
-
 	if (_player)
 	{
 		XMMATRIX xmmtxRotate = XMMatrixRotationY(rotSize);

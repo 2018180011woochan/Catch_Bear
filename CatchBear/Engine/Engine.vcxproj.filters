@@ -63,9 +63,6 @@
     <ClCompile Include="Frustum.cpp">
       <Filter>01. Object\00. Component\00. BasicComponent</Filter>
     </ClCompile>
-    <ClCompile Include="BaseCollider.cpp">
-      <Filter>01. Object\00. Component\03. Collider</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>01. Object\00. Component\01. Camera</Filter>
     </ClCompile>
@@ -105,9 +102,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>07. Utils</Filter>
     </ClCompile>
-    <ClCompile Include="ItemManager.cpp">
-      <Filter>02. Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>01. Object</Filter>
     </ClCompile>
@@ -135,17 +129,11 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>02. Manager</Filter>
     </ClCompile>
-    <ClCompile Include="ScoreManager.cpp">
-      <Filter>02. Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Resources.cpp">
       <Filter>03. Resource</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>03. Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>01. Object\00. Component\00. BasicComponent</Filter>
     </ClCompile>
     <ClCompile Include="CharacterData.cpp">
       <Filter>08. Animation</Filter>
@@ -179,9 +167,6 @@
     </ClCompile>
     <ClCompile Include="ServerSession.cpp">
       <Filter>06. Server</Filter>
-    </ClCompile>
-    <ClCompile Include="SphereCollider.cpp">
-      <Filter>01. Object\00. Component\03. Collider</Filter>
     </ClCompile>
     <ClCompile Include="RenderTargetGroup.cpp">
       <Filter>00. Engine</Filter>
@@ -220,9 +205,6 @@
     </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>01. Object\00. Component\00. BasicComponent</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseCollider.h">
-      <Filter>01. Object\00. Component\03. Collider</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>01. Object\00. Component\01. Camera</Filter>
@@ -266,9 +248,6 @@
     <ClInclude Include="pch.h">
       <Filter>07. Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ItemManager.h">
-      <Filter>02. Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>01. Object</Filter>
     </ClInclude>
@@ -296,17 +275,11 @@
     <ClInclude Include="SceneManager.h">
       <Filter>02. Manager</Filter>
     </ClInclude>
-    <ClInclude Include="ScoreManager.h">
-      <Filter>02. Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Resources.h">
       <Filter>03. Resource</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>03. Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
-      <Filter>01. Object\00. Component\00. BasicComponent</Filter>
     </ClInclude>
     <ClInclude Include="CharacterData.h">
       <Filter>08. Animation</Filter>
@@ -340,9 +313,6 @@
     </ClInclude>
     <ClInclude Include="ServerSession.h">
       <Filter>06. Server</Filter>
-    </ClInclude>
-    <ClInclude Include="SphereCollider.h">
-      <Filter>01. Object\00. Component\03. Collider</Filter>
     </ClInclude>
     <ClInclude Include="RenderTargetGroup.h">
       <Filter>00. Engine</Filter>
@@ -392,9 +362,6 @@
     </Filter>
     <Filter Include="01. Object\00. Component\02. Player">
       <UniqueIdentifier>{5559d31d-127c-4dea-a004-89739ccb78a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="01. Object\00. Component\03. Collider">
-      <UniqueIdentifier>{36331469-8c19-4445-a9e4-e83e0b1e6cfa}</UniqueIdentifier>
     </Filter>
     <Filter Include="01. Object\01. Item">
       <UniqueIdentifier>{0e053180-4b00-4686-8e12-7394cf48fb52}</UniqueIdentifier>
