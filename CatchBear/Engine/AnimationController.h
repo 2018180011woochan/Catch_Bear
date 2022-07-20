@@ -37,6 +37,8 @@ public:
 
 	void AdvanceTime(float fElapsedTime);
 
+	int GetCurrentFrame() { return _curFrame; }
+
 public:
 	shared_ptr<AnimationModelInfo> GetRootModel() { return _modelInfo; }
 
@@ -69,5 +71,7 @@ public:
 	vector<Matrix>	matToParent;
 	shared_ptr<StructuredBuffer>	_offsetBuffer;
 	vector<Matrix>	offsetMat;
+
+	int _curFrame;
 };
 

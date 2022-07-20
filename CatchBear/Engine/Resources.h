@@ -47,6 +47,7 @@ public:
 private:
 	void CreateDefaultShader();
 	void CreateDefaultMaterial();
+	void CreatePlayerTexture();
 
 private:
 	// map 형태로 리소스를 들고 있을 것임 - <이름을 지어줘서 구별할 수 있는 key, 실제 오브젝트>

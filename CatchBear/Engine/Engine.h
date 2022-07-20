@@ -18,6 +18,8 @@ public:
 	void Init(const WindowInfo& info);
 	void Update();
 
+	void LoginSceneUpdate();
+
 public:
 	const WindowInfo& GetWindow() { return _window; }
 	shared_ptr<Device> GetDevice() { return _device; }
@@ -31,6 +33,8 @@ public:
 
 	shared_ptr<ConstantBuffer> GetConstantBuffer(CONSTANT_BUFFER_TYPE type) { return _constantBuffers[static_cast<uint8>(type)]; }
 	shared_ptr<RenderTargetGroup> GetRTGroup(RENDER_TARGET_GROUP_TYPE type) { return _rtGroups[static_cast<uint8>(type)]; }
+
+	const bool GetIsIPAddrEnter() { return _isIPAddrEnter; }
 public:
 	void Render();
 	void RenderBegin();
@@ -66,5 +70,6 @@ private:
 
 public:
 	bool	_isEnd = false;
+	bool	_isIPAddrEnter = false;
 };
 

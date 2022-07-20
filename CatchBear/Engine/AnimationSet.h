@@ -25,5 +25,7 @@ public:
 
 	float					_position;
 	int						_ntype;
+
+	int						_curFrame;
 };
 

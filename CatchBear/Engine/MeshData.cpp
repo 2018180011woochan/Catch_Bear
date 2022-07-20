@@ -289,6 +289,8 @@ void MeshData::LoadMaterialInfoFromFile(FILE* pFile)
 				_staticMeshInfo.material.diffuseTexName = L"Colorsheet Wood Brown";
 			else if (!strcmp(pStrTocken, "wooden_fence_d"))
 				_staticMeshInfo.material.diffuseTexName = L"wooden_fence_d";
+			else if (!strcmp(pStrTocken, "lambert1"))
+				_staticMeshInfo.material.diffuseTexName = L"Simplistic_Nature_Texture";
 			else
 				int k = 0;
 		}
@@ -356,42 +358,6 @@ void MeshData::CreateTextures()
 	// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
 
 	// Diffuse
-	wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
-	wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
-	if (!fileName.empty())
-		GET_SINGLE(Resources)->Load<Texture>(fileName, fullPath);
-}
-
-void MeshData::CreateTextures2()
-{
-	// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
-
-	// Diffuse
-	_staticMeshInfo.material.diffuseTexName = L"TesttextureG";
-	wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
-	wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
-	if (!fileName.empty())
-		GET_SINGLE(Resources)->Load<Texture>(fileName, fullPath);
-}
-
-void MeshData::CreateTextures3()
-{
-	// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
-
-	// Diffuse
-	_staticMeshInfo.material.diffuseTexName = L"TesttextureI";
-	wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
-	wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
-	if (!fileName.empty())
-		GET_SINGLE(Resources)->Load<Texture>(fileName, fullPath);
-}
-
-void MeshData::CreateTextures4()
-{
-	// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
-
-	// Diffuse
-	_staticMeshInfo.material.diffuseTexName = L"TesttextureL";
 	wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
 	wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
 	if (!fileName.empty())

@@ -551,6 +551,7 @@ class C_ENTER_LOBBY final :
 
   enum : int {
     kPlayerIdFieldNumber = 1,
+    kPlayernumFieldNumber = 3,
     kIsPlayerReadyFieldNumber = 2,
   };
   // uint64 playerId = 1;
@@ -560,6 +561,15 @@ class C_ENTER_LOBBY final :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint64 _internal_playerid() const;
   void _internal_set_playerid(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
+  // uint64 playernum = 3;
+  void clear_playernum();
+  ::PROTOBUF_NAMESPACE_ID::uint64 playernum() const;
+  void set_playernum(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_playernum() const;
+  void _internal_set_playernum(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
   // bool isPlayerReady = 2;
@@ -579,6 +589,7 @@ class C_ENTER_LOBBY final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::uint64 playerid_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 playernum_;
   bool isplayerready_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Protocol_2eproto;
@@ -3571,6 +3582,26 @@ inline void C_ENTER_LOBBY::_internal_set_isplayerready(bool value) {
 inline void C_ENTER_LOBBY::set_isplayerready(bool value) {
   _internal_set_isplayerready(value);
   // @@protoc_insertion_point(field_set:Protocol.C_ENTER_LOBBY.isPlayerReady)
+}
+
+// uint64 playernum = 3;
+inline void C_ENTER_LOBBY::clear_playernum() {
+  playernum_ = uint64_t{0u};
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 C_ENTER_LOBBY::_internal_playernum() const {
+  return playernum_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 C_ENTER_LOBBY::playernum() const {
+  // @@protoc_insertion_point(field_get:Protocol.C_ENTER_LOBBY.playernum)
+  return _internal_playernum();
+}
+inline void C_ENTER_LOBBY::_internal_set_playernum(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  
+  playernum_ = value;
+}
+inline void C_ENTER_LOBBY::set_playernum(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_playernum(value);
+  // @@protoc_insertion_point(field_set:Protocol.C_ENTER_LOBBY.playernum)
 }
 
 // -------------------------------------------------------------------

@@ -89,6 +89,8 @@ void AnimationController::AdvanceTime(float fElapsedTime)
 					pAnimationSet->SetPosition(_animTracks[k]._position);
 
 					XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j);
+					_curFrame = pAnimationSet->_curFrame;
+					//printf("frame: %d\n", _curFrame);
 					xmf4x4Transform = Add(xmf4x4Transform, Scale(xmf4x4TrackTransform, _animTracks[k]._weight));
 				}
 			}

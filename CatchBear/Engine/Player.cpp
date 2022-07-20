@@ -30,6 +30,8 @@
 #include "MeshRenderer.h"
 #include "Resources.h"
 #include "Engine.h"
+#include "SoundManager.h"
+#include "ShieldParticleManager.h"
 
 Protocol::C_MOVE pkt;
 Protocol::C_STATE StatePkt;
@@ -83,6 +85,9 @@ void Player::LateUpdate()
 
 	Vec3 trans = GetTransform()->GetLocalPosition();
 	//printf("%f, %f, %f\n", trans.x, trans.y, trans.z);
+
+	//if (_player->_curState == WALK && GetAnimationController()->GetCurrentFrame() >= 2)
+	//	GET_SINGLE(SoundManager)->PlaySound(L"click.mp3", SoundManager::MOVE);
 
 }
 
@@ -296,7 +301,9 @@ void Player::Move()
 	{
 		if (_player->GetIsAllowPlayerMove())
 			pos += _player->GetTransform()->GetLook() * _speed * DELTA_TIME;
-		
+		else
+			pos -= _player->GetTransform()->GetLook() * _speed * DELTA_TIME;
+
 		pkt.set_xpos(pos.x);
 		pkt.set_ypos(pos.y);
 		pkt.set_zpos(pos.z);
@@ -370,9 +377,11 @@ void Player::Move()
 		_player->GetTransform()->SetLocalRotation(rot);
 	}
 
+
 	_player->GetTransform()->SetLocalPosition(pos);
 	_cameraScript->Revolve(delta, _player->GetTransform()->GetLocalPosition());
 	static_pointer_cast<TagMark>(tagObject->GetScript(0))->SetPosition(pos);
+	static_pointer_cast<TagMark>(tagObject->GetScript(0))->SetRotation();
 }
 
 void Player::KeyCheck_Item()
@@ -441,8 +450,8 @@ void Player::UseItem(int itemNum)
 		//_curPlayerItem[Player::ITEM::DEBUFF_OFF] = true;
 		break;
 	case Item::ITEM_EFFECT::STUN:
-		//_curPlayerItem[Player::ITEM::STUN] = true;	// test
-		Item_Stun();
+		_curPlayerItem[Player::ITEM::STUN] = true;	// test
+		//Item_Stun();
 		break;
 	}
 }
@@ -535,6 +544,7 @@ bool Player::CheckShield()
 		_curPlayerItem[Player::ITEM::SHIELD] = false;
 		_fShieldTime = 0.f;
 		GET_SINGLE(ItemSlotManager)->UseShieldItem();
+		GET_SINGLE(ShieldParticleManager)->SetShieldParticleOff();	// 쉴드 파티클 효과 해제
 		return true;
 	}
 
@@ -699,19 +709,23 @@ void Player::Item_Teleport()
 
 void Player::Item_Shield()
 {
-	// 쉴드 상태라면 디버프 방어
-	// 쉴드 상태때 디버프 1회 방해했으면 쉴드 해제
-	// 밑에서 위로 뭔가 올라오는 파티클 효과 추가 - 쉴드 상태인걸 알 수 있도록
+	// 쉴드 상태라면 디버프 방어, 쉴드 상태때 디버프 1회 방해했으면 쉴드 해제
+
 	_fShieldTime += DELTA_TIME;
 
+
+	// Shield Item
 	if (_fShieldTime <= 5.f)
 	{
+		// Shield Effect
+		ShieldEffect();
 	}
 
 	else if (_fShieldTime > 5.f)
 	{
 		_curPlayerItem[Player::ITEM::SHIELD] = false;
 		GET_SINGLE(ItemSlotManager)->UseShieldItem();
+		GET_SINGLE(ShieldParticleManager)->SetShieldParticleOff();
 		_fShieldTime = 0.f;
 		cout << "5초 지나고 쉴드 끝" << endl;
 	}
@@ -824,7 +838,7 @@ void Player::Stunned()
 		return;
 	}
 
-	// 유니크 아이템 - 3초간 스턴
+	// 유니크 아이템 - 3초간 스턴 & 텍스처 매핑
 	if (!_bStunned && !_curPlayerItem[ITEM::SHIELD])
 	{
 		if (!isFirstEnter) {
@@ -836,4 +850,10 @@ void Player::Stunned()
 
 		_bStunned = true;
 	}
+}
+
+void Player::ShieldEffect()
+{
+	GET_SINGLE(ShieldParticleManager)->SetShieldParticleOn();
+	GET_SINGLE(ShieldParticleManager)->UpdatePlayerPos(GetTransform()->GetLocalPosition());
 }

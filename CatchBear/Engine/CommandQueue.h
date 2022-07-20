@@ -18,6 +18,7 @@ public:
 	void RenderBegin();
 	void RenderEnd();
 
+	// FlushResourceCommandQueue(): 이 함수 실행하면 리소스 로드 시작됨
 	void FlushResourceCommandQueue();
 
 	ComPtr<ID3D12CommandQueue> GetCmdQueue() { return _cmdQueue; }

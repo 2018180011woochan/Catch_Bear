@@ -243,9 +243,21 @@
     <ClCompile Include="ItemWindow.cpp">
       <Filter>01. Object\02. UI\01. Item</Filter>
     </ClCompile>
-    <ClCompile Include="ScoreUIManager.cpp" />
     <ClCompile Include="ScoreUI.cpp" />
     <ClCompile Include="FontDevice.cpp" />
+    <ClCompile Include="Leaf.cpp" />
+    <ClCompile Include="LoginScene.cpp" />
+    <ClCompile Include="StageScene.cpp" />
+    <ClCompile Include="ScoreUIManager.cpp">
+      <Filter>02. Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>02. Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ShieldParticle.cpp" />
+    <ClCompile Include="ShieldParticleManager.cpp">
+      <Filter>02. Manager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationController.h">
@@ -458,9 +470,21 @@
     <ClInclude Include="ItemWindow.h">
       <Filter>01. Object\02. UI\01. Item</Filter>
     </ClInclude>
-    <ClInclude Include="ScoreUIManager.h" />
     <ClInclude Include="ScoreUI.h" />
     <ClInclude Include="FontDevice.h" />
+    <ClInclude Include="Leaf.h" />
+    <ClInclude Include="LoginScene.h" />
+    <ClInclude Include="StageScene.h" />
+    <ClInclude Include="ScoreUIManager.h">
+      <Filter>02. Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>02. Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ShieldParticle.h" />
+    <ClInclude Include="ShieldParticleManager.h">
+      <Filter>02. Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Common\Protobuf\bin\Enum.proto">

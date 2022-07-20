@@ -13,6 +13,9 @@
 #include "SlowState.h"
 #include "SlowRestState.h"
 #include "StunState.h"
+#include "MeshRenderer.h"
+#include "Material.h"
+#include "Resources.h"
 
 PlayerState* StunState::KeyCheck(GameObject& player, STATE& ePlayer)
 {
@@ -73,9 +76,18 @@ void StunState::Enter(GameObject& player)
 {
     _ePreState = player._curState;
     player.GetAnimationController()->SetTrackAnimationSet(0, 5);
+
+    // 텍스처 매핑
+    shared_ptr<Texture>	diffuseTex = GET_SINGLE(Resources)->Get<Texture>(L"StunState");
+    player.GetMeshRenderer()->GetMaterial()->SetTexture(0, diffuseTex);
 }
 
 void StunState::End(GameObject& player)
 {
     _fTime = 0.f;
+
+    // 텍스처 매핑
+    wstring key = static_pointer_cast<Player>(player.GetScript(0))->GetTextureKey();
+    shared_ptr<Texture>	diffuseTex = GET_SINGLE(Resources)->Get<Texture>(key);
+    player.GetMeshRenderer()->GetMaterial()->SetTexture(0, diffuseTex);
 }

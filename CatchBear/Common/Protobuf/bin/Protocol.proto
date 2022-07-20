@@ -20,6 +20,7 @@ message C_ENTER_LOBBY
 {
 	uint64 playerId = 1;
 	bool isPlayerReady = 2;
+	uint64 playernum = 3;
 }
 
 message S_ENTER_LOBBY

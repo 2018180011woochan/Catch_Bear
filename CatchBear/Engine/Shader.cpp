@@ -56,6 +56,7 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
 
 	_graphicsPipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	_graphicsPipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	// depth¸¸ È°¿ë
 	_graphicsPipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	_graphicsPipelineDesc.SampleMask = UINT_MAX;
 	_graphicsPipelineDesc.PrimitiveTopologyType = GetTopologyType(info.topology);

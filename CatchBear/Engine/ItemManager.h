@@ -13,7 +13,6 @@ class ItemManager
 public:
 	void Init();
 	void Update();
-	void LateUpdate();
 
 public:
 	void SetItemPosition();

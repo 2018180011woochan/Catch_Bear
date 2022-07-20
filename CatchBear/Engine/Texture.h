@@ -46,6 +46,7 @@ private:
 
 	// 텍스처는 한 번만 로드한 후 변경없이 사용하기 때문에 하나의 뷰만 생성
 	ComPtr<ID3D12DescriptorHeap>	_srvHeap;	// 뷰
+
 	ComPtr<ID3D12DescriptorHeap>	_rtvHeap;
 	ComPtr<ID3D12DescriptorHeap>	_dsvHeap;
 	ComPtr<ID3D12DescriptorHeap>	_uavHeap;

@@ -8,6 +8,7 @@ void Resources::Init()
 {
 	CreateDefaultShader();
 	CreateDefaultMaterial();
+	CreatePlayerTexture();
 }
 
 shared_ptr<Mesh> Resources::LoadPointMesh()
@@ -343,6 +344,25 @@ shared_ptr<class MeshData> Resources::LoadFBX(const wstring& path)
 shared_ptr<class CharacterData> Resources::LoadCharacter(const wstring& path)
 {
 	wstring		key = path;
+
+	//string name = ws2s(path);
+
+	//// path 안에 Evilbear이라는 string이 있으면
+	//if (name.find("Evilbear") != string::npos)
+	//{
+	//	shared_ptr<CharacterData>	characterData = Get<CharacterData>(L"Evilbear_gray.bin");
+	//	if (characterData)	return characterData;
+	//	else
+	//	{
+	//		characterData = make_shared<CharacterData>();
+
+	//		characterData->LoadCharacterFromFile(L"Evilbear_gray.bin");
+	//		characterData->SetName(L"Evilbear_gray.bin");
+	//		Add(L"Evilbear_gray.bin", characterData);
+
+	//		return characterData;
+	//	}
+	//}
 
 	shared_ptr<CharacterData>	characterData = Get<CharacterData>(key);
 	if (characterData)	return characterData;
@@ -738,6 +758,27 @@ void Resources::CreateDefaultShader()
 		shader->CreateGraphicsShader(L"..\\Resources\\Shader\\deferred.fx", info, arg);
 		Add<Shader>(L"NormalTagMark", shader);
 	}
+
+	// Leaf Particle
+	{
+		ShaderInfo info =
+		{
+			SHADER_TYPE::DEFERRED,
+		};
+
+		ShaderArg arg =
+		{
+			"VS_Main",
+			"",
+			"",
+			"",
+			"PS_LeafParticle"
+		};
+
+		shared_ptr<Shader> shader = make_shared<Shader>();
+		shader->CreateGraphicsShader(L"..\\Resources\\Shader\\deferred.fx", info, arg);
+		Add<Shader>(L"LeafParticle", shader);
+	}
 }
 
 void Resources::CreateDefaultMaterial()
@@ -847,5 +888,46 @@ void Resources::CreateDefaultMaterial()
 		material->SetShader(shader);
 		material->SetTexture(0, texture);	// 0번이 색상
 		Add<Material>(L"Terrain", material);
+	}
+
+	// stun
+	{
+		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Deferred");
+		shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"StunState", L"..\\Resources\\Texture\\StunState.jpg");
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(shader);
+		material->SetTexture(0, texture);
+		Add<Material>(L"StunState", material);
+	}
+}
+
+void Resources::CreatePlayerTexture()
+{
+	// gray
+	{
+		wstring		fullPath = L"..\\Resources\\Texture\\Evilbear_gray.png";
+		shared_ptr<Texture> tex = GET_SINGLE(Resources)->Load<Texture>(L"Evilbear_gray", fullPath);
+		GET_SINGLE(Resources)->Add<Texture>(L"Evilbear_gray.png", tex);
+	}
+
+	// brown
+	{
+		wstring		fullPath = L"..\\Resources\\Texture\\Evilbear_brown.png";
+		shared_ptr<Texture> tex = GET_SINGLE(Resources)->Load<Texture>(L"Evilbear_brown", fullPath);
+		GET_SINGLE(Resources)->Add<Texture>(L"Evilbear_brown.png", tex);
+	}
+
+	// blue
+	{
+		wstring		fullPath = L"..\\Resources\\Texture\\Evilbear_blue.png";
+		shared_ptr<Texture> tex = GET_SINGLE(Resources)->Load<Texture>(L"Evilbear_blue", fullPath);
+		GET_SINGLE(Resources)->Add<Texture>(L"Evilbear_blue.png", tex);
+	}
+
+	// stun
+	{
+		wstring		fullPath = L"..\\Resources\\Texture\\StunState.jpg";
+		shared_ptr<Texture> tex = GET_SINGLE(Resources)->Load<Texture>(L"StunState", fullPath);
+		GET_SINGLE(Resources)->Add<Texture>(L"StunState.jpg", tex);
 	}
 }
