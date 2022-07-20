@@ -77,7 +77,6 @@ void ShieldParticleManager::DeleteParticles()
 
 		for (auto p = _listParticles.begin(); p != _listParticles.end();)
 		{
-			//static_pointer_cast<ShieldParticle>((*p)->GetScript(0))->SetShieldEnd(true);
 			GET_SINGLE(SceneManager)->GetActiveScene()->RemoveGameObject(*p);
 			p = _listParticles.erase(p);
 		}
@@ -101,17 +100,4 @@ void ShieldParticleManager::DeleteParticles()
 void ShieldParticleManager::SetShieldParticleOff()
 {
 	_shieldParticleOn = false;
-
-	//_isCreate = false;
-	//_curTime = 0.f;
-	//_shieldTime = 0.f;
-
-	//for (auto p = _listParticles.begin(); p != _listParticles.end();)
-	//{
-	//	//static_pointer_cast<ShieldParticle>((*p)->GetScript(0))->SetShieldEnd(true);
-	//	GET_SINGLE(SceneManager)->GetActiveScene()->RemoveGameObject(*p);
-	//	p = _listParticles.erase(p);
-	//}
-
-	//_listParticles.clear();
 }
