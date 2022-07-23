@@ -98,7 +98,7 @@ void FontDevice::Resize(UINT nWidth, UINT nHeight)
     if (_pd2dTextBrush) _pd2dTextBrush->Release();
     _pd2dDeviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &_pd2dTextBrush);
 
-    const float fFontSize = 60.f;//_fHeight / 25.0f;
+    const float fFontSize = 45.f;//_fHeight / 25.0f;
     const float fSmallFontSize = _fHeight / 40.0f;
 
     _pd2dWriteFactory->CreateTextFormat(L"HSªÍ≈‰≥¢√º", nullptr, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, fFontSize, L"ko", &_pdwTextFormat);

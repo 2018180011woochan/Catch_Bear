@@ -43,9 +43,9 @@ void ScoreManager::AddScore()
 		shared_ptr<GameObject>	player2 = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(L"Player2");
 		GET_SINGLE(ScoreUIManager)->SetPlayerScoreTexture(1, static_pointer_cast<Player>(player2->GetScript(0))->GetPlayerScore());
 
-		////player3
-		//shared_ptr<GameObject>	player3 = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(L"Player3");
-		//GET_SINGLE(ScoreUIManager)->SetPlayerScoreTexture(2, static_pointer_cast<Player>(player3->GetScript(0))->GetPlayerScore());
+		//player3
+		shared_ptr<GameObject>	player3 = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(L"Player3");
+		GET_SINGLE(ScoreUIManager)->SetPlayerScoreTexture(2, static_pointer_cast<Player>(player3->GetScript(0))->GetPlayerScore());
 
 		// 내가 테스트할땐 플레이어 한명만 만들어서(걔가 술래됨) 꺼둠, 원래 켜야됨!
 		// 술래여도 다른 플레이어들의 점수 올라가는건 보여야 하니까 여기서 리턴 변경
