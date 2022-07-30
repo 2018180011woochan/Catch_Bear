@@ -86,73 +86,7 @@ bool Handle_S_ENTER_LOBBY(PacketSessionRef& session, Protocol::S_ENTER_LOBBY& pk
 		session->Send(sendBuffer);
 
 	}
-	// 준비 안됐다면 여기로
-	//else
-	{
-		// 나중에 로비에서 채팅패킷보내거나 캐릭터 고를때 쓸듯
-		
-		//string sChat;
-		//// 채팅하고싶으면 컨트롤 키 누르기 (일단 임시)
-		//cout << "채팅하고싶으면 LControl키 누르세요 / 레디하고 싶으면 스페이스를 누르세요 " << endl;
-		//if (CKeyManager::Get_Instance()->Key_Down(VK_LCONTROL))
-		//{
-		//	cin >> sChat;
-		//	Protocol::C_CHAT chatPkt;
-		//	chatPkt.set_msg(sChat);
-		//	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(chatPkt);
-		//	session->Send(sendBuffer);
-		//}
-		//if (CKeyManager::Get_Instance()->Key_Down(VK_SPACE))
-		//{
-		//	Protocol::C_ENTER_LOBBY enterLobbyPkt;
-		//	enterLobbyPkt.set_playerid(GPlayer.playerId);
-		//	enterLobbyPkt.set_isplayerready(true);
-
-		//	cout << GPlayer.playerId << "번 플레이어 준비 완료!" << endl;
-		//	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(enterLobbyPkt);
-		//	session->Send(sendBuffer);
-		//}
-	}
-#pragma endregion test
-	//// 만약 모든 플레이어가 준비됐다면 C_ENTER_GAME 패킷 보냄
-	//if (pkt.isallplayersready())
-	//{
-	//	Protocol::C_ENTER_GAME enterGamePkt;
-	//	enterGamePkt.set_playerid(GPlayer.playerId);
-	//	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(enterGamePkt);
-	//	session->Send(sendBuffer);
-	//}
-	//// 준비 안됐다면 여기로
-	//else
-	//{
-	//	Protocol::C_ENTER_LOBBY LobbyPkt;
-	//	
-	//	if (!GPlayer.bisPlayerReady)
-	//	{
-	//		// 일단은 ready를 입력하면 준비됐다구..실제 게임에선 ui를 클릭해서 ready되도록 수정할거임.
-	//		string chat;
-	//		cin >> chat;
-	//		if (chat == "ready")
-	//		{
-	//			LobbyPkt.set_playerid(GPlayer.playerId);
-	//			LobbyPkt.set_isplayerready(true);
-	//			GPlayer.bisPlayerReady = true;
-	//			cout << "ID " << GPlayer.playerId << "준비완료" << endl;
-	//		}
-
-	//		// ready 한게 아니라면 채팅으로 간주함 실제 게임에선 채팅창 UI를 클릭하면 그때 cin을 받아 채팅 내용을 입력받음
-	//		else
-	//		{
-	//			Protocol::C_CHAT chatPkt;
-	//			chatPkt.set_playerid(GPlayer.playerId);
-	//			chatPkt.set_msg(chat);
-	//			auto sendBuffer = ServerPacketHandler::MakeSendBuffer(chatPkt);
-	//			session->Send(sendBuffer);
-	//		}
-	//	}
-	//	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(LobbyPkt);
-	//	session->Send(sendBuffer);
-	//}
+	
 	return true;
 }
 
@@ -208,8 +142,12 @@ bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt)
 	//wstring message_w;
 	//message_w.assign(pkt.msg().begin(), pkt.msg().end());
 
+	wstring sendID = L"";
+	if (mysession)
+		sendID = to_wstring((int)pkt.playerid()) + L" : ";
+
 	wstring wstrText = s2ws(pkt.msg());
-	GEngine->GetFontDevice()->UpdateFont(wstrText);
+	GEngine->GetFontDevice()->Server_UpdateFont(sendID + wstrText);
 	GEngine->GetFontDevice()->PushFont(wstrText);
 
 	return true;
@@ -588,7 +526,7 @@ bool Handle_S_USE_SHIELD(PacketSessionRef& session, Protocol::S_USE_SHIELD& pkt)
 
 bool Handle_S_RESTART(PacketSessionRef& session, Protocol::S_RESTART& pkt)
 {
-	GET_SINGLE(SceneManager)->ReStart();
+	GET_SINGLE(SceneManager)->LoadScene(SCENE_ID::LOBBY);
 	return true;
 }
 

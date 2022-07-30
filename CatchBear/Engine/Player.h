@@ -122,7 +122,7 @@ private:
 private:
 	STATE	_curStatePlayer = STATE::END;
 	STATE	_preState = STATE::END;
-
+	bool	_isInit = false;
 public:
 	class PlayerState* _state;
 
@@ -132,4 +132,6 @@ public:
 	int		_shieldPlayerIdx = 0;
 
 	DIR		_dir = DIR::DIR_END;
+
+
 };

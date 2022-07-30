@@ -64,20 +64,18 @@ void SceneManager::Render()
 
 void SceneManager::LoadScene(SCENE_ID sceneID)
 {
-	// TODO : 기존 Scene 정리
-	// TODO : 파일에서 Scene 정보 로드
-
+	// 현재 신(_curScene)과 새로 전환될 신(sceneID) 비교
 	if (_curScene != sceneID)
 	{
-		_curScene = sceneID;
+		_curScene = sceneID;	// 신 업데이트
 
-		if (_activeScene)
+		if (_activeScene)	// 지금까지 실행된 신 정리
 		{
 			_activeScene.reset();
 			scene.reset();
 		}
 
-		switch (sceneID)
+		switch (sceneID)	// 새로운 신 생성
 		{
 		case LOGIN:
 			scene = make_shared<LoginScene>();
@@ -86,6 +84,8 @@ void SceneManager::LoadScene(SCENE_ID sceneID)
 			break;
 
 		case LOBBY:
+			if (mysession)
+				cout << mysession->GetPlayerID() << " : " << "Enter Lobby Scene!\n";
 			scene = make_shared<LobbyScene>();
 			_activeScene = make_shared<LobbyScene>();
 			_activeScene = LoadLobbyScene();
@@ -104,7 +104,8 @@ void SceneManager::LoadScene(SCENE_ID sceneID)
 	
 	_activeScene->Awake();
 	_activeScene->Start();
-	_activeScene->Render();
+	// 원래 Render()까지 해줬는데 굳이 안해도 될듯
+	//_activeScene->Render();
 }
 
 void SceneManager::SetLayerName(uint8 index, const wstring& name)
@@ -161,26 +162,6 @@ void SceneManager::ReStart()
 bool SceneManager::IsEnd()
 {
 	return _activeScene->_isEnd;
-}
-
-void SceneManager::changeScene(SCENE_ID eScene)
-{
-	switch (eScene)
-	{
-	case LOGIN:
-		_activeScene = LoadLoginScene();
-		break;
-	case LOBBY:
-		_activeScene = LoadLobbyScene();
-		break;
-	case STAGE:
-		_activeScene = LoadTestScene();
-		break;
-	case SCENE_CNT:
-		break;
-	default:
-		break;
-	}
 }
 
 void SceneManager::SetPlayerType(int index, PLAYER_TYPE playerType)

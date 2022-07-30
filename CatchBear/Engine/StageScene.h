@@ -24,8 +24,10 @@ private:
 
 	void InitUI();
 
+
 public:
 	POINT GetMousePos() { return _mousePos; }
+
 
 private:
 	POINT	_mousePos = { 0, 0 };
@@ -33,7 +35,7 @@ private:
 	RECT	_endRt = { 470, 80, 680, 130 };
 	RECT	_restartRt = { 770, 650, 950, 700 };
 
-	bool	_isTimerStart = false;
+	//bool	_isTimerStart = false;
 	float	_StartTimer = 0.f;
 	bool	_isSpeedTime = false;
 };

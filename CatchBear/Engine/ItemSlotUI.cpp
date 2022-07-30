@@ -10,6 +10,7 @@
 
 ItemSlotUI::ItemSlotUI()
 {
+	_settingItem = Item::ITEM_EFFECT::NONE;
 }
 
 ItemSlotUI::~ItemSlotUI()

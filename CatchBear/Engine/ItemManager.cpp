@@ -30,7 +30,13 @@ void ItemManager::Update()
 	CreateUniqueItem();
 	CreateTreasure();
 
-	Collision_ItemToPlayer();
+	// 타이머 돌아갈 때 부터 체크해야 함
+	// stage->isTimerStart 일 때부터
+	if (GET_SINGLE(SceneManager)->GetActiveScene()->GetIsStart())
+	{
+		Collision_ItemToPlayer();
+	}
+
 }
 
 void ItemManager::SetItemPosition()

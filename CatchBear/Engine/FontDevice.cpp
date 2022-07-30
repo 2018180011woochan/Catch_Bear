@@ -129,7 +129,7 @@ void FontDevice::Resize(UINT nWidth, UINT nHeight)
                                 _fWidth / 2 + 500.f, _fHeight / 2 + 550.f) };
 }
 
-// 폰트만 변경
+// 현재 입력하고 있는 폰트 변경
 void FontDevice::UpdateFont(const wstring& wstrText)
 {
     if (_vTextBlocks.size() == 0 && GET_SINGLE(SceneManager)->getSceneID() == SCENE_ID::LOGIN)
@@ -138,9 +138,23 @@ void FontDevice::UpdateFont(const wstring& wstrText)
         _vTextBlocks.push_back(tb); 
     }
 
-    //wstring temp = L"";
-    //if (mysession)
-    //    temp = to_wstring(mysession->GetPlayerID()) + L" : ";
+    wstring player_ID = L"";
+    if (mysession)
+        player_ID = to_wstring(mysession->GetPlayerID()) + L" : ";
+
+    if (GET_SINGLE(SceneManager)->getSceneID() == SCENE_ID::LOGIN)
+        _vTextBlocks[_vTextBlocks.size() - 1] = { wstrText, D2D1::RectF(_fWidth / 2 - 200.f, _fHeight / 2 + 70.f, _fWidth / 2 + 500.f, _fHeight / 2 + 300.f), _pdwTextFormat };
+    else if (GET_SINGLE(SceneManager)->getSceneID() == SCENE_ID::LOBBY)
+        _writingStr = player_ID + wstrText;
+}
+
+void FontDevice::Server_UpdateFont(const wstring& wstrText)
+{
+    if (_vTextBlocks.size() == 0 && GET_SINGLE(SceneManager)->getSceneID() == SCENE_ID::LOGIN)
+    {
+        TextBlock tb;
+        _vTextBlocks.push_back(tb);
+    }
 
     if (GET_SINGLE(SceneManager)->getSceneID() == SCENE_ID::LOGIN)
         _vTextBlocks[_vTextBlocks.size() - 1] = { wstrText, D2D1::RectF(_fWidth / 2 - 200.f, _fHeight / 2 + 70.f, _fWidth / 2 + 500.f, _fHeight / 2 + 300.f), _pdwTextFormat };
@@ -148,12 +162,14 @@ void FontDevice::UpdateFont(const wstring& wstrText)
         _writingStr = wstrText;
 }
 
-// 엔터 누르면 개행
+// 엔터 누르면 개행-> 모두에게 보여져야 함
 void FontDevice::PushFont(const wstring& wstrText)
 {
+    // 만약 최대 크기라면 제일 첫번째 내용을 삭제
     if (_vTextBlocks.size() >= 5)
         _vTextBlocks.pop_front();
 
+    // _writingStr: 엔터 누르기 전까지 입력한 내용
     TextBlock tb = { _writingStr, D2D1::RectF(_fWidth / 2 - 200.f, _fHeight / 2 + 70.f, _fWidth / 2 + 500.f, _fHeight / 2 + 300.f), _pdwTextFormat };
     _vTextBlocks.push_back(tb);
 
@@ -194,6 +210,7 @@ void FontDevice::Render(UINT nFrame)
 				}
 				else
 				{
+                    // 로비신 채팅 렌더링!!
 					_pd2dDeviceContext->DrawText(_vTextBlocks[i].wstrText.c_str(), static_cast<UINT>(_vTextBlocks[i].wstrText.length()),
 						_vTextBlocks[i].pdwFormat, _textPos[i], _pd2dTextBrush);
 				}

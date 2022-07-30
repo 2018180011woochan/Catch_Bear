@@ -50,6 +50,13 @@ Player::~Player()
 
 void Player::Update()
 {
+	//if (!_isInit)
+	//{
+	//	_isInit = true;
+	//	GET_SINGLE(ItemSlotManager)->ResetItemSlot(1);
+	//	GET_SINGLE(ItemSlotManager)->ResetItemSlot(2);
+	//	GET_SINGLE(ItemSlotManager)->ResetItemSlot(3);
+	//}
 	//cout << "플레이어 " << _player->GetPlayerID() << ": " << /*static_pointer_cast<Player>(_player->GetScript(0))->*/_iScore << endl;
 	ApplyItemEffect();
 }

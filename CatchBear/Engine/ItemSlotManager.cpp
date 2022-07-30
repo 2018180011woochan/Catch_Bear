@@ -54,6 +54,9 @@ void ItemSlotManager::UseItem(int nSlot)
 	Item::ITEM_EFFECT item;
 	shared_ptr<GameObject>	coolTime;
 
+	// slot->UseItem()
+	// _settingItem = Item::ITEM_EFFECT::NONE;
+
 	switch (nSlot)
 	{
 	case 1:

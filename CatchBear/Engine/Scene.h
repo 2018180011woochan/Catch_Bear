@@ -52,6 +52,7 @@ public:
 
 	int GetEnterPlayerNum() { return _players.size(); }
 	float GetCurTime() { return _curTime; }
+	bool GetIsStart() { return _isTimerStart; }
 
 	void SetCurTime(float _time) { _curTime = _time; }
 	void AddCurTime(float _time);
@@ -76,6 +77,7 @@ protected:
 protected:
 	float	_curTime = -1.0f;
 	float	_toStartTime = 0.0f;
+	bool	_isTimerStart = false;
 
 public:
 	bool	_isStart = false;
