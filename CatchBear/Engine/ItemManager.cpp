@@ -14,6 +14,7 @@
 #include "Player.h"
 
 #include "ServerSession.h"
+#include "SoundManager.h"
 
 void ItemManager::Init()
 {
@@ -312,6 +313,9 @@ void ItemManager::Collision_ItemToPlayer()
 					_player->GetPlayerID() == mysession->GetPlayerID())
 				{
 					static_pointer_cast<Player>(_player->GetScript(0))->AddPlayerScore(30);
+
+					// È¿°úÀ½
+					GET_SINGLE(SoundManager)->PlaySound(L"treasure.mp3", SoundManager::CHANNELID::TREAUSE);
 				}
 				scene->RemoveGameObject(*treasure);
 				treasure = _treasureList.erase(treasure);

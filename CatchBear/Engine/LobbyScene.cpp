@@ -71,12 +71,22 @@ void LobbyScene::CheckIsPlayerEnter()
 	{
 		if (GET_SINGLE(SceneManager)->GetEnterLobby(i))
 		{
-			wstring objName = L"playerInfo" + s2ws(to_string(i+1));
-			shared_ptr<GameObject> playerInfo = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(objName);
-			shared_ptr<GameObject> startB = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(objName + L"_start");
+			{
+				wstring objName = L"playerInfo" + s2ws(to_string(i + 1));
+				shared_ptr<GameObject> playerInfo = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(objName);
+				shared_ptr<GameObject> startB = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(objName + L"_start");
 
-			playerInfo->_isRender = true;
-			startB->_isRender = true;
+				playerInfo->_isRender = true;
+				startB->_isRender = true;
+			}
+
+
+			{
+				wstring objName = L"playerInfo" + s2ws(to_string(i + 1)) + L"_num";
+				shared_ptr<GameObject> playerInfo = GET_SINGLE(SceneManager)->GetActiveScene()->GetGameObject(objName);
+
+				playerInfo->_isRender = true;
+			}
 		}
 	}
 }

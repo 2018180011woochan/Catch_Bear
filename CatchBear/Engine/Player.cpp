@@ -624,7 +624,7 @@ bool Player::CheckDebuff(Item::ITEM_EFFECT itemEffect)
 
 void Player::KeyCheck_Cheat()
 {
-	// test
+	// 보유 아이템 확인
 	if (INPUT->GetButtonDown(KEY_TYPE::TEST_KEY))	// T
 	{
 		printf("1번 아이템: %d\n", _playerItemArr[0]);
@@ -646,11 +646,17 @@ void Player::KeyCheck_Cheat()
 		_iItemCnt = 0;
 	}
 
-	if (INPUT->GetButtonDown(KEY_TYPE::F))	// 플레이어 속도 원래대로 돌리기(10.f)
+	// 속도 원래대로 & speedUp speedDown 해제
+	if (INPUT->GetButtonDown(KEY_TYPE::F))
 	{
 		_speed = 10.f;
 		_curPlayerItem[ITEM::SPEED_UP] = false;
 		_curPlayerItem[ITEM::SPEED_DOWN] = false;
+
+		_state->End(*GetGameObject());
+		delete _state;
+		_state = new IdleState;
+		_state->Enter(*GetGameObject());
 	}
 
 	// 아이템 생성 치트키
@@ -704,7 +710,7 @@ void Player::KeyCheck_Cheat()
 			_iItemCnt++;
 	}
 
-	// 디버프 확인 치트키
+	// 사용중인 아이템 확인 치트키
 	if (INPUT->GetButtonDown(KEY_TYPE::I))
 	{
 		cout << "SpeedUp: " << _curPlayerItem[ITEM::SPEED_UP] << endl;
@@ -715,6 +721,36 @@ void Player::KeyCheck_Cheat()
 		cout << "Silence: " << _curPlayerItem[ITEM::SILENCE] << endl;
 		cout << "Stun: " << _curPlayerItem[ITEM::STUN] << endl;
 		cout << endl;
+	}
+
+	// 디버프 해제 치트키 (스턴 제외)
+	if (INPUT->GetButtonDown(KEY_TYPE::O))
+	{
+		_curPlayerItem[ITEM::SPEED_DOWN] = false;
+		_curPlayerItem[ITEM::BLIND] = false;
+		_curPlayerItem[ITEM::SILENCE] = false;
+
+		_speed = _originalSpeed;
+		_fBlindTime = 0.f;
+		_fSilenceTime = 0.f;
+		GET_SINGLE(ItemSlotManager)->IsSilenced(false);
+
+		shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
+		auto& lights = scene->GetLights();
+		for (auto& light : lights)
+		{
+			static_pointer_cast<Light>(light)->SetDiffuse(Vec3(1.f, 1.f, 1.f));
+			static_pointer_cast<Light>(light)->SetAmbient(Vec3(0.3f, 0.3f, 0.3f));
+			static_pointer_cast<Light>(light)->SetSpecular(Vec3(0.1f, 0.1f, 0.1f));
+		}
+
+
+		_state->End(*GetGameObject());
+		delete _state;
+		_state = new IdleState;
+		_state->Enter(*GetGameObject());
+
+		//_curPlayerItem[ITEM::STUN] = false;
 	}
 }
 

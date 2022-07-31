@@ -21,6 +21,7 @@ enum class KEY_TYPE
 	P = 'P',
 	I = 'I',
 	J = 'J',	// reset testkey
+	O = 'O',
 
 	NUM1 = '1',
 	NUM2 = '2',
