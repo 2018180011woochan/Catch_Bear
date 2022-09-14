@@ -8,13 +8,18 @@ void Game::Init(const WindowInfo& info)
 {
 	GEngine->Init(info);
 
-	GET_SINGLE(SceneManager)->LoadScene(L"LoginScene");
+	GET_SINGLE(SceneManager)->LoadScene(SCENE_ID::LOGIN);
 }
 
 void Game::Update()
 {
 	GEngine->Update();
 	_isEnd = GET_SINGLE(SceneManager)->IsEnd();
+}
+
+void Game::LoginSceneUpdate()
+{
+	GEngine->LoginSceneUpdate();
 }
 
 void Game::setString(const char* strText)
@@ -26,4 +31,9 @@ void Game::setString(const char* strText)
 const wstring& Game::GetFontString()
 {
 	return GEngine->GetFontDevice()->GetFontString();
+}
+
+const bool Game::isIPAddrEnter()
+{
+	return GEngine->GetIsIPAddrEnter();
 }

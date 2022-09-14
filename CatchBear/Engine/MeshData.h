@@ -39,9 +39,6 @@ protected:
 	// Texture/Material 객체를 생성해서 Resources에 추가
 	void CreateTextures();
 	void CreateMaterials();
-	void CreateTextures2();
-	void CreateTextures3();
-	void CreateTextures4();
 
 
 public:
@@ -56,6 +53,7 @@ protected:
 
 	vector<MeshRendererInfo>		_meshRenders;
 
+public:
 	// StaticMeshInfo: Mesh 정보 (Vertex, Indices, Material)
 	// -> 나중에 이 정보를 바탕으로 Mesh, Material 생성해서 Resources에 추가하고 _meshRenders에도 넣어줌
 	StaticMeshInfo					_staticMeshInfo;

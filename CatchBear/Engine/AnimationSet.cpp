@@ -37,6 +37,7 @@ XMFLOAT4X4 AnimationSet::GetSRT(int nBone)
 		{
 			float t = (_position - _keyFrameTimes[i]) / (_keyFrameTimes[i + 1] - _keyFrameTimes[i]);
 			trans = Interpolate(_keyFrameTrans[i][nBone], _keyFrameTrans[i + 1][nBone], t);
+			_curFrame = i;
 			break;
 		}
 	}

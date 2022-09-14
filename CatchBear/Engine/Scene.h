@@ -5,11 +5,11 @@ class GameObject;
 class Scene
 {
 public:
-	void Awake();
-	void Start();
-	void Update();
-	void LateUpdate();
-	void FinalUpdate();
+	virtual void Awake() = 0;
+	virtual void Start() = 0;
+	virtual void Update() = 0;
+	virtual void LateUpdate() = 0;
+	virtual void FinalUpdate() = 0;
 
 	shared_ptr<class Camera> GetMainCamera();
 
@@ -27,16 +27,6 @@ public:
 private:
 	void PushLightData();
 
-private:
-	void UpdateLoginScene();
-	void UpdateStageScene();
-
-	void SetTimer();
-	void SetFinalRanking();
-
-	void CheckMouse();
-	void CheckTagger();
-	void StartGame();
 
 public:
 	void AddGameObject(shared_ptr<GameObject> gameObject);
@@ -65,7 +55,7 @@ public:
 	void SetCurTime(float _time) { _curTime = _time; }
 	void AddCurTime(float _time);
 
-private:
+protected:
 	// 벡터를 레이어 단계로 구분한다
 	// [0]: 벽, [1]: 몬스터
 	// -> 벡터 하나를 만들어주는 것이 아니라 벡터의 배열 or 벡터의 벡터로 만들어서 구분해서 관리
@@ -82,15 +72,10 @@ private:
 
 	vector<shared_ptr<GameObject>>			_vecItemCoolTimes;
 
-private:
+protected:
 	float	_curTime = -1.0f;
-
-	POINT	_mousePos = { 0, 0 };
-	RECT	_slotRt[3] = { {100, 620, 200, 710}, {220, 620, 320, 710}, {340, 620, 440, 710} };
-	RECT	_endRt = { 470, 80, 680, 130 };
-	RECT	_restartRt = { 770, 650, 950, 700 };
-
 	float	_toStartTime = 0.0f;
+
 public:
 	bool	_isStart = false;
 	int		_tagNum = -1;

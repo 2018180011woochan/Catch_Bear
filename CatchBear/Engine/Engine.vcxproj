@@ -217,7 +217,9 @@
     <ClInclude Include="ItemSlotUI.h" />
     <ClInclude Include="ItemWindow.h" />
     <ClInclude Include="JumpState.h" />
+    <ClInclude Include="Leaf.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LoginScene.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
@@ -241,10 +243,14 @@
     <ClInclude Include="ServerPacketHandler.h" />
     <ClInclude Include="ServerSession.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShieldParticle.h" />
+    <ClInclude Include="ShieldParticleManager.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SlowRestState.h" />
     <ClInclude Include="SlowState.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="SphereCollider.h" />
+    <ClInclude Include="StageScene.h" />
     <ClInclude Include="Struct.pb.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="StunState.h" />
@@ -296,7 +302,9 @@
     <ClCompile Include="ItemSlotUI.cpp" />
     <ClCompile Include="ItemWindow.cpp" />
     <ClCompile Include="JumpState.cpp" />
+    <ClCompile Include="Leaf.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LoginScene.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshData.cpp" />
@@ -330,10 +338,14 @@
     <ClCompile Include="ServerPacketHandler.cpp" />
     <ClCompile Include="ServerSession.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShieldParticle.cpp" />
+    <ClCompile Include="ShieldParticleManager.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SlowRestState.cpp" />
     <ClCompile Include="SlowState.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
+    <ClCompile Include="StageScene.cpp" />
     <ClCompile Include="Struct.pb.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>

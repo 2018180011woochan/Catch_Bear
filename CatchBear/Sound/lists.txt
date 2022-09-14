@@ -1,0 +1,3 @@
+logo.mp3
+Stage.mp3
+click.mp3

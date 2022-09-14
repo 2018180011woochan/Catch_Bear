@@ -89,7 +89,6 @@ void Camera::SortGameObject()
 			_vecParticle.push_back(gameObject);
 		}
 	}
-
 }
 
 void Camera::SortShadowObject()
@@ -110,18 +109,18 @@ void Camera::SortShadowObject()
 		if (gameObject->IsStatic())
 			continue;
 
-		//if (IsCulled(gameObject->GetLayerIndex()))
-		//	continue;
+		if (IsCulled(gameObject->GetLayerIndex()))
+			continue;
 
-		//if (gameObject->GetCheckFrustum())
-		//{
-		//	if (_frustum.ContainsSphere(
-		//		gameObject->GetTransform()->GetWorldPosition(),
-		//		gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
-		//	{
-		//		continue;
-		//	}
-		//}
+		if (gameObject->GetCheckFrustum())
+		{
+			if (_frustum.ContainsSphere(
+				gameObject->GetTransform()->GetWorldPosition(),
+				gameObject->GetTransform()->GetBoundingSphereRadius()) == false)
+			{
+				continue;
+			}
+		}
 
 		// 최종적으로 그림자 영역을 받아야 하는 애들만 벡터에 넣어준다.
 		_vecShadow.push_back(gameObject);

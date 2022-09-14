@@ -15,6 +15,7 @@ public:
 public:
 	void SetRotationSpeed(float fSpeed) { _fRotationSpeed = fSpeed; }
 	void SetPosition(Vec3 pos);
+	void SetRotation();
 
 private:
 	shared_ptr<GameObject>	_tagMark = make_shared<GameObject>();

@@ -70,31 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     ServerPacketHandler::Init();
     //this_thread::sleep_for(1s);
-
-    //cout << "ip주소 입력: ";
-    //wcin >> MyIPAddr;
-
-
-    ClientServiceRef service = MakeShared<ClientService>(
-        NetAddress(L"127.0.0.1", 7777),
-        //NetAddress(MyIPAddr, 7777),
-        MakeShared<IocpCore>(),
-        MakeShared<ServerSession>, // TODO : SessionManager 등
-        100);
-
-    ASSERT_CRASH(service->Start());
-
-    for (int32 i = 0; i < 5; i++)
-    {  
-        GThreadManager->Launch([=]()
-            {
-                while (true)
-                {
-                    service->GetIocpCore()->Dispatch();
-                }
-            });
-    }
-
+    ClientServiceRef service;
     // 기본 메시지 루프입니다:
     while (true)
     {
@@ -111,10 +87,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 
             }
         }
-
-        // TODO
-        game->Update();
         
+        if (!game->isIPAddrEnter())
+            game->LoginSceneUpdate();
+        else 
+        {
+            if (game->_isFirstEnter)    // 처음 접속했으면 클라이언트 서비스 설정해줌
+            {
+                MyIPAddr = game->GetFontString();
+                service = MakeShared<ClientService>(
+                    //NetAddress(L"127.0.0.1", 7777),
+                    NetAddress(MyIPAddr, 7777),
+                    MakeShared<IocpCore>(),
+                    MakeShared<ServerSession>, // TODO : SessionManager 등
+                    100);
+
+                ASSERT_CRASH(service->Start());
+
+                for (int32 i = 0; i < 5; i++)
+                {
+                    GThreadManager->Launch([=]()
+                        {
+                            while (true)
+                            {
+                                service->GetIocpCore()->Dispatch();
+                            }
+                        });
+                }
+
+                game->_isFirstEnter = false;
+            }
+            
+            game->Update();
+        }
         if (game->_isEnd)
             SendMessage(msg.hwnd, WM_CLOSE, 0, 0);
     }

@@ -35,4 +35,5 @@ private:
 	SkinningInfo							_skinningInfo;
 	vector<shared_ptr<AnimationClipInfo>>	_animationClipInfo;
 	shared_ptr<AnimationModelInfo>			_modelInfo;
+	wstring _name;
 };

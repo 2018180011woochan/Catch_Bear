@@ -50,3 +50,10 @@ void TagMark::SetPosition(Vec3 pos)
 	pos.y += 2.f;
 	GetGameObject()->GetTransform()->SetLocalPosition(pos);
 }
+
+void TagMark::SetRotation()
+{
+	Vec3 rotation = GetTransform()->GetLocalRotation();
+	rotation.y += DELTA_TIME * _fRotationSpeed;
+	GetTransform()->SetLocalRotation(rotation);
+}

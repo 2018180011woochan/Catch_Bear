@@ -3,6 +3,7 @@
 #include "Item.h"
 
 class CameraScript;
+class ShieldParticle;
 
 class Player : public MonoBehaviour, public enable_shared_from_this<Player>
 {
@@ -36,6 +37,7 @@ public:
 	void AddPlayerScore(int score) { _iScore += score; }
 	void SetPlayerScore(int score) { _iScore = score; }
 	void SetSheildTime(float time) { _fShieldTime = time; }
+	void SetTextureKey(const wstring& textureKey) { _textureKey = textureKey; }
 
 	bool GetCurItem(Player::ITEM curItem) { return _curPlayerItem[curItem]; }
 	const float GetPlayerSpeed() { return _speed; }
@@ -45,6 +47,7 @@ public:
 	const bool GetPlayerStunned() { return _bStunned; }
 	const int GetPlayerScore() { return _iScore; }
 	const int GetItemCount() { return _iItemCnt; }
+	const wstring& GetTextureKey() { return _textureKey; }
 	
 	void SetPlayerLight(shared_ptr<GameObject>& light) { _playerLight = light; }
 
@@ -75,6 +78,9 @@ private:
 	void Blinded();
 	void Stunned();
 
+	// 아이템 이펙트
+	void ShieldEffect();
+
 private:
 	float	_speed = 10.f;
 	float	_originalSpeed = 10.f;
@@ -91,9 +97,13 @@ private:
 	int		_iScore = 0;
 	int		_iItemCnt = 0;
 
+	wstring _textureKey;
+
 	shared_ptr<GameObject>		_player = make_shared<GameObject>();
 	shared_ptr<GameObject>		_camera = make_shared<GameObject>();
 	shared_ptr<CameraScript>	_cameraScript = make_shared<CameraScript>();
+	//shared_ptr<ShieldParticle>	_shieldParticle = make_shared<ShieldParticle>();
+	shared_ptr<GameObject>		_shieldParticle = make_shared<GameObject>();
 
 	array<bool, Player::ITEM::ITEM_END> _curPlayerItem;	// 플레이어가 사용중인or당하는중인 아이템 확인하기 위한 배열
 	array<Item::ITEM_EFFECT, 3> _playerItemArr;	// 플레이어가 가지고 있는 아이템의 효과를 넣어두는 어레이(최대 3개)

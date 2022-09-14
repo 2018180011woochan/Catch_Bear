@@ -7,6 +7,7 @@
 #include "GameSession.h"
 #include "Timer.h"
 #include "InGame.h"
+#include "Lobby.h"
 
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
@@ -27,7 +28,7 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 	//	// TODO : Validation 체크
 	//	
 	Protocol::S_LOGIN loginPkt;
-	// 원래대로라면 데이터베이스에 접근하여 유효한 아이디인지 확인하고 성공 패킷을 보내야겠죠?
+
 	loginPkt.set_success(true);
 
 	static Atomic<uint64> idGenerator = 0;
@@ -39,7 +40,7 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 		playerRef->playerId = idGenerator++;
 		playerRef->ownerSession = gameSession;
 		GInGame.Enter(playerRef);
-		cout << "플레이어ID " << playerRef->playerId << " 인게임 접속완료!" << endl;
+		cout << "플레이어ID " << playerRef->playerId << " 로그인 완료!" << endl;
 		//loginPkt.set_enterplayer(GInGame.GetEnterPlayerNum() - 1);
 		gameSession->_player = playerRef;
 
@@ -84,8 +85,18 @@ bool Handle_C_LOGIN(PacketSessionRef& session, Protocol::C_LOGIN& pkt)
 
 bool Handle_C_ENTER_LOBBY(PacketSessionRef& session, Protocol::C_ENTER_LOBBY& pkt)
 {
-	//GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
-	//Protocol::S_ENTER_LOBBY enterLobbyPkt;
+	GameSessionRef gameSession = static_pointer_cast<GameSession>(session);
+	Protocol::S_ENTER_LOBBY enterLobbyPkt;
+	PlayerRef player = gameSession->_player;
+	player->playerId = pkt.playerid();
+	GLobby.Enter(player);
+	cout << "플레이어ID " << pkt.playerid() << " 로비 접속완료!" << endl;
+
+	enterLobbyPkt.set_isallplayersready(false);
+
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(enterLobbyPkt);
+	session->Send(sendBuffer);
+
 	//if (GLobby.isFirstEnterLobby(pkt.playerid()))
 	//{
 	//	PlayerRef player = gameSession->_player;
@@ -184,7 +195,7 @@ bool Handle_C_MOVE(PacketSessionRef& session, Protocol::C_MOVE& pkt)
 	movePkt.set_ypos(pkt.ypos());
 	movePkt.set_zpos(pkt.zpos());
 	movePkt.set_yrot(pkt.yrot());
-	
+
 	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
 
 	GInGame.Broadcast(sendBuffer);

@@ -35,7 +35,7 @@ void CollidManager::ColiisionPlayerToStaticObj()
 			if ((*mapobj)->GetBoundingBox().Intersects(_player->GetBoundingBox()))
 			{
 				_player->SetIsAllowPlayerMove(false);
-				_player->SetIsCollidObj(true);
+				_player->SetIsCollidObj(true);	// 이건 딱히 아직 없음
 				break;
 			}
 			else {

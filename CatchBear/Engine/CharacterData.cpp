@@ -21,7 +21,7 @@ CharacterData::~CharacterData()
 void CharacterData::LoadCharacterFromFile(const wstring& path)
 {
 	FILE* pFile;
-	wstring _name = path;
+	_name = path;
 
 	// wchar_t -> char*
 	char* pStr;
@@ -29,7 +29,7 @@ void CharacterData::LoadCharacterFromFile(const wstring& path)
 	pStr = new char[iLen];
 	WideCharToMultiByte(CP_ACP, 0, path.c_str(), -1, pStr, iLen, 0, 0);
 
-	wstring strpath = L"..\\Resources\\Binary\\" + path;
+	wstring strpath = L"..\\Resources\\Binary\\" + path + L".bin";
 
 	fopen_s(&pFile, ws2s(strpath).c_str(), "rb");
 	if (pFile == NULL)
@@ -54,12 +54,6 @@ void CharacterData::LoadCharacterFromFile(const wstring& path)
 
 			else if (!strcmp(pStrTocken, "</Hierarchy>"))
 			{
-				if (_name == L"EvilbearL2.bin")
-					CreateTextures4();
-				if (_name == L"EvilbearL3.bin")
-					CreateTextures2();
-				if (_name == L"EvilbearL4.bin")
-					CreateTextures3();
 				CreateMaterials();
 			}
 
@@ -75,7 +69,7 @@ void CharacterData::LoadCharacterFromFile(const wstring& path)
 
 
 				// Material 생성해서 Reosurces에 추가
-				shared_ptr<Material>	material = GET_SINGLE(Resources)->Get<Material>(/*_name*/_staticMeshInfo.material.name);
+				shared_ptr<Material>	material = GET_SINGLE(Resources)->Get<Material>(_name);
 				shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"PlayerAnimation");
 				
 				material->SetShader(shader);
@@ -531,7 +525,9 @@ void CharacterData::LoadAnimationInfo(FILE* pFile)
 void CharacterData::CreateMaterials()
 {
 	shared_ptr<Material>	material = make_shared<Material>();
-	wstring		key = _staticMeshInfo.material.name;
+	//wstring		key = _staticMeshInfo.material.name;
+	//wstring		key = _staticMeshInfo.material.diffuseTexName;
+	wstring		key = _name;
 
 	material->SetName(key);
 
@@ -541,9 +537,9 @@ void CharacterData::CreateMaterials()
 
 	if (key != L"Material")
 	{
-		wstring		diffuseName = _staticMeshInfo.material.diffuseTexName.c_str();
-		wstring		fileName = fs::path(diffuseName).filename();
-		wstring		key = fileName;
+		//wstring		diffuseName = _staticMeshInfo.material.diffuseTexName.c_str();
+		//wstring		fileName = fs::path(diffuseName).filename();
+		//wstring		key = fileName;
 
 		shared_ptr<Texture>	diffuseTex = GET_SINGLE(Resources)->Get<Texture>(key);
 		if (diffuseTex)	material->SetTexture(0, diffuseTex);
