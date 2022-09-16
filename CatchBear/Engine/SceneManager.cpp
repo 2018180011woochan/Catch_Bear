@@ -310,63 +310,63 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 			//_playerTypes[0] = PLAYER_TYPE::PLAYER_TYPE_CNT;
 		}
 
-		g_EnterPlayerCnt = 2;
-		CheckPlayerType(1, key);
-		shared_ptr<CharacterData> CharacData2 = GET_SINGLE(Resources)->LoadCharacter(key);
-		vector<shared_ptr<GameObject>>	gameObjects2 = CharacData2->Instantiate();
+		//g_EnterPlayerCnt = 2;
+		//CheckPlayerType(1, key);
+		//shared_ptr<CharacterData> CharacData2 = GET_SINGLE(Resources)->LoadCharacter(key);
+		//vector<shared_ptr<GameObject>>	gameObjects2 = CharacData2->Instantiate();
 
-		for (auto& gameObject : gameObjects2)
-		{
-			gameObject->SetName(L"Player2");
-			gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, 0.f, 5.f));
-			gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-			gameObject->AddComponent(make_shared<Player>());
-			gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
-			gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-			gameObject->SetStatic(false);
-			gameObject->SetBoundingExtents(XMFLOAT3(0.4f, 1.f, 0.4f));
-			gameObject->SetBoundingBox(BoundingOrientedBox(
-				XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-			gameObject->SetCheckFrustum(false);
-			gameObject->SetPlayerID(1);
-			gameObject->_state = new IdleState();
-			static_pointer_cast<Player>(gameObject->GetScript(0))->SetTextureKey(key);
-			scene->AddGameObject(gameObject);
-			scene->AddPlayers(1, gameObject);
-			scene->AddVecPlayers(gameObject);
-			_isPlayersEnterLobby[0] = false;
-			_isPlayersReady[0] = false;
-			//_playerTypes[0] = PLAYER_TYPE::PLAYER_TYPE_CNT;
-		}
+		//for (auto& gameObject : gameObjects2)
+		//{
+		//	gameObject->SetName(L"Player2");
+		//	gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, 0.f, 5.f));
+		//	gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+		//	gameObject->AddComponent(make_shared<Player>());
+		//	gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
+		//	gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
+		//	gameObject->SetStatic(false);
+		//	gameObject->SetBoundingExtents(XMFLOAT3(0.4f, 1.f, 0.4f));
+		//	gameObject->SetBoundingBox(BoundingOrientedBox(
+		//		XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
+		//	gameObject->SetCheckFrustum(false);
+		//	gameObject->SetPlayerID(1);
+		//	gameObject->_state = new IdleState();
+		//	static_pointer_cast<Player>(gameObject->GetScript(0))->SetTextureKey(key);
+		//	scene->AddGameObject(gameObject);
+		//	scene->AddPlayers(1, gameObject);
+		//	scene->AddVecPlayers(gameObject);
+		//	_isPlayersEnterLobby[0] = false;
+		//	_isPlayersReady[0] = false;
+		//	//_playerTypes[0] = PLAYER_TYPE::PLAYER_TYPE_CNT;
+		//}
 
-		g_EnterPlayerCnt = 3;		// 최종적으로 3인게임으로 바꾸면 3으로 고정 
-		CheckPlayerType(2, key);
-		shared_ptr<CharacterData> CharacData3 = GET_SINGLE(Resources)->LoadCharacter(key);
-		vector<shared_ptr<GameObject>>	gameObjects3 = CharacData3->Instantiate();
+		//g_EnterPlayerCnt = 3;		// 최종적으로 3인게임으로 바꾸면 3으로 고정 
+		//CheckPlayerType(2, key);
+		//shared_ptr<CharacterData> CharacData3 = GET_SINGLE(Resources)->LoadCharacter(key);
+		//vector<shared_ptr<GameObject>>	gameObjects3 = CharacData3->Instantiate();
 
-		for (auto& gameObject : gameObjects3)
-		{
-			gameObject->SetName(L"Player3");
-			gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, 0.f, 10.f));
-			gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-			gameObject->AddComponent(make_shared<Player>());
-			gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
-			gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
-			gameObject->SetStatic(false);
-			gameObject->SetBoundingExtents(XMFLOAT3(0.4f, 1.f, 0.4f));
-			gameObject->SetBoundingBox(BoundingOrientedBox(
-				XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
-			gameObject->SetCheckFrustum(false);
-			gameObject->SetPlayerID(2);
-			gameObject->_state = new IdleState();
-		 	static_pointer_cast<Player>(gameObject->GetScript(0))->SetTextureKey(key);
-			scene->AddGameObject(gameObject);
-			scene->AddPlayers(2, gameObject);
-			scene->AddVecPlayers(gameObject);
-			 _isPlayersEnterLobby[0] = false;
-			 _isPlayersReady[0] = false;
-			//_playerTypes[0] = PLAYER_TYPE::PLAYER_TYPE_CNT;
-		}
+		//for (auto& gameObject : gameObjects3)
+		//{
+		//	gameObject->SetName(L"Player3");
+		//	gameObject->GetTransform()->SetLocalPosition(Vec3(10.f, 0.f, 10.f));
+		//	gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+		//	gameObject->AddComponent(make_shared<Player>());
+		//	gameObject->GetAnimationController()->SetTrackAnimationSet(0, 0);
+		//	gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 0);
+		//	gameObject->SetStatic(false);
+		//	gameObject->SetBoundingExtents(XMFLOAT3(0.4f, 1.f, 0.4f));
+		//	gameObject->SetBoundingBox(BoundingOrientedBox(
+		//		XMFLOAT3(0.0f, 0.0f, 0.0f), gameObject->GetBoundingExtents(), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f)));
+		//	gameObject->SetCheckFrustum(false);
+		//	gameObject->SetPlayerID(2);
+		//	gameObject->_state = new IdleState();
+		// 	static_pointer_cast<Player>(gameObject->GetScript(0))->SetTextureKey(key);
+		//	scene->AddGameObject(gameObject);
+		//	scene->AddPlayers(2, gameObject);
+		//	scene->AddVecPlayers(gameObject);
+		//	 _isPlayersEnterLobby[0] = false;
+		//	 _isPlayersReady[0] = false;
+		//	//_playerTypes[0] = PLAYER_TYPE::PLAYER_TYPE_CNT;
+		//}
 
 	}
 #pragma endregion
@@ -416,7 +416,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		scene->AddGameObject(gameObject);
 		scene->AddTagMarks(0, gameObject);
 	}
-	vector<shared_ptr<GameObject>>	objectsHeart2 = meshHeart->Instantiate();
+	/*vector<shared_ptr<GameObject>>	objectsHeart2 = meshHeart->Instantiate();
 	for (auto& gameObject : objectsHeart2)
 	{
 		gameObject->SetName(L"PlayerTag2");
@@ -429,9 +429,9 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		gameObject->AddComponent(make_shared<TagMark>());
 		scene->AddGameObject(gameObject);
 		scene->AddTagMarks(1, gameObject);
-	}
+	}*/
 
-	vector<shared_ptr<GameObject>>	objectsHeart3 = meshHeart->Instantiate();
+	/*vector<shared_ptr<GameObject>>	objectsHeart3 = meshHeart->Instantiate();
 	for (auto& gameObject : objectsHeart3)
 	{
 		gameObject->SetName(L"PlayerTag3");
@@ -444,7 +444,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 		gameObject->AddComponent(make_shared<TagMark>());
 		scene->AddGameObject(gameObject);
 		scene->AddTagMarks(2, gameObject);
-	}
+	}*/
 #pragma endregion
 
 
@@ -2045,7 +2045,8 @@ void SceneManager::LoadMapFile(shared_ptr<Scene> scene)
 	FILE* pFile;
 	char pStrTocken[64] = { '\0' };
 	UINT	nReads = 0;
-	wstring strpath = L"..\\Resources\\Binary\\Demo_Objects.bin";
+	//wstring strpath = L"..\\Resources\\Binary\\Demo_Objects.bin";
+	wstring strpath = L"..\\Resources\\Binary\\Demo_Objects2.bin";
 
 	fopen_s(&pFile, ws2s(strpath).c_str(), "rb");
 	if (pFile == NULL)		return;
@@ -2068,14 +2069,10 @@ void SceneManager::LoadMapFile(shared_ptr<Scene> scene)
 				shared_ptr<MeshData> meshData = NULL;
 				vector<shared_ptr<GameObject>> obj;
 
-				if (strcmp(pStrTocken, "Plane"))
-				{
-					if (!strcmp(pStrTocken, "wooden_fence_04:Mesh"))
-						name = L"wooden_fence_04";
+				if (!strcmp(pStrTocken, "wooden_fence_04:Mesh"))	name = L"wooden_fence_04";
 
-					meshData = GET_SINGLE(Resources)->LoadFBX(name + L".bin");
-					obj = meshData->Instantiate();
-				}
+				meshData = GET_SINGLE(Resources)->LoadFBX(name + L".bin");
+				obj = meshData->Instantiate();
 
 				ReadStringFromFileForCharac(pFile, pStrTocken);
 				if (!strcmp(pStrTocken, "<Transform>:"))
@@ -2089,12 +2086,8 @@ void SceneManager::LoadMapFile(shared_ptr<Scene> scene)
 				if (!strcmp(pStrTocken, "<Scale>:"))
 				{
 					nReads = (UINT)::fread(&scale, sizeof(Vec3), 1, pFile);
-					if (name == L"Plane")
-					{
-						scale = Vec3(0.0098f, 0.02f, 0.02f);
-						//AddMapObject(scene, obj, name, trans, scale, rotate);
-					}
-					else if (name == L"wooden_fence_04")
+
+					if (name == L"wooden_fence_04")
 					{
 						rotate.y -= 10.f;
 						AddMapObject(scene, obj, name, trans, scale, rotate);

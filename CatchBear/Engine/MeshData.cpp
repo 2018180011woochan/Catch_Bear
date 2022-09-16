@@ -34,7 +34,6 @@ void MeshData::LoadMeshFromFile(const wstring& path)
 	rewind(pFile);
 
 	char pStrTocken[64] = { '\0' };
-	GameObject* pGameObj = new GameObject();
 
 	for (; ;)
 	{
@@ -47,29 +46,20 @@ void MeshData::LoadMeshFromFile(const wstring& path)
 					ReadStringFromFile(pFile, pStrTocken);
 					if (!strcmp(pStrTocken, "<Frame>:"))
 					{
-						pGameObj = LoadFrameHierarchyFromFile(NULL, pFile);
+						LoadFrameHierarchyFromFile(NULL, pFile);
 						fclose(pFile);
 
-						// Resources에 텍스처, 재질 추가
-						if (strcmp(ws2s(path).c_str(), "Diamond.bin") && strcmp(ws2s(path).c_str(), "Heart.bin"))
-							CreateTextures();
+						CreateTextures();
 						CreateMaterials();
 
-
-						// Mesh, Material 연동
-						// - mesh
+						// mesh
 						shared_ptr<Mesh> mesh = make_shared<Mesh>();
 						mesh->CreateStaticMeshFromFBX(&_staticMeshInfo);
 						mesh->SetName(path);
 						GET_SINGLE(Resources)->Add<Mesh>(mesh->GetName(), mesh);
-
-						// - material
+						// material
 						shared_ptr<Material>	material = GET_SINGLE(Resources)->Get<Material>(_staticMeshInfo.material.name);
 
-						// 앞에서 생성한 Mesh, Material을 기반으로 _meshRenders에 추가
-						// 추후에 Instantiate()에서 _meshRenders을 기반으로 메쉬와 재질 정보를 세팅해줌
-						// -> 미리 읽어온 Mesh, Material 정보를 객체로 생성해서 멤버변수(_meshRenders)로 갖고 있다가 
-						//    나중에 다른 클래스에서 해당 메쉬가 필요할 때 이 _meshRenders 정보를 기반으로 생성해서 리턴
 						MeshRendererInfo	info = {};
 						info.mesh = mesh;
 						info.materials = material;
@@ -94,17 +84,14 @@ void MeshData::LoadMeshFromFile(const wstring& path)
 	}
 }
 
-GameObject* MeshData::LoadFrameHierarchyFromFile(GameObject* parent, FILE* pFile)
+void MeshData::LoadFrameHierarchyFromFile(GameObject* parent, FILE* pFile)
 {
 	char pStrTocken[64] = { '\0' };
 	UINT	nReads = 0;
 
 	int		nFrame = ReadIntegerFromFile(pFile);
-	GameObject* pGameObj = new GameObject();
 
-	// 프레임 이름으로 바꿔야 함!
 	ReadStringFromFile(pFile, pStrTocken);
-
 	_staticMeshInfo.material.name = s2ws(pStrTocken);
 
 	for (; ;)
@@ -131,7 +118,7 @@ GameObject* MeshData::LoadFrameHierarchyFromFile(GameObject* parent, FILE* pFile
 		else if (!strcmp(pStrTocken, "<Materials>:"))
 		{
 			LoadMaterialInfoFromFile(pFile);
-			return pGameObj;
+			return;
 		}
 	}
 }
@@ -361,13 +348,16 @@ void MeshData::LoadMaterialInfoFromFile(FILE* pFile)
 
 void MeshData::CreateTextures()
 {
-	// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
+	if (strcmp(ws2s(_meshName).c_str(), "Diamond.bin") && strcmp(ws2s(_meshName).c_str(), "Heart.bin"))
+	{
+		// 우리가 사용하는 Static Mesh, Player Model은 Diffuse Texture만 존재
 
-	// Diffuse
-	wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
-	wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
-	if (!fileName.empty())
-		GET_SINGLE(Resources)->Load<Texture>(fileName, fullPath);
+		// Diffuse
+		wstring		fileName = _staticMeshInfo.material.diffuseTexName.c_str();
+		wstring		fullPath = L"..\\Resources\\Texture\\" + fileName + L".png";
+		if (!fileName.empty())
+			GET_SINGLE(Resources)->Load<Texture>(fileName, fullPath);
+	}
 }
 
 void MeshData::CreateMaterials()
@@ -403,8 +393,6 @@ void MeshData::CreateMaterials()
 
 vector<shared_ptr<GameObject>> MeshData::Instantiate()
 {
-	// vector: Mesh나 Material이 여러개일 수 있음
-	// 근데 우리는 다 하나씩이라서 별 의미는 없음
 	vector<shared_ptr<GameObject>>	v;
 
 	for (MeshRendererInfo& info : _meshRenders)
@@ -414,7 +402,6 @@ vector<shared_ptr<GameObject>> MeshData::Instantiate()
 		gameObject->AddComponent(make_shared<MeshRenderer>());
 		gameObject->GetMeshRenderer()->SetMesh(info.mesh);
 		gameObject->GetMeshRenderer()->SetMaterial(info.materials);
-		//gameObject->GetMeshRenderer()->GetMaterial()->SetInt(0, 1);
 
 		v.push_back(gameObject);
 	}

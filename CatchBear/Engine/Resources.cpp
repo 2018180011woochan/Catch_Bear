@@ -332,8 +332,6 @@ shared_ptr<class MeshData> Resources::LoadFBX(const wstring& path)
 
 	meshData = make_shared<MeshData>();
 
-	// MeshData::LoadMeshFromFile()
-	// 실질적으로 바이너리 파일을 로드하는 함수
 	meshData->LoadMeshFromFile(path);
 
 	meshData->SetName(key);
