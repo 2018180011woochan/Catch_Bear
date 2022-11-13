@@ -165,7 +165,7 @@ void FontDevice::Server_UpdateFont(const wstring& wstrText)
 // 엔터 누르면 개행-> 모두에게 보여져야 함
 void FontDevice::PushFont(const wstring& wstrText)
 {
-    // 만약 최대 크기라면 제일 첫번째 내용을 삭제
+    // 만약 최대 크기라면 제일 첫번째 내용물을 삭제
     if (_vTextBlocks.size() >= 5)
         _vTextBlocks.pop_front();
 

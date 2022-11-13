@@ -2,10 +2,10 @@
 #include "GameObject.h"
 struct TextBlock
 {
-	wstring		wstrText;
-	D2D1_RECT_F	d2dLayoutRect;
-	IDWriteTextFormat* pdwFormat;
-	Vec2	position;
+	wstring				wstrText;
+	D2D1_RECT_F			d2dLayoutRect;
+	IDWriteTextFormat*	pdwFormat;
+	Vec2				position;
 };
 
 class FontDevice : public GameObject
